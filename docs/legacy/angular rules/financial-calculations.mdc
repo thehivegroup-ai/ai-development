@@ -1,0 +1,688 @@
+---
+description: Financial calculation patterns for real estate proforma modeling in Angular
+globs: ["**/features/proforma/**/*.ts", "**/lib/calculations/**/*.ts", "**/components/financial/**/*.ts"]
+alwaysApply: false
+---
+
+# Financial Calculations for Angular
+
+This rule defines patterns for implementing complex financial calculations for real estate proforma models.
+
+## Core Principles
+
+1. **TypeScript**: Use TypeScript for type-safe calculations
+2. **Pure Functions**: Keep calculation logic in pure functions
+3. **Services**: Centralize complex calculations in Injectable services
+4. **Signals**: Use Signals for reactive financial models
+5. **Precision**: Use proper decimal handling (avoid floating point errors)
+6. **Testing**: Unit test all financial calculations
+
+---
+
+## Calculation Service Pattern
+
+### ✅ CORRECT: Financial calculations service
+
+```typescript
+// lib/calculations/financial.ts
+
+/**
+ * Calculate Net Present Value (NPV)
+ * @param cashFlows - Array of cash flows (negative for investments, positive for returns)
+ * @param discountRate - Discount rate as decimal (e.g., 0.10 for 10%)
+ * @returns NPV value
+ */
+export function calculateNPV(
+  cashFlows: number[],
+  discountRate: number
+): number {
+  return cashFlows.reduce((npv, cashFlow, period) => {
+    return npv + cashFlow / Math.pow(1 + discountRate, period);
+  }, 0);
+}
+
+/**
+ * Calculate Internal Rate of Return (IRR)
+ * Uses Newton-Raphson method for approximation
+ */
+export function calculateIRR(
+  cashFlows: number[],
+  guess: number = 0.1,
+  maxIterations: number = 100,
+  tolerance: number = 0.0001
+): number | null {
+  let rate = guess;
+  
+  for (let i = 0; i < maxIterations; i++) {
+    let npv = 0;
+    let dnpv = 0;
+    
+    for (let t = 0; t < cashFlows.length; t++) {
+      npv += cashFlows[t] / Math.pow(1 + rate, t);
+      dnpv -= t * cashFlows[t] / Math.pow(1 + rate, t + 1);
+    }
+    
+    const newRate = rate - npv / dnpv;
+    
+    if (Math.abs(newRate - rate) < tolerance) {
+      return newRate;
+    }
+    
+    rate = newRate;
+  }
+  
+  return null; // Did not converge
+}
+
+/**
+ * Calculate mortgage payment using amortization formula
+ */
+export function calculateMortgagePayment(
+  principal: number,
+  annualRate: number,
+  years: number
+): number {
+  const monthlyRate = annualRate / 12;
+  const numPayments = years * 12;
+  
+  if (monthlyRate === 0) {
+    return principal / numPayments;
+  }
+  
+  return (
+    principal *
+    (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) /
+    (Math.pow(1 + monthlyRate, numPayments) - 1)
+  );
+}
+
+/**
+ * Calculate depreciation using straight-line method
+ */
+export function calculateDepreciation(
+  cost: number,
+  salvageValue: number,
+  usefulLife: number
+): number {
+  return (cost - salvageValue) / usefulLife;
+}
+
+/**
+ * Calculate ROI (Return on Investment)
+ */
+export function calculateROI(
+  gain: number,
+  cost: number
+): number {
+  return (gain - cost) / cost;
+}
+
+/**
+ * Round to specified decimal places (avoids floating point errors)
+ */
+export function roundToPrecision(value: number, decimals: number = 2): number {
+  return Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
+}
+
+/**
+ * Format currency for display
+ */
+export function formatCurrency(
+  value: number,
+  currency: string = 'USD',
+  locale: string = 'en-US'
+): string {
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
+}
+
+/**
+ * Format percentage for display
+ */
+export function formatPercentage(
+  value: number,
+  decimals: number = 2
+): string {
+  return `${(value * 100).toFixed(decimals)}%`;
+}
+```
+
+---
+
+## Proforma Model Service
+
+### ✅ CORRECT: Proforma calculations with Signals
+
+```typescript
+// services/proforma.service.ts
+import { Injectable, signal, computed } from '@angular/core';
+import {
+  calculateNPV,
+  calculateIRR,
+  calculateMortgagePayment,
+  roundToPrecision
+} from '@/lib/calculations/financial';
+
+export interface ProformaInputs {
+  // Construction
+  landCost: number;
+  constructionCost: number;
+  
+  // Revenue
+  fuelGallons: number;
+  fuelMargin: number;
+  inStoreRevenue: number;
+  inStoreMargin: number;
+  
+  // Expenses
+  labor: number;
+  utilities: number;
+  maintenance: number;
+  insurance: number;
+  
+  // Financial
+  discountRate: number;
+  projectYears: number;
+}
+
+export interface ProformaResults {
+  totalInvestment: number;
+  annualRevenue: number;
+  annualExpenses: number;
+  annualCashFlow: number;
+  npv: number;
+  irr: number | null;
+  paybackPeriod: number | null;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ProformaService {
+  // Input signals
+  private inputsSignal = signal<ProformaInputs>({
+    landCost: 0,
+    constructionCost: 0,
+    fuelGallons: 0,
+    fuelMargin: 0,
+    inStoreRevenue: 0,
+    inStoreMargin: 0,
+    labor: 0,
+    utilities: 0,
+    maintenance: 0,
+    insurance: 0,
+    discountRate: 0.1,
+    projectYears: 10,
+  });
+
+  inputs = this.inputsSignal.asReadonly();
+
+  // Computed calculations
+  totalInvestment = computed(() => {
+    const inputs = this.inputs();
+    return roundToPrecision(inputs.landCost + inputs.constructionCost);
+  });
+
+  annualFuelRevenue = computed(() => {
+    const inputs = this.inputs();
+    return roundToPrecision(inputs.fuelGallons * inputs.fuelMargin);
+  });
+
+  annualInStoreRevenue = computed(() => {
+    const inputs = this.inputs();
+    return roundToPrecision(inputs.inStoreRevenue * inputs.inStoreMargin);
+  });
+
+  annualRevenue = computed(() => {
+    return roundToPrecision(
+      this.annualFuelRevenue() + this.annualInStoreRevenue()
+    );
+  });
+
+  annualExpenses = computed(() => {
+    const inputs = this.inputs();
+    return roundToPrecision(
+      inputs.labor + 
+      inputs.utilities + 
+      inputs.maintenance + 
+      inputs.insurance
+    );
+  });
+
+  annualCashFlow = computed(() => {
+    return roundToPrecision(
+      this.annualRevenue() - this.annualExpenses()
+    );
+  });
+
+  cashFlows = computed(() => {
+    const investment = this.totalInvestment();
+    const annualCashFlow = this.annualCashFlow();
+    const years = this.inputs().projectYears;
+    
+    // Year 0: negative (investment)
+    // Years 1-N: positive (cash flow)
+    return [-investment, ...Array(years).fill(annualCashFlow)];
+  });
+
+  npv = computed(() => {
+    const cashFlows = this.cashFlows();
+    const discountRate = this.inputs().discountRate;
+    return roundToPrecision(calculateNPV(cashFlows, discountRate));
+  });
+
+  irr = computed(() => {
+    const cashFlows = this.cashFlows();
+    const irrValue = calculateIRR(cashFlows);
+    return irrValue !== null ? roundToPrecision(irrValue, 4) : null;
+  });
+
+  paybackPeriod = computed(() => {
+    const investment = this.totalInvestment();
+    const annualCashFlow = this.annualCashFlow();
+    
+    if (annualCashFlow <= 0) return null;
+    
+    return roundToPrecision(investment / annualCashFlow, 1);
+  });
+
+  results = computed((): ProformaResults => ({
+    totalInvestment: this.totalInvestment(),
+    annualRevenue: this.annualRevenue(),
+    annualExpenses: this.annualExpenses(),
+    annualCashFlow: this.annualCashFlow(),
+    npv: this.npv(),
+    irr: this.irr(),
+    paybackPeriod: this.paybackPeriod(),
+  }));
+
+  // Methods to update inputs
+  updateInputs(updates: Partial<ProformaInputs>): void {
+    this.inputsSignal.update(current => ({ ...current, ...updates }));
+  }
+
+  resetInputs(): void {
+    this.inputsSignal.set({
+      landCost: 0,
+      constructionCost: 0,
+      fuelGallons: 0,
+      fuelMargin: 0,
+      inStoreRevenue: 0,
+      inStoreMargin: 0,
+      labor: 0,
+      utilities: 0,
+      maintenance: 0,
+      insurance: 0,
+      discountRate: 0.1,
+      projectYears: 10,
+    });
+  }
+}
+```
+
+---
+
+## Component Integration
+
+### ✅ CORRECT: Proforma calculator component
+
+```typescript
+// features/proforma/proforma-calculator/proforma-calculator.component.ts
+import { Component, inject, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ProformaService } from '@/services/proforma.service';
+import { formatCurrency, formatPercentage } from '@/lib/calculations/financial';
+
+@Component({
+  selector: 'app-proforma-calculator',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
+  templateUrl: './proforma-calculator.component.html',
+})
+export class ProformaCalculatorComponent {
+  private fb = inject(FormBuilder);
+  private proformaService = inject(ProformaService);
+
+  form = this.fb.group({
+    landCost: [0, [Validators.required, Validators.min(0)]],
+    constructionCost: [0, [Validators.required, Validators.min(0)]],
+    fuelGallons: [0, [Validators.required, Validators.min(0)]],
+    fuelMargin: [0, [Validators.required, Validators.min(0)]],
+    inStoreRevenue: [0, [Validators.required, Validators.min(0)]],
+    inStoreMargin: [0, [Validators.required, Validators.min(0)]],
+    labor: [0, [Validators.required, Validators.min(0)]],
+    utilities: [0, [Validators.required, Validators.min(0)]],
+    maintenance: [0, [Validators.required, Validators.min(0)]],
+    insurance: [0, [Validators.required, Validators.min(0)]],
+    discountRate: [0.1, [Validators.required, Validators.min(0), Validators.max(1)]],
+    projectYears: [10, [Validators.required, Validators.min(1)]],
+  });
+
+  results = this.proformaService.results;
+
+  // Formatted display values
+  formattedInvestment = computed(() => 
+    formatCurrency(this.results().totalInvestment)
+  );
+  
+  formattedRevenue = computed(() => 
+    formatCurrency(this.results().annualRevenue)
+  );
+  
+  formattedNPV = computed(() => 
+    formatCurrency(this.results().npv)
+  );
+  
+  formattedIRR = computed(() => {
+    const irr = this.results().irr;
+    return irr !== null ? formatPercentage(irr) : 'N/A';
+  });
+
+  isPositiveNPV = computed(() => this.results().npv > 0);
+
+  constructor() {
+    // Subscribe to form changes and update service
+    this.form.valueChanges.subscribe(values => {
+      if (this.form.valid) {
+        this.proformaService.updateInputs(values as any);
+      }
+    });
+  }
+
+  handleCalculate(): void {
+    if (this.form.valid) {
+      this.proformaService.updateInputs(this.form.value as any);
+    }
+  }
+
+  handleReset(): void {
+    this.form.reset({
+      landCost: 0,
+      constructionCost: 0,
+      fuelGallons: 0,
+      fuelMargin: 0,
+      inStoreRevenue: 0,
+      inStoreMargin: 0,
+      labor: 0,
+      utilities: 0,
+      maintenance: 0,
+      insurance: 0,
+      discountRate: 0.1,
+      projectYears: 10,
+    });
+    this.proformaService.resetInputs();
+  }
+}
+```
+
+```html
+<!-- proforma-calculator.component.html -->
+<div class="container mx-auto py-8">
+  <h1 class="text-2xl font-bold mb-8">Proforma Calculator</h1>
+
+  <form [formGroup]="form" (ngSubmit)="handleCalculate()" class="space-y-8">
+    <!-- Construction Costs -->
+    <section class="card p-6">
+      <h2 class="text-lg font-semibold mb-4">Construction Costs</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="label">Land Cost</label>
+          <input type="number" formControlName="landCost" class="input" />
+        </div>
+        <div>
+          <label class="label">Construction Cost</label>
+          <input type="number" formControlName="constructionCost" class="input" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Revenue -->
+    <section class="card p-6">
+      <h2 class="text-lg font-semibold mb-4">Revenue</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="label">Fuel Gallons (Annual)</label>
+          <input type="number" formControlName="fuelGallons" class="input" />
+        </div>
+        <div>
+          <label class="label">Fuel Margin (per gallon)</label>
+          <input type="number" formControlName="fuelMargin" class="input" step="0.01" />
+        </div>
+        <div>
+          <label class="label">In-Store Revenue (Annual)</label>
+          <input type="number" formControlName="inStoreRevenue" class="input" />
+        </div>
+        <div>
+          <label class="label">In-Store Margin (%)</label>
+          <input type="number" formControlName="inStoreMargin" class="input" step="0.01" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Expenses -->
+    <section class="card p-6">
+      <h2 class="text-lg font-semibold mb-4">Annual Expenses</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="label">Labor</label>
+          <input type="number" formControlName="labor" class="input" />
+        </div>
+        <div>
+          <label class="label">Utilities</label>
+          <input type="number" formControlName="utilities" class="input" />
+        </div>
+        <div>
+          <label class="label">Maintenance</label>
+          <input type="number" formControlName="maintenance" class="input" />
+        </div>
+        <div>
+          <label class="label">Insurance</label>
+          <input type="number" formControlName="insurance" class="input" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Financial Parameters -->
+    <section class="card p-6">
+      <h2 class="text-lg font-semibold mb-4">Financial Parameters</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="label">Discount Rate (%)</label>
+          <input type="number" formControlName="discountRate" class="input" step="0.01" />
+        </div>
+        <div>
+          <label class="label">Project Years</label>
+          <input type="number" formControlName="projectYears" class="input" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Actions -->
+    <div class="flex items-center gap-4">
+      <button type="submit" class="btn-primary" [disabled]="!form.valid">
+        Calculate
+      </button>
+      <button type="button" class="btn-secondary" (click)="handleReset()">
+        Reset
+      </button>
+    </div>
+  </form>
+
+  <!-- Results -->
+  <section class="card p-6 mt-8">
+    <h2 class="text-lg font-semibold mb-4">Results</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div>
+        <p class="text-sm text-text-secondary">Total Investment</p>
+        <p class="text-2xl font-bold">{{ formattedInvestment() }}</p>
+      </div>
+      
+      <div>
+        <p class="text-sm text-text-secondary">Annual Revenue</p>
+        <p class="text-2xl font-bold">{{ formattedRevenue() }}</p>
+      </div>
+      
+      <div>
+        <p class="text-sm text-text-secondary">Annual Cash Flow</p>
+        <p class="text-2xl font-bold">
+          {{ results().annualCashFlow | currency }}
+        </p>
+      </div>
+      
+      <div>
+        <p class="text-sm text-text-secondary">Net Present Value</p>
+        <p 
+          class="text-2xl font-bold"
+          [class.text-green-600]="isPositiveNPV()"
+          [class.text-red-600]="!isPositiveNPV()">
+          {{ formattedNPV() }}
+        </p>
+      </div>
+      
+      <div>
+        <p class="text-sm text-text-secondary">Internal Rate of Return</p>
+        <p class="text-2xl font-bold">{{ formattedIRR() }}</p>
+      </div>
+      
+      <div>
+        <p class="text-sm text-text-secondary">Payback Period</p>
+        <p class="text-2xl font-bold">
+          {{ results().paybackPeriod !== null ? results().paybackPeriod + ' years' : 'N/A' }}
+        </p>
+      </div>
+    </div>
+  </section>
+</div>
+```
+
+---
+
+## Unit Testing
+
+### ✅ CORRECT: Test financial functions
+
+```typescript
+// lib/calculations/financial.spec.ts
+import { calculateNPV, calculateIRR, calculateMortgagePayment, roundToPrecision } from './financial';
+
+describe('Financial Calculations', () => {
+  describe('calculateNPV', () => {
+    it('should calculate NPV correctly', () => {
+      const cashFlows = [-1000, 300, 300, 300, 300];
+      const discountRate = 0.1;
+      const npv = calculateNPV(cashFlows, discountRate);
+      expect(npv).toBeCloseTo(51.89, 2);
+    });
+
+    it('should handle zero discount rate', () => {
+      const cashFlows = [-1000, 300, 300, 300, 300];
+      const npv = calculateNPV(cashFlows, 0);
+      expect(npv).toBe(200); // Sum of all cash flows
+    });
+  });
+
+  describe('calculateIRR', () => {
+    it('should calculate IRR correctly', () => {
+      const cashFlows = [-1000, 300, 300, 300, 300];
+      const irr = calculateIRR(cashFlows);
+      expect(irr).toBeCloseTo(0.076, 3);
+    });
+
+    it('should return null if no convergence', () => {
+      const cashFlows = [-1000, -100, -100];
+      const irr = calculateIRR(cashFlows);
+      expect(irr).toBeNull();
+    });
+  });
+
+  describe('calculateMortgagePayment', () => {
+    it('should calculate monthly payment correctly', () => {
+      const payment = calculateMortgagePayment(200000, 0.05, 30);
+      expect(payment).toBeCloseTo(1073.64, 2);
+    });
+  });
+
+  describe('roundToPrecision', () => {
+    it('should round to 2 decimals by default', () => {
+      expect(roundToPrecision(1.2345)).toBe(1.23);
+    });
+
+    it('should round to specified decimals', () => {
+      expect(roundToPrecision(1.2345, 3)).toBe(1.235);
+    });
+  });
+});
+```
+
+---
+
+## Best Practices
+
+### 1. Use Pure Functions
+
+```typescript
+// ✅ CORRECT: Pure calculation function
+export function calculateNPV(cashFlows: number[], rate: number): number {
+  return cashFlows.reduce((npv, cf, period) => 
+    npv + cf / Math.pow(1 + rate, period), 0
+  );
+}
+```
+
+### 2. Handle Precision
+
+```typescript
+// ✅ CORRECT: Round to avoid floating point errors
+export function roundToPrecision(value: number, decimals: number = 2): number {
+  return Math.round(value * Math.pow(10, decimals)) / Math.pow(10, decimals);
+}
+```
+
+### 3. Use Computed Signals
+
+```typescript
+// ✅ CORRECT: Reactive calculations with computed
+totalCost = computed(() => 
+  roundToPrecision(this.landCost() + this.constructionCost())
+);
+```
+
+### 4. Format for Display
+
+```typescript
+// ✅ CORRECT: Format currency and percentages
+formattedValue = computed(() => formatCurrency(this.value()));
+```
+
+---
+
+## Related Rules
+
+- **Angular:** `web/.cursor/rules/angular-21-patterns.mdc` - Angular patterns
+- **Forms:** `web/.cursor/rules/forms-validation.mdc` - Form handling
+- **Charts:** `web/.cursor/rules/charts-visualization.mdc` - Data visualization
+
+---
+
+## Summary
+
+✅ **DO:**
+- Use pure functions for calculations
+- Use Signals for reactive financial models
+- Handle floating point precision
+- Test all financial calculations
+- Format values for display
+- Use TypeScript for type safety
+
+❌ **DON'T:**
+- Use React hooks (useState, useMemo)
+- Ignore floating point errors
+- Skip unit tests
+- Use `any` types
+- Forget to round values

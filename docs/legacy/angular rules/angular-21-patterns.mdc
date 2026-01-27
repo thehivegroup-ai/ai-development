@@ -1,0 +1,1035 @@
+---
+description: Angular v21 patterns and MCP server integration
+globs: ["**/*.ts", "**/*.tsx", "**/*.html", "**/*.css"]
+alwaysApply: false
+---
+
+# Angular v21 Patterns
+
+This rule defines patterns for using Angular v21 features with the angular-cli MCP server.
+
+## Core Principles
+
+1. **Angular v21:** Use latest features (Standalone components, Signals, etc.)
+2. **MCP Server First:** Always use angular-cli MCP server tools before manual commands
+3. **Standalone Components:** Default architecture (no NgModules)
+4. **Signals:** Fine-grained reactivity model
+5. **Type Safety:** Full TypeScript integration
+
+---
+
+## ⚠️ CRITICAL: Angular CLI MCP Server Workflow (MANDATORY)
+
+### Always Start With MCP Tools
+
+Before any Angular work, you **MUST** follow this workflow:
+
+**1. Discover Workspace Structure:**
+```typescript
+// ALWAYS call this first
+mcp_angular-cli_list_projects()
+```
+
+This returns:
+- All Angular workspaces in the repository
+- Projects within each workspace (apps, libraries)
+- Project metadata: `root`, `sourceRoot`, `unitTestFramework`, `styleLanguage`, `selectorPrefix`
+- Angular framework version per workspace
+
+**2. Get Version-Specific Best Practices:**
+```typescript
+// Call BEFORE writing any Angular code
+mcp_angular-cli_get_best_practices({
+  workspacePath: '/absolute/path/to/angular.json'
+})
+```
+
+This returns:
+- Version-specific Angular standards
+- Standalone component patterns
+- Modern control flow syntax (@if, @for, @switch)
+- Signal usage patterns
+- Typed forms patterns
+
+**3. Search Official Documentation:**
+```typescript
+// For Angular API questions
+mcp_angular-cli_search_documentation({
+  query: 'How to use standalone components',
+  version: 21, // Major version from list_projects
+  includeTopContent: true
+})
+```
+
+**4. Migration Assistance:**
+```typescript
+// For OnPush/zoneless migration
+mcp_angular-cli_onpush_zoneless_migration({
+  fileOrDirPath: '/absolute/path/to/component.ts'
+})
+```
+
+### MCP Workflow Rules
+
+✅ **DO:**
+- Call `list_projects` before any project work
+- Call `get_best_practices` with `workspacePath` before writing code
+- Use `search_documentation` for Angular API questions
+- Prefer MCP tools over shell commands (`ng generate`, etc.)
+- Use the Angular version detected by MCP tools
+
+❌ **DON'T:**
+- Run `ng` commands directly without MCP context
+- Assume Angular versions - always detect with `list_projects`
+- Skip `get_best_practices` call before coding
+- Use outdated patterns from training data - use MCP documentation
+
+---
+
+## Angular v21: Standalone Components
+
+### ✅ CORRECT: Standalone component (default in v21)
+
+```typescript
+// property-form.component.ts
+import { Component, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+
+interface PropertyFormData {
+  address: string;
+  city: string;
+  state: string;
+  squareFootage: number;
+  pumpCount: number;
+}
+
+@Component({
+  selector: 'app-property-form',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  templateUrl: './property-form.component.html',
+  styleUrls: ['./property-form.component.css']
+})
+export class PropertyFormComponent {
+  isPending = signal(false);
+  errorMessage = signal<string | null>(null);
+
+  form = new FormGroup({
+    address: new FormControl('', { validators: [Validators.required], nonNullable: true }),
+    city: new FormControl('', { validators: [Validators.required], nonNullable: true }),
+    state: new FormControl('', { validators: [Validators.required, Validators.maxLength(2)], nonNullable: true }),
+    squareFootage: new FormControl(0, { validators: [Validators.required, Validators.min(2000)], nonNullable: true }),
+    pumpCount: new FormControl(0, { validators: [Validators.required, Validators.min(4)], nonNullable: true }),
+  });
+
+  constructor(
+    private router: Router,
+    private propertyService: PropertyService
+  ) {}
+
+  onSubmit(): void {
+    if (this.form.invalid) {
+      return;
+    }
+
+    this.isPending.set(true);
+    this.errorMessage.set(null);
+
+    const formData = this.form.getRawValue();
+
+    this.propertyService.createProperty(formData).subscribe({
+      next: (response) => {
+        this.isPending.set(false);
+        if (response.success && response.data) {
+          this.router.navigate(['/properties', response.data.id]);
+        }
+      },
+      error: (error) => {
+        this.isPending.set(false);
+        this.errorMessage.set('Failed to create property');
+      }
+    });
+  }
+}
+```
+
+```html
+<!-- property-form.component.html -->
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="card p-6 space-y-6">
+  <h2 class="text-xl font-semibold">Create Property</h2>
+
+  @if (errorMessage()) {
+    <div class="p-4 rounded-lg bg-red-50 text-red-800">
+      {{ errorMessage() }}
+    </div>
+  }
+
+  <div class="space-y-4">
+    <div>
+      <label for="address" class="label">Address</label>
+      <input
+        type="text"
+        id="address"
+        formControlName="address"
+        class="input"
+      />
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label for="city" class="label">City</label>
+        <input
+          type="text"
+          id="city"
+          formControlName="city"
+          class="input"
+        />
+      </div>
+
+      <div>
+        <label for="state" class="label">State</label>
+        <input
+          type="text"
+          id="state"
+          formControlName="state"
+          maxlength="2"
+          class="input"
+        />
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label for="squareFootage" class="label">Square Footage</label>
+        <input
+          type="number"
+          id="squareFootage"
+          formControlName="squareFootage"
+          min="2000"
+          max="10000"
+          class="input"
+        />
+      </div>
+
+      <div>
+        <label for="pumpCount" class="label">Pump Count</label>
+        <input
+          type="number"
+          id="pumpCount"
+          formControlName="pumpCount"
+          min="4"
+          max="32"
+          class="input"
+        />
+      </div>
+    </div>
+  </div>
+
+  <div class="flex justify-end gap-4">
+    <button
+      type="button"
+      routerLink=".."
+      class="btn-secondary"
+      [disabled]="isPending()">
+      Cancel
+    </button>
+
+    <button
+      type="submit"
+      class="btn-primary"
+      [disabled]="isPending() || form.invalid">
+      @if (isPending()) {
+        Creating...
+      } @else {
+        Create Property
+      }
+    </button>
+  </div>
+</form>
+```
+
+---
+
+## ⚠️ CRITICAL: Component Testing Requirements
+
+### ALL Components MUST Include data-testid Attributes
+
+**MANDATORY:** Every component you create MUST include `data-testid` attributes for E2E testing.
+
+### Required Elements
+
+When creating ANY component (page, form, UI control, etc.):
+
+✅ **MUST add data-testid to:**
+- Container/root element
+- All buttons
+- All form inputs (text, number, select, checkbox, radio)
+- All links
+- All interactive elements
+- Success/error message containers
+- Calculated value displays
+- List containers and list items
+
+### Naming Convention
+
+```
+data-testid="{module}-{component}-{element}-{action}"
+```
+
+**Rules:**
+- Use kebab-case (lowercase-with-dashes)
+- Include module prefix (`explore`, `build`, `report`)
+- Be descriptive but concise
+- Include action for buttons (`save-button`, `delete-button`)
+
+### ✅ CORRECT Example with data-testid
+
+```typescript
+@Component({
+  selector: 'app-property-form',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
+  template: `
+    <form
+      [formGroup]="form"
+      (ngSubmit)="onSubmit()"
+      class="card p-6 space-y-6"
+      data-testid="property-form">
+
+      <h2 class="text-xl font-semibold">Create Property</h2>
+
+      @if (errorMessage()) {
+        <div
+          class="p-4 rounded-lg bg-red-50 text-red-800"
+          data-testid="property-form-error-message">
+          {{ errorMessage() }}
+        </div>
+      }
+
+      <div class="space-y-4">
+        <div>
+          <label for="address" class="label">Address</label>
+          <input
+            type="text"
+            id="address"
+            formControlName="address"
+            class="input"
+            data-testid="property-form-address-input"
+          />
+        </div>
+
+        <div>
+          <label for="city" class="label">City</label>
+          <input
+            type="text"
+            id="city"
+            formControlName="city"
+            class="input"
+            data-testid="property-form-city-input"
+          />
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-4">
+        <button
+          type="button"
+          class="btn-secondary"
+          data-testid="property-form-cancel-button">
+          Cancel
+        </button>
+
+        <button
+          type="submit"
+          class="btn-primary"
+          [disabled]="isPending() || form.invalid"
+          data-testid="property-form-submit-button">
+          {{ isPending() ? 'Creating...' : 'Create Property' }}
+        </button>
+      </div>
+
+      @if (successMessage()) {
+        <div
+          class="p-4 rounded-lg bg-green-50 text-green-800"
+          data-testid="property-form-success-message">
+          {{ successMessage() }}
+        </div>
+      }
+    </form>
+  `
+})
+```
+
+### Dynamic data-testid for Lists
+
+Use `[attr.data-testid]` for dynamic elements:
+
+```typescript
+@Component({
+  template: `
+    <div data-testid="property-list">
+      @for (property of properties(); track property.id) {
+        <div [attr.data-testid]="'property-item-' + property.id">
+          <h3>{{ property.address }}</h3>
+          <button
+            [attr.data-testid]="'property-edit-button-' + property.id"
+            (click)="edit(property)">
+            Edit
+          </button>
+        </div>
+      }
+    </div>
+  `
+})
+```
+
+### ❌ WRONG: Missing data-testid
+
+```typescript
+// ❌ BAD: No data-testid attributes
+@Component({
+  template: `
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <input type="text" formControlName="address" />
+      <button type="submit">Save</button>
+    </form>
+  `
+})
+// Tests will be brittle - selectors will break with styling changes
+```
+
+### Detailed Reference
+
+**See:** `.cursor/rules/test-data-attributes.mdc` for:
+- Complete naming conventions
+- Module-specific patterns (Explore, Build, Report)
+- All required elements by module
+- Implementation examples
+- What NOT to use as selectors
+
+### Quick Checklist
+
+Before committing a new component:
+
+- [ ] Container has data-testid
+- [ ] All buttons have data-testid
+- [ ] All inputs have data-testid
+- [ ] All links have data-testid
+- [ ] Success/error messages have data-testid
+- [ ] Dynamic elements use `[attr.data-testid]`
+- [ ] Naming convention followed
+
+**Remember:** Tests are part of the component contract. data-testid attributes are REQUIRED, not optional.
+
+---
+
+### ❌ WRONG: Old NgModule pattern
+
+```typescript
+// ❌ BAD: Using NgModule (pre-v14 pattern)
+import { NgModule } from '@angular/core';
+import { PropertyFormComponent } from './property-form.component';
+
+@NgModule({
+  declarations: [PropertyFormComponent],
+  imports: [CommonModule, ReactiveFormsModule],
+  exports: [PropertyFormComponent]
+})
+export class PropertyFormModule { }
+// Use standalone: true instead!
+```
+
+---
+
+## Angular Signals (v16+, refined in v21)
+
+### ✅ CORRECT: Using signals for reactive state
+
+```typescript
+import { Component, signal, computed, effect } from '@angular/core';
+
+@Component({
+  selector: 'app-property-list',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <div class="space-y-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-bold">
+          Properties ({{ filteredProperties().length }})
+        </h2>
+        <button class="btn-primary" (click)="toggleFilter()">
+          {{ showActive() ? 'Show All' : 'Show Active Only' }}
+        </button>
+      </div>
+
+      @for (property of filteredProperties(); track property.id) {
+        <div class="card p-4">
+          <h3 class="font-semibold">{{ property.address }}</h3>
+          <p class="text-sm text-text-secondary">{{ property.city }}, {{ property.state }}</p>
+        </div>
+      }
+    </div>
+  `
+})
+export class PropertyListComponent {
+  // Writable signals
+  properties = signal<Property[]>([]);
+  showActive = signal(true);
+
+  // Computed signal (derived state)
+  filteredProperties = computed(() => {
+    const all = this.properties();
+    return this.showActive()
+      ? all.filter(p => p.status === 'active')
+      : all;
+  });
+
+  // Effect (side effects when signals change)
+  logEffect = effect(() => {
+    console.log('Filtered count:', this.filteredProperties().length);
+  });
+
+  constructor(private propertyService: PropertyService) {
+    // Load data
+    this.propertyService.getProperties().subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.properties.set(response.data);
+        }
+      }
+    });
+  }
+
+  toggleFilter(): void {
+    this.showActive.update(value => !value);
+  }
+
+  addProperty(property: Property): void {
+    this.properties.update(list => [...list, property]);
+  }
+}
+```
+
+### Signal Methods:
+
+```typescript
+// Create signal
+const count = signal(0);
+
+// Read signal value
+console.log(count()); // 0
+
+// Set new value
+count.set(5);
+
+// Update based on previous value
+count.update(value => value + 1);
+
+// Computed signal (read-only, auto-updates)
+const doubled = computed(() => count() * 2);
+
+// Effect (runs when signals change)
+effect(() => {
+  console.log('Count is now:', count());
+});
+```
+
+### ❌ WRONG: Using old Subject/BehaviorSubject pattern
+
+```typescript
+// ❌ BAD: Using BehaviorSubject (prefer signals)
+import { BehaviorSubject } from 'rxjs';
+
+export class PropertyListComponent {
+  private propertiesSubject = new BehaviorSubject<Property[]>([]);
+  properties$ = this.propertiesSubject.asObservable();
+
+  addProperty(property: Property) {
+    const current = this.propertiesSubject.value;
+    this.propertiesSubject.next([...current, property]);
+  }
+}
+// Use signals instead for local state!
+```
+
+---
+
+## Dependency Injection
+
+### ✅ CORRECT: Service with DI
+
+```typescript
+// property.service.ts
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../environments/environment';
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: {
+    code: string;
+    message: string;
+  };
+}
+
+@Injectable({
+  providedIn: 'root' // Available app-wide
+})
+export class PropertyService {
+  private apiUrl = environment.apiUrl || 'http://localhost:3001/api';
+
+  constructor(private http: HttpClient) {}
+
+  getProperties(): Observable<ApiResponse<Property[]>> {
+    return this.http.get<ApiResponse<Property[]>>(`${this.apiUrl}/properties`);
+  }
+
+  getProperty(id: string): Observable<ApiResponse<Property>> {
+    return this.http.get<ApiResponse<Property>>(`${this.apiUrl}/properties/${id}`);
+  }
+
+  createProperty(data: CreatePropertyData): Observable<ApiResponse<{ id: string }>> {
+    return this.http.post<ApiResponse<{ id: string }>>(`${this.apiUrl}/properties`, data);
+  }
+
+  updateProperty(id: string, data: Partial<Property>): Observable<ApiResponse<{ id: string }>> {
+    return this.http.patch<ApiResponse<{ id: string }>>(`${this.apiUrl}/properties/${id}`, data);
+  }
+
+  deleteProperty(id: string): Observable<ApiResponse<{ id: string }>> {
+    return this.http.delete<ApiResponse<{ id: string }>>(`${this.apiUrl}/properties/${id}`);
+  }
+}
+```
+
+### Component using service:
+
+```typescript
+import { Component, OnInit, signal } from '@angular/core';
+import { PropertyService } from '../services/property.service';
+
+@Component({
+  selector: 'app-property-list',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './property-list.component.html'
+})
+export class PropertyListComponent implements OnInit {
+  properties = signal<Property[]>([]);
+  isLoading = signal(true);
+  error = signal<string | null>(null);
+
+  // Inject service via constructor
+  constructor(private propertyService: PropertyService) {}
+
+  ngOnInit(): void {
+    this.loadProperties();
+  }
+
+  loadProperties(): void {
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    this.propertyService.getProperties().subscribe({
+      next: (response) => {
+        this.isLoading.set(false);
+        if (response.success && response.data) {
+          this.properties.set(response.data);
+        }
+      },
+      error: (err) => {
+        this.isLoading.set(false);
+        this.error.set('Failed to load properties');
+      }
+    });
+  }
+}
+```
+
+---
+
+## Modern Template Syntax (v17+)
+
+### ✅ CORRECT: Built-in control flow (@if, @for, @switch)
+
+```html
+<!-- @if directive -->
+@if (isLoading()) {
+  <div class="spinner">Loading...</div>
+} @else if (error()) {
+  <div class="alert-error">{{ error() }}</div>
+} @else {
+  <div class="content">{{ properties().length }} properties</div>
+}
+
+<!-- @for directive with track -->
+@for (property of properties(); track property.id) {
+  <div class="card p-6">
+    <h3>{{ property.address }}</h3>
+    <p>{{ property.city }}, {{ property.state }}</p>
+
+    @if (property.pumpCount > 16) {
+      <span class="badge-promo">Large Station</span>
+    }
+  </div>
+} @empty {
+  <p class="text-text-secondary">No properties found</p>
+}
+
+<!-- @switch directive -->
+@switch (property.status) {
+  @case ('active') {
+    <span class="badge-tag bg-green-100 text-green-800">Active</span>
+  }
+  @case ('pending') {
+    <span class="badge-tag bg-yellow-100 text-yellow-800">Pending</span>
+  }
+  @case ('inactive') {
+    <span class="badge-tag bg-gray-100 text-gray-800">Inactive</span>
+  }
+  @default {
+    <span class="badge-tag">Unknown</span>
+  }
+}
+```
+
+### ❌ WRONG: Old structural directives
+
+```html
+<!-- ❌ BAD: Using *ngIf (old syntax, still works but not preferred) -->
+<div *ngIf="isLoading(); else content">
+  <div class="spinner">Loading...</div>
+</div>
+<ng-template #content>
+  <div>Content</div>
+</ng-template>
+
+<!-- ❌ BAD: Using *ngFor without trackBy -->
+<div *ngFor="let property of properties()">
+  {{ property.address }}
+</div>
+<!-- Use @for with track instead! -->
+```
+
+---
+
+## Reactive Forms (Typed)
+
+### ✅ CORRECT: Typed reactive forms
+
+```typescript
+import { Component } from '@angular/core';
+import { FormGroup, FormControl, Validators, ReactiveFormsModule } from '@angular/forms';
+
+interface PropertyForm {
+  address: FormControl<string>;
+  city: FormControl<string>;
+  state: FormControl<string>;
+  squareFootage: FormControl<number>;
+  pumpCount: FormControl<number>;
+}
+
+@Component({
+  selector: 'app-property-form',
+  standalone: true,
+  imports: [ReactiveFormsModule],
+  templateUrl: './property-form.component.html'
+})
+export class PropertyFormComponent {
+  // Typed FormGroup
+  form = new FormGroup<PropertyForm>({
+    address: new FormControl('', { validators: [Validators.required], nonNullable: true }),
+    city: new FormControl('', { validators: [Validators.required], nonNullable: true }),
+    state: new FormControl('', { validators: [Validators.required], nonNullable: true }),
+    squareFootage: new FormControl(0, { validators: [Validators.min(2000)], nonNullable: true }),
+    pumpCount: new FormControl(0, { validators: [Validators.min(4)], nonNullable: true }),
+  });
+
+  onSubmit(): void {
+    if (this.form.valid) {
+      // Type-safe access
+      const formData = this.form.getRawValue(); // Type: PropertyFormData
+      console.log(formData.address); // Type: string
+      console.log(formData.squareFootage); // Type: number
+    }
+  }
+
+  // Access individual controls (type-safe)
+  get addressControl() {
+    return this.form.controls.address;
+  }
+}
+```
+
+```html
+<!-- property-form.component.html -->
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+  <div>
+    <label for="address" class="label">Address</label>
+    <input
+      type="text"
+      id="address"
+      formControlName="address"
+      class="input"
+      [class.border-red-500]="addressControl.invalid && addressControl.touched"
+    />
+    @if (addressControl.invalid && addressControl.touched) {
+      <p class="text-sm text-red-600 mt-1">Address is required</p>
+    }
+  </div>
+
+  <button type="submit" class="btn-primary" [disabled]="form.invalid">
+    Submit
+  </button>
+</form>
+```
+
+---
+
+## Angular Router
+
+### ✅ CORRECT: Route configuration with lazy loading
+
+```typescript
+// app.routes.ts
+import { Routes } from '@angular/router';
+import { AuthGuard } from './guards/auth.guard';
+
+export const routes: Routes = [
+  {
+    path: '',
+    redirectTo: '/properties',
+    pathMatch: 'full'
+  },
+  {
+    path: 'properties',
+    loadComponent: () => import('./features/properties/property-list.component').then(m => m.PropertyListComponent)
+  },
+  {
+    path: 'properties/:id',
+    loadComponent: () => import('./features/properties/property-detail.component').then(m => m.PropertyDetailComponent)
+  },
+  {
+    path: 'admin',
+    canActivate: [AuthGuard],
+    loadChildren: () => import('./features/admin/admin.routes').then(m => m.adminRoutes)
+  },
+  {
+    path: '**',
+    loadComponent: () => import('./features/not-found/not-found.component').then(m => m.NotFoundComponent)
+  }
+];
+```
+
+```typescript
+// main.ts
+import { bootstrapApplication } from '@angular/platform-browser';
+import { provideRouter } from '@angular/router';
+import { provideHttpClient } from '@angular/common/http';
+import { AppComponent } from './app/app.component';
+import { routes } from './app/app.routes';
+
+bootstrapApplication(AppComponent, {
+  providers: [
+    provideRouter(routes),
+    provideHttpClient(),
+  ]
+});
+```
+
+### Navigation in components:
+
+```typescript
+import { Component } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+
+@Component({
+  selector: 'app-property-card',
+  standalone: true,
+  imports: [RouterLink],
+  template: `
+    <div class="card p-4">
+      <h3>{{ property.address }}</h3>
+
+      <!-- Declarative navigation -->
+      <a [routerLink]="['/properties', property.id]" class="link-text">
+        View Details
+      </a>
+
+      <!-- Programmatic navigation -->
+      <button class="btn-primary" (click)="viewDetails()">
+        View
+      </button>
+    </div>
+  `
+})
+export class PropertyCardComponent {
+  @Input() property!: Property;
+
+  constructor(private router: Router) {}
+
+  viewDetails(): void {
+    // Programmatic navigation
+    this.router.navigate(['/properties', this.property.id]);
+  }
+}
+```
+
+---
+
+## RxJS Integration
+
+### ✅ CORRECT: Using RxJS for async operations
+
+```typescript
+import { Component, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { map, catchError, of, debounceTime, distinctUntilChanged } from 'rxjs';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+
+@Component({
+  selector: 'app-property-search',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
+  template: `
+    <div class="space-y-4">
+      <input
+        type="text"
+        [formControl]="searchControl"
+        placeholder="Search properties..."
+        class="input-search"
+      />
+
+      @if (isLoading()) {
+        <div class="spinner">Searching...</div>
+      }
+
+      @for (property of results(); track property.id) {
+        <div class="card p-4">
+          <h3>{{ property.address }}</h3>
+        </div>
+      } @empty {
+        <p class="text-text-secondary">No results found</p>
+      }
+    </div>
+  `
+})
+export class PropertySearchComponent implements OnInit {
+  searchControl = new FormControl('', { nonNullable: true });
+  results = signal<Property[]>([]);
+  isLoading = signal(false);
+
+  constructor(private propertyService: PropertyService) {}
+
+  ngOnInit(): void {
+    // Reactive search with debounce
+    this.searchControl.valueChanges.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+    ).subscribe(query => {
+      if (query.length < 2) {
+        this.results.set([]);
+        return;
+      }
+
+      this.isLoading.set(true);
+      this.propertyService.searchProperties(query).pipe(
+        map(response => response.data || []),
+        catchError(() => {
+          this.isLoading.set(false);
+          return of([]);
+        })
+      ).subscribe(properties => {
+        this.isLoading.set(false);
+        this.results.set(properties);
+      });
+    });
+  }
+}
+```
+
+### Using async pipe in templates:
+
+```typescript
+@Component({
+  selector: 'app-property-list',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    @if (properties$ | async; as properties) {
+      @for (property of properties; track property.id) {
+        <div class="card">{{ property.address }}</div>
+      }
+    }
+  `
+})
+export class PropertyListComponent {
+  // Observable stream
+  properties$ = this.propertyService.getProperties().pipe(
+    map(response => response.data || [])
+  );
+
+  constructor(private propertyService: PropertyService) {}
+}
+```
+
+---
+
+## Architecture Layers: Utilities → CSS → Components
+
+### Layer 1: Utility Classes (Tailwind)
+```html
+<div class="grid grid-cols-2 gap-4">
+  <!-- Layout only -->
+</div>
+```
+
+### Layer 2: Control CSS Classes
+```css
+/* src/styles.css */
+.input { @apply w-full px-4 py-2 border rounded-lg; }
+.btn-primary { @apply px-4 py-2 bg-brand-red-600 text-white rounded-lg; }
+```
+
+### Layer 3: Angular Components (Built with Controls + Utilities)
+```html
+<form class="card p-6 space-y-6"> <!-- CSS class + utilities -->
+  <input class="input" formControlName="address" /> <!-- CSS class for control -->
+  <button class="btn-primary" type="submit">Submit</button> <!-- CSS class -->
+</form>
+```
+
+---
+
+## Related Rules
+
+- **CSS:** `.cursor/rules/css.mdc` - CSS architecture for Angular components
+- **Tailwind:** `web/.cursor/rules/tailwind-4-patterns.mdc` - Tailwind 4.1 patterns
+- **UI Guidelines:** `.cursor/rules/ui-and-styling.mdc` - High-level styling principles
+
+---
+
+## Summary
+
+✅ **DO:**
+- Use angular-cli MCP server tools (`list_projects`, `get_best_practices`, `search_documentation`)
+- Use standalone components (default in v21)
+- Use Angular Signals for reactive state
+- Use modern template syntax (@if, @for, @switch)
+- Use typed reactive forms
+- Use Dependency Injection for services
+- Follow three-layer architecture: utilities → CSS classes → components
+- Use RxJS for async operations
+
+❌ **DON'T:**
+- Skip MCP server workflow (list_projects → get_best_practices → code)
+- Use NgModules (unless maintaining legacy code)
+- Use BehaviorSubject for local state (use signals)
+- Use old structural directives (*ngIf, *ngFor) in new code
+- Use inline Tailwind for controls (use CSS classes)
+- Hardcode API URLs (use environment files)
+- Run `ng` commands without MCP context

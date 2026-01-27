@@ -1,0 +1,11 @@
+---
+description: "AWS infrastructure constraints."
+alwaysApply: false
+---
+
+# Cloud AWS
+
+- Use infrastructure as code for changes.
+- Never hardcode secrets; use managed secret stores.
+- Require preflight checks before deploy.
+- Document rollback strategy for releases.

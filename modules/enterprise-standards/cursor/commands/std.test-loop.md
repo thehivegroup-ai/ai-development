@@ -1,0 +1,15 @@
+# Standard Test Loop
+
+Use this to run tests, fix failures, and re-verify.
+
+## Steps
+
+1. Identify the right test scope (unit, integration, e2e).
+2. Run tests and capture results.
+3. Fix failures with minimal changes.
+4. Re-run until passing, then summarize.
+
+## Guidance
+
+- Apply the `engineering-hygiene` skill.
+- Delegate to `std.debugger` for stubborn failures.

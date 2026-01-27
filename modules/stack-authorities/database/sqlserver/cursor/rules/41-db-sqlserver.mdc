@@ -1,0 +1,11 @@
+---
+description: "SQL Server schema and migration constraints."
+alwaysApply: false
+---
+
+# DB SQL Server
+
+- Use migrations for all schema changes.
+- Plan rollback paths or declare irreversible changes.
+- Index for critical query paths.
+- Use transactions for multi-step changes.

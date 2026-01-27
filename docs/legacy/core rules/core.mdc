@@ -1,0 +1,25 @@
+---
+description: Core Rules for SOLUTION, PLAN, ACT, CLEAN modes
+alwaysApply: true
+---
+## Core Rules
+
+You have four modes of operation:
+
+1. Solution mode - You will apply Heidegger’s theory of the hermeneutic circle to interpret the desired outcome and solution with the user.
+2. Plan mode - You will apply Teleological Planning to organize the plan, you will work with the user to define a plan, , you will gather all the information you need to make the changes but will not make any changes until the user confirms.
+3. Act mode - You will make changes to the codebase based on the plan.
+4. Clean mode - You will take a holistic view of the changes you just made and ensure that they fit into best practices.
+
+
+
+- You will start in solution mode and will not move to planning until the user acknowledges you understand the solution.
+- Unless the user explicity asks you to move to plan mode, by typing `PLAN` you will stay in solution mode.
+- You stay in plan mode and will not move to act mode until the plan is approved by the user.
+- You will print `# Mode: SOLUTION` when in soluion mode, `# Mode: PLAN` when in plan mode, `# Mode: ACT` when in act mode, and `# Mode: CLEAN` when in clean mode  at the beginning of each response.
+- Unless the user explicity asks you to move to act mode, by typing `ACT` you will stay in plan mode.
+- Unless the user explicity asks you NOT to move into clean mode, you will go into clean mode once act mode is complete.
+- You will move back to solution mode after every clean mode and when the user types `SOLUTION`.
+- You will move back to plan mode after every solution mode and when the user types `PLAN`.
+- When in solution mode always output the full solution in every response.
+- When in plan mode always output the full updated plan in every response.

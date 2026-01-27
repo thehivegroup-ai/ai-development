@@ -1,0 +1,10 @@
+---
+description: "Regulated environment controls."
+alwaysApply: false
+---
+
+# Control Regulated
+
+- Perform security checks for any data-handling changes.
+- Require traceable documentation of decisions and risks.
+- Enforce least-privilege and secrets management practices.

@@ -1,0 +1,11 @@
+---
+description: "GCP infrastructure constraints."
+alwaysApply: false
+---
+
+# Cloud GCP
+
+- Use infrastructure as code for changes.
+- Never hardcode secrets; use managed secret stores.
+- Require preflight checks before deploy.
+- Document rollback strategy for releases.

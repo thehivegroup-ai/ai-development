@@ -1,0 +1,143 @@
+---
+description: TypeScript API and backend best practices
+globs: **/api/**/*.ts
+alwaysApply: false
+---
+
+# API Development Rules
+
+These rules apply to all TypeScript backend/API files matched by the globs above.
+
+## 1. Project Structure
+
+- Backend code **must** live under one of: `src/`, `server/`, or `backend/` (or the root `*.ts` API files).
+- Each feature or domain **should** have its own folder (e.g. `users/`, `auth/`, `documents/`).
+- Shared logic (e.g. `db/`, `services/`, `utils/`, `types/`, `middlewares/`) **must not** depend on feature folders (no circular dependencies).
+
+### Suggested layout
+
+```txt
+src/
+  routes/        # HTTP route handlers
+  controllers/   # Request orchestration logic
+  services/      # Business logic
+  repositories/  # DB access
+  schemas/       # Validation schemas (Zod, etc.)
+  middlewares/   # Cross-cutting behavior
+  types/         # Shared TS types
+  config/        # Environment / configuration
+```
+
+## 2. TypeScript & Coding Style
+
+- All files **must** be written in TypeScript (`.ts`/`.tsx`), not plain JS.
+- `strict` mode **must** be enabled in `tsconfig.json`.
+- The `any` type **must be avoided**; prefer generics, unions, and proper interfaces.
+- Public functions and modules **must** be fully typed (params + return).
+- Shared types **must** live in `types/` or a dedicated module (not duplicated).
+
+## 3. API Design
+
+### RESTful Principles
+
+- Endpoints **must** follow RESTful naming and HTTP verbs:
+
+  - `GET /resource` – list  
+  - `GET /resource/:id` – retrieve  
+  - `POST /resource` – create  
+  - `PUT /resource/:id` – replace  
+  - `PATCH /resource/:id` – partial update  
+  - `DELETE /resource/:id` – remove  
+
+- Routes **must** be grouped by resource (e.g. `users.routes.ts`, `documents.routes.ts`).
+- Request/response shapes **must** be stable and versioned if breaking changes are required (e.g. `/v1/`, `/v2/`).
+
+### Request & Response Contracts
+
+- All incoming payloads **must** be validated at the edge (middleware or controller).
+- All responses **must** use a consistent envelope or structure (for example):
+
+```ts
+reply.code(200).send({
+  data,
+  error: null,
+});
+```
+
+or
+
+```ts
+reply.code(400).send({
+  data: null,
+  error: { code: "BAD_REQUEST", message: "..." },
+});
+```
+
+Pick a pattern and use it consistently.
+
+## 4. Validation
+
+- Use a shared validation library (e.g. Zod, Yup, Joi) across the API.
+- Validation schemas **must** live in a dedicated `schemas/` or `validation/` folder.
+- Controllers **must not** contain inline, ad-hoc validation logic.
+
+Example (Zod):
+
+```ts
+const CreateUserSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+});
+
+type CreateUserInput = z.infer<typeof CreateUserSchema>;
+```
+
+## 5. Error Handling
+
+- All unexpected errors **must** be caught by a global error handler.
+- Known, user-facing errors **must** use typed error objects or classes (e.g. `NotFoundError`, `ValidationError`).
+- Stack traces **must not** be exposed to clients; use generic error messages externally, detailed logs internally.
+- HTTP status codes **must** accurately reflect the error (400/401/403/404/409/422/500, etc.).
+
+## 6. Security
+
+- Authentication and authorization **must** be enforced on all protected routes.
+- Sensitive data (tokens, secrets, passwords) **must never** be logged or returned to the client.
+- Passwords **must** be hashed with a modern algorithm (bcrypt, argon2, etc.).
+- Inputs **must** be validated and sanitized to mitigate injection attacks.
+- CORS, rate limiting, and basic abuse protections **must** be configured where relevant.
+
+## 7. Database & Repositories
+
+- Data access **must** be encapsulated in repository or data-access layers, not scattered in controllers.
+- Transactions **must** be used for multi-step operations requiring atomicity.
+- N+1 query patterns **must** be avoided; prefer joins or batched queries.
+- DB connection management (pooling, closing) **must** be handled centrally.
+
+## 8. Logging & Monitoring
+
+- Use a structured logger (e.g. Pino, Winston) with log levels.
+- Logs **must not** contain secrets or PII.
+- Log at appropriate levels:
+  - `info` for normal operations
+  - `warn` for unusual but non-fatal events
+  - `error` for failures
+- Correlation IDs (request IDs) **should** be included for tracing.
+
+## 9. Performance
+
+- Use `async/await` and non-blocking I/O for network and disk operations.
+- Long-running or CPU-heavy tasks **should** be moved to workers/queues.
+- Caching (in-memory or external like Redis) **should** be used for hot paths or expensive computations.
+- Pagination **must** be used for list endpoints.
+
+## 10. Testing
+
+- Unit tests **must** exist for critical business logic.
+- Integration tests **should** cover main API flows.
+- HTTP-level tests **should** validate request/response contracts.
+- Test data **must** be deterministic and isolated between tests.
+
+---
+
+Follow these patterns for robust, secure, and maintainable APIs.

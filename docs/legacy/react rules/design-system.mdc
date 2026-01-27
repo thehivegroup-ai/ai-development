@@ -1,0 +1,18 @@
+---
+alwaysApply: true
+---
+We are going to keep track of our design decisions for this application
+
+docs/design/brand-tone-vinyx.md
+docs/design/component-library.md
+docs/design/component-styles.md
+docs/design/design-system.md
+docs/design/visual-reference.md
+docs/design/design-tokens.md
+docs/design/icon-standards.md
+
+
+- Use them when making design changes to ensure we are consitent throughout the site.
+- Update them as we add design information (padding, margin, alignment, color, etc.).
+- Ensure that our tailwind.config.js match the design system and is leveraged across the site.
+

@@ -1,0 +1,623 @@
+---
+description: Data integration patterns for fetching and synchronizing site analysis data in Angular
+globs: ["**/services/**/*.ts", "**/lib/api/**/*.ts", "**/features/**/*.ts"]
+alwaysApply: false
+---
+
+# Data Integration Patterns for Angular
+
+This rule defines patterns for fetching, caching, and synchronizing data from the Fastify backend API.
+
+## Core Principles
+
+1. **HttpClient**: Use Angular's HttpClient for all API calls
+2. **Services**: Centralize data fetching in Injectable services
+3. **RxJS**: Use Observables for asynchronous operations
+4. **Signals**: Use Signals for reactive state management
+5. **Error Handling**: Implement comprehensive error handling
+6. **Type Safety**: Use TypeScript interfaces for all data
+
+---
+
+## API Client Setup
+
+### ✅ CORRECT: HttpClient with interceptors
+
+```typescript
+// lib/api/api-config.ts
+export const API_CONFIG = {
+  baseUrl: process.env['API_BASE_URL'] || 'http://localhost:3001',
+  timeout: 30000,
+};
+
+export function getApiUrl(endpoint: string): string {
+  return `${API_CONFIG.baseUrl}${endpoint}`;
+}
+```
+
+```typescript
+// lib/api/http-error.interceptor.ts
+import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
+import { inject } from '@angular/core';
+import { catchError, throwError } from 'rxjs';
+import { Router } from '@angular/router';
+
+export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
+  const router = inject(Router);
+
+  return next(req).pipe(
+    catchError((error: HttpErrorResponse) => {
+      if (error.status === 401) {
+        // Unauthorized - redirect to login
+        router.navigate(['/login']);
+      } else if (error.status === 500) {
+        console.error('Server error:', error);
+      }
+      return throwError(() => error);
+    })
+  );
+};
+```
+
+```typescript
+// app.config.ts
+import { ApplicationConfig } from '@angular/core';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { httpErrorInterceptor } from '@/lib/api/http-error.interceptor';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideHttpClient(
+      withInterceptors([httpErrorInterceptor])
+    ),
+  ]
+};
+```
+
+---
+
+## Data Service Pattern
+
+### ✅ CORRECT: Service with Signals and HttpClient
+
+```typescript
+// services/property.service.ts
+import { Injectable, signal, computed } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable, catchError, of, tap } from 'rxjs';
+import { getApiUrl } from '@/lib/api/api-config';
+
+export interface Property {
+  id: string;
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
+  price: number;
+  status: 'available' | 'under-review' | 'acquired';
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class PropertyService {
+  private propertiesSignal = signal<Property[]>([]);
+  private loadingSignal = signal(false);
+  private errorSignal = signal<string | null>(null);
+
+  properties = this.propertiesSignal.asReadonly();
+  loading = this.loadingSignal.asReadonly();
+  error = this.errorSignal.asReadonly();
+
+  availableProperties = computed(() => 
+    this.properties().filter(p => p.status === 'available')
+  );
+
+  constructor(private http: HttpClient) {}
+
+  loadProperties(): void {
+    this.loadingSignal.set(true);
+    this.errorSignal.set(null);
+
+    this.http.get<Property[]>(getApiUrl('/api/properties'))
+      .pipe(
+        tap(properties => {
+          this.propertiesSignal.set(properties);
+          this.loadingSignal.set(false);
+        }),
+        catchError(error => {
+          console.error('Failed to load properties', error);
+          this.errorSignal.set('Failed to load properties');
+          this.loadingSignal.set(false);
+          return of([]);
+        })
+      )
+      .subscribe();
+  }
+
+  getPropertyById(id: string): Observable<Property> {
+    return this.http.get<Property>(getApiUrl(`/api/properties/${id}`));
+  }
+
+  createProperty(property: Omit<Property, 'id'>): Observable<Property> {
+    return this.http.post<Property>(getApiUrl('/api/properties'), property)
+      .pipe(
+        tap(newProperty => {
+          // Update local state
+          this.propertiesSignal.update(props => [...props, newProperty]);
+        })
+      );
+  }
+
+  updateProperty(id: string, updates: Partial<Property>): Observable<Property> {
+    return this.http.put<Property>(getApiUrl(`/api/properties/${id}`), updates)
+      .pipe(
+        tap(updatedProperty => {
+          // Update local state
+          this.propertiesSignal.update(props =>
+            props.map(p => p.id === id ? updatedProperty : p)
+          );
+        })
+      );
+  }
+
+  deleteProperty(id: string): Observable<void> {
+    return this.http.delete<void>(getApiUrl(`/api/properties/${id}`))
+      .pipe(
+        tap(() => {
+          // Update local state
+          this.propertiesSignal.update(props =>
+            props.filter(p => p.id !== id)
+          );
+        })
+      );
+  }
+}
+```
+
+---
+
+## Component Integration
+
+### ✅ CORRECT: Component using service
+
+```typescript
+// features/properties/property-list/property-list.component.ts
+import { Component, OnInit, inject, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { PropertyService } from '@/services/property.service';
+
+@Component({
+  selector: 'app-property-list',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './property-list.component.html',
+})
+export class PropertyListComponent implements OnInit {
+  private propertyService = inject(PropertyService);
+
+  properties = this.propertyService.properties;
+  loading = this.propertyService.loading;
+  error = this.propertyService.error;
+
+  availableCount = computed(() => 
+    this.properties().filter(p => p.status === 'available').length
+  );
+
+  ngOnInit(): void {
+    this.propertyService.loadProperties();
+  }
+
+  handleRefresh(): void {
+    this.propertyService.loadProperties();
+  }
+}
+```
+
+```html
+<!-- property-list.component.html -->
+<div class="container mx-auto py-8">
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="text-2xl font-bold">Properties</h1>
+    <button 
+      class="btn-primary" 
+      (click)="handleRefresh()"
+      [disabled]="loading()">
+      Refresh
+    </button>
+  </div>
+
+  @if (loading()) {
+    <div class="flex items-center justify-center py-12">
+      <app-loading-spinner />
+    </div>
+  }
+
+  @if (error()) {
+    <div class="card bg-red-50 border-red-200 p-4 text-red-800">
+      {{ error() }}
+    </div>
+  }
+
+  @if (!loading() && !error()) {
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      @for (property of properties(); track property.id) {
+        <app-property-card [property]="property" />
+      }
+    </div>
+
+    <p class="mt-4 text-sm text-text-secondary">
+      {{ availableCount() }} available properties
+    </p>
+  }
+</div>
+```
+
+---
+
+## Advanced Patterns
+
+### 1. Polling for Updates
+
+```typescript
+// services/real-time-data.service.ts
+import { Injectable, signal, OnDestroy } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { interval, switchMap, Subscription } from 'rxjs';
+import { getApiUrl } from '@/lib/api/api-config';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class RealTimeDataService implements OnDestroy {
+  private dataSignal = signal<any[]>([]);
+  private pollingSubscription?: Subscription;
+
+  data = this.dataSignal.asReadonly();
+
+  constructor(private http: HttpClient) {}
+
+  startPolling(intervalMs: number = 30000): void {
+    this.pollingSubscription = interval(intervalMs)
+      .pipe(
+        switchMap(() => this.http.get<any[]>(getApiUrl('/api/data')))
+      )
+      .subscribe({
+        next: data => this.dataSignal.set(data),
+        error: error => console.error('Polling error', error)
+      });
+  }
+
+  stopPolling(): void {
+    this.pollingSubscription?.unsubscribe();
+  }
+
+  ngOnDestroy(): void {
+    this.stopPolling();
+  }
+}
+```
+
+### 2. Pagination
+
+```typescript
+// services/paginated-data.service.ts
+import { Injectable, signal, computed } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { getApiUrl } from '@/lib/api/api-config';
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class PaginatedDataService {
+  private currentPageSignal = signal(1);
+  private pageSizeSignal = signal(20);
+  private dataSignal = signal<any[]>([]);
+  private totalPagesSignal = signal(1);
+
+  currentPage = this.currentPageSignal.asReadonly();
+  pageSize = this.pageSizeSignal.asReadonly();
+  data = this.dataSignal.asReadonly();
+  totalPages = this.totalPagesSignal.asReadonly();
+
+  hasNextPage = computed(() => this.currentPage() < this.totalPages());
+  hasPrevPage = computed(() => this.currentPage() > 1);
+
+  constructor(private http: HttpClient) {}
+
+  loadPage(page: number): void {
+    this.currentPageSignal.set(page);
+    
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('limit', this.pageSize().toString());
+
+    this.http.get<PaginatedResponse<any>>(getApiUrl('/api/data'), { params })
+      .subscribe({
+        next: response => {
+          this.dataSignal.set(response.data);
+          this.totalPagesSignal.set(response.pagination.totalPages);
+        },
+        error: error => console.error('Failed to load page', error)
+      });
+  }
+
+  nextPage(): void {
+    if (this.hasNextPage()) {
+      this.loadPage(this.currentPage() + 1);
+    }
+  }
+
+  prevPage(): void {
+    if (this.hasPrevPage()) {
+      this.loadPage(this.currentPage() - 1);
+    }
+  }
+}
+```
+
+### 3. Optimistic Updates
+
+```typescript
+// services/optimistic-update.service.ts
+import { Injectable, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { catchError, tap, throwError } from 'rxjs';
+import { getApiUrl } from '@/lib/api/api-config';
+
+export interface Item {
+  id: string;
+  name: string;
+  value: number;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class OptimisticUpdateService {
+  private itemsSignal = signal<Item[]>([]);
+  items = this.itemsSignal.asReadonly();
+
+  constructor(private http: HttpClient) {}
+
+  updateItem(id: string, updates: Partial<Item>): void {
+    // Store original state for rollback
+    const originalItems = this.items();
+    
+    // Optimistically update UI
+    this.itemsSignal.update(items =>
+      items.map(item => 
+        item.id === id ? { ...item, ...updates } : item
+      )
+    );
+
+    // Send request to server
+    this.http.put<Item>(getApiUrl(`/api/items/${id}`), updates)
+      .pipe(
+        tap(updatedItem => {
+          // Update with server response
+          this.itemsSignal.update(items =>
+            items.map(item => item.id === id ? updatedItem : item)
+          );
+        }),
+        catchError(error => {
+          // Rollback on error
+          this.itemsSignal.set(originalItems);
+          console.error('Update failed, rolled back', error);
+          return throwError(() => error);
+        })
+      )
+      .subscribe();
+  }
+}
+```
+
+### 4. File Upload with Progress
+
+```typescript
+// services/file-upload.service.ts
+import { Injectable, signal } from '@angular/core';
+import { HttpClient, HttpEventType } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { getApiUrl } from '@/lib/api/api-config';
+
+export interface UploadProgress {
+  loaded: number;
+  total: number;
+  percentage: number;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class FileUploadService {
+  private uploadProgressSignal = signal<UploadProgress | null>(null);
+  uploadProgress = this.uploadProgressSignal.asReadonly();
+
+  constructor(private http: HttpClient) {}
+
+  uploadFile(file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return new Observable(observer => {
+      this.http.post(getApiUrl('/api/upload'), formData, {
+        reportProgress: true,
+        observe: 'events'
+      }).subscribe({
+        next: (event) => {
+          if (event.type === HttpEventType.UploadProgress && event.total) {
+            const percentage = Math.round((100 * event.loaded) / event.total);
+            this.uploadProgressSignal.set({
+              loaded: event.loaded,
+              total: event.total,
+              percentage
+            });
+          } else if (event.type === HttpEventType.Response) {
+            this.uploadProgressSignal.set(null);
+            observer.next(event.body);
+            observer.complete();
+          }
+        },
+        error: (error) => {
+          this.uploadProgressSignal.set(null);
+          observer.error(error);
+        }
+      });
+    });
+  }
+}
+```
+
+---
+
+## Error Handling
+
+### ✅ CORRECT: Comprehensive error handling
+
+```typescript
+// lib/api/error-handler.ts
+import { HttpErrorResponse } from '@angular/common/http';
+
+export interface ApiError {
+  message: string;
+  code?: string;
+  details?: any;
+}
+
+export function handleApiError(error: HttpErrorResponse): ApiError {
+  if (error.status === 0) {
+    // Network error
+    return {
+      message: 'Unable to connect to server. Please check your connection.',
+      code: 'NETWORK_ERROR'
+    };
+  }
+
+  if (error.status === 400) {
+    return {
+      message: error.error?.message || 'Invalid request',
+      code: 'BAD_REQUEST',
+      details: error.error?.details
+    };
+  }
+
+  if (error.status === 404) {
+    return {
+      message: 'Resource not found',
+      code: 'NOT_FOUND'
+    };
+  }
+
+  if (error.status === 500) {
+    return {
+      message: 'Server error. Please try again later.',
+      code: 'SERVER_ERROR'
+    };
+  }
+
+  return {
+    message: error.error?.message || 'An unexpected error occurred',
+    code: 'UNKNOWN_ERROR'
+  };
+}
+```
+
+---
+
+## Best Practices
+
+### 1. Use Signals for Reactive State
+
+```typescript
+// ✅ CORRECT: Signals with computed values
+private dataSignal = signal<Data[]>([]);
+filteredData = computed(() => 
+  this.dataSignal().filter(item => item.active)
+);
+```
+
+### 2. Centralize API URLs
+
+```typescript
+// ✅ CORRECT: Centralized API configuration
+import { getApiUrl } from '@/lib/api/api-config';
+this.http.get(getApiUrl('/api/properties'));
+```
+
+### 3. Type All Data
+
+```typescript
+// ✅ CORRECT: TypeScript interfaces
+export interface Property {
+  id: string;
+  address: string;
+  price: number;
+}
+
+this.http.get<Property[]>(getApiUrl('/api/properties'));
+```
+
+### 4. Handle Loading and Error States
+
+```typescript
+// ✅ CORRECT: Track loading and errors
+loading = signal(false);
+error = signal<string | null>(null);
+
+loadData(): void {
+  this.loading.set(true);
+  this.error.set(null);
+  
+  this.http.get('/api/data').subscribe({
+    next: data => {
+      // Handle data
+      this.loading.set(false);
+    },
+    error: error => {
+      this.error.set('Failed to load');
+      this.loading.set(false);
+    }
+  });
+}
+```
+
+---
+
+## Related Rules
+
+- **Angular:** `web/.cursor/rules/angular-21-patterns.mdc` - Angular patterns
+- **API Backend:** `api/.cursor/rules/fastify-patterns.mdc` - Fastify routes
+- **Forms:** `web/.cursor/rules/forms-validation.mdc` - Form data submission
+
+---
+
+## Summary
+
+✅ **DO:**
+- Use HttpClient for all API calls
+- Centralize data fetching in services
+- Use Signals for reactive state
+- Handle errors comprehensively
+- Use TypeScript interfaces
+- Track loading states
+- Use `class` (not `className`)
+
+❌ **DON'T:**
+- Use fetch() directly in components
+- Use React hooks (useState, useEffect)
+- Ignore error handling
+- Use `any` types
+- Use `className`
+- Skip loading indicators

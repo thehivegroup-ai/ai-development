@@ -1,0 +1,41 @@
+---
+description: "Constraints for hermeneutic solution framing - interpretation before action."
+alwaysApply: false
+---
+
+# Standard Solution Hermeneutic
+
+## Interpretation Required
+
+**Every problem must produce explicit artifacts before solutions are proposed:**
+
+1. **Problem statement** (current best interpretation)
+2. **Desired outcome** (provisional, observable)
+3. **Stated assumptions** (what we're taking for granted)
+4. **Known constraints** (what limits our options)
+5. **Open questions** (what would change our understanding)
+6. **Success criteria** (how we'll know we succeeded)
+
+## Interpretive Discipline
+
+- **No solutions until interpretation is documented** – Prevents premature solutioning
+- **Re-interpretation is expected** – Understanding evolves as evidence appears
+- **Assumptions must be explicit** – Hidden assumptions become visible
+- **Language must be clarified** – Terms mean the same to all parties
+
+## Interpretive Loop
+
+Solutions may not be proposed until:
+1. Problem is stated in user's terms
+2. Assumptions are documented
+3. Unknowns are identified
+4. Success criteria are defined
+5. Interpretation has been challenged and refined
+
+## What This Rule Does NOT Do
+
+- Does NOT explain how to interpret (see `hermeneutic-solution` skill)
+- Does NOT provide interpretive method (use `/std.solution` command)
+- Does NOT test interpretation (subagents do this)
+
+This rule only **enforces that interpretation happens before action**.

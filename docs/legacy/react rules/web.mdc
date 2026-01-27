@@ -1,0 +1,168 @@
+---
+alwaysApply: true
+---
+# Web Development Rules
+
+These rules define how we build maintainable and performant React applications using our **Component/Utility architecture**.
+
+**Core Philosophy:**
+- **Component Classes** = Semantic, reusable styling for UI controls
+- **Utility Classes** = Layout, spacing, and contextual adjustments  
+- **TypeScript** = Type safety and developer experience
+
+This architecture applies to **all UI elements**: buttons, links, sections, images, content blocks, headlines, and beyond.
+
+## 1. React Component Patterns
+
+### 1.1 Core Principles
+
+- Prefer **functional components with hooks** over class components.
+- Prefer **composition over inheritance**.
+- Components **should remain small and focused** (aim for ≤ 200 lines).
+- Side effects **must** be handled with hooks (`useEffect`, custom hooks), not in render.
+
+### 1.2 Component Types
+
+- **Presentational / UI components**: stateless, purely visual, reusable.
+- **Container / feature components**: handle data fetching, coordinate state, pass props to presentational components.
+- Shared components **must** live in a central `components/` library.
+
+### 1.3 Props & Types
+
+- All components **must** have typed props interfaces:
+
+```ts
+interface ButtonProps {
+  label: string;
+  onClick?: () => void;
+  disabled?: boolean;
+}
+
+export function Button({ label, onClick, disabled }: ButtonProps) {
+  // ...
+}
+```
+
+- Avoid `any`; use unions, generics, and discriminated unions.
+
+## 2. State & Data Fetching
+
+- Local UI state (toggles, input values) **belongs in the component or a nearby hook**.
+- Shared, cross-page state **should** use Context or a dedicated state library (e.g. Zustand, Redux) – not prop drilling.
+- Data fetching **should** use a consistent approach:
+  - A data-fetching library (e.g. React Query) or
+  - Thin service modules (e.g. `services/api.ts`) + hooks (e.g. `useDocuments()`).
+
+Example hook:
+
+```ts
+export function useDocuments() {
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchDocuments = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await api.listDocuments();
+      setDocuments(res);
+    } catch (err) {
+      setError("Failed to load documents");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchDocuments();
+  }, [fetchDocuments]);
+
+  return { documents, loading, error, refetch: fetchDocuments };
+}
+```
+
+## 3. Hooks & Reusability
+
+- Cross-cutting logic (e.g. form handling, modal state, data fetching) **must** live in custom hooks.
+- Custom hooks **must** be named with `use*` and live in a `hooks/` folder.
+- Hooks **must not** be called conditionally; follow the Rules of Hooks strictly.
+
+## 4. Styling: CSS & Tailwind
+
+- Prefer **Tailwind CSS** utility classes for layout and spacing.
+- Repeated style patterns **must** use **component classes** (see `@rules/css.mdc`).
+- Global styles **must** live in a clear `styles/` folder and be minimal.
+- Avoid deeply nested CSS selectors and ad-hoc inline styles unless truly necessary.
+
+### The Two-Layer Pattern
+
+Every UI element should combine two architectural layers:
+
+```tsx
+<button 
+  className="btn-primary mt-4"          // Layer 1 + 2: Component class + Utilities
+  onClick={handleSignup}                // Behavior
+>
+  Sign Up
+</button>
+```
+
+**Layer 1:** Component class (`.btn-primary`) - semantic styling  
+**Layer 2:** Utilities (`mt-4`) - layout/spacing
+
+### BEM / Utility Combination
+
+- When not using Tailwind (or alongside it), use **BEM**-style class naming: `block__element--modifier`.
+- Avoid random/unstructured class names.
+
+## 5. File & Folder Structure
+
+Suggested:
+
+```txt
+web/
+  src/
+    app/            # Next.js app router or main entry
+    components/     # Reusable UI components
+    features/       # Feature-specific modules
+      documents/
+        components/
+        hooks/
+        services/
+    hooks/          # Generic custom hooks
+    services/       # API clients, data access
+    types/          # Shared TS types
+    utils/          # Pure helpers
+    styles/         # Global styles, Tailwind config
+```
+
+- Feature-specific components **belong in feature folders**, not the root `components/`.
+- Pure helpers **must not** depend on React; keep them in `utils/`.
+
+## 6. Accessibility
+
+- All interactive elements **must** use proper semantic tags (`button`, `a`, `input`, etc.).
+- Forms **must** have associated labels.
+- Components **must** be keyboard accessible (focus states, `tabIndex` where needed).
+- ARIA attributes **should** be used for complex widgets (modals, dialogs, menus).
+- For the full compliance checklist (including Lighthouse weighting), follow `@rules/accessibility.mdc`.
+
+## 7. Performance
+
+- Avoid unnecessary re-renders:
+  - Use `React.memo` and `useCallback`/`useMemo` where appropriate.
+- Prefer **lazy loading** of heavy components or routes.
+- Large lists **should** use virtualization when performance becomes an issue.
+- Images **must** be optimized (lazy-loaded, proper sizing, modern formats).
+- Enforce the content tiering and Lighthouse budgets defined in `@rules/content-loading.mdc` and `@rules/performance.mdc`.
+
+## 8. Error Handling & UX
+
+- User-facing errors **must** be clear and actionable.
+- Loading states **must** be represented (spinners, skeletons, etc.).
+- Error boundaries **should** be used around major sections (e.g. app shell, large feature areas).
+
+---
+
+Follow these patterns for maintainable, accessible, and performant React frontends.

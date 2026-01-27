@@ -1,0 +1,11 @@
+---
+description: "Java API constraints."
+alwaysApply: false
+---
+
+# API Java
+
+- Follow layered architecture: controller → service → repository.
+- Validate inputs at boundaries; no business logic in controllers.
+- Use consistent error response models and status codes.
+- Write tests for core service logic.

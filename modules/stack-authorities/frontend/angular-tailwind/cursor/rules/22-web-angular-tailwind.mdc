@@ -1,0 +1,101 @@
+---
+description: "Angular + Tailwind constraints."
+alwaysApply: false
+globs:
+  - "**/*.component.ts"
+  - "**/*.component.html"
+---
+
+# Web Angular Tailwind
+
+## Modern Angular Patterns (v21+)
+
+- **Use standalone components** – `standalone: true` in component decorator
+- **Use Signals for state** – Prefer `signal()` and `computed()` over RxJS where appropriate
+- **Use modern template syntax** – `@if`, `@for`, `@switch` instead of structural directives
+- **Use typed reactive forms** – `FormControl<string>`, `FormGroup<MyForm>`
+
+## CSS-First Tailwind 4.x
+
+- **Use CSS-first configuration** – Define design tokens with `@theme` in CSS
+- **Use component classes** for controls (buttons, inputs, cards)
+- **Use utilities** for layout and spacing
+- **Use `class`** (not `className`) in Angular templates
+
+## E2E Testing Requirements
+
+**MUST add `data-testid` to:**
+- All interactive elements (buttons, links, inputs, selects)
+- Form containers and validation message containers
+- Key containers (cards, modals, sidebars)
+- Dynamic content areas (lists, tables)
+- Navigation elements
+
+```html
+<!-- ✅ CORRECT: data-testid for testing -->
+<button data-testid="submit-button" class="btn-primary" (click)="onSubmit()">
+  Submit
+</button>
+
+<input
+  data-testid="email-input"
+  type="email"
+  formControlName="email"
+  class="input"
+/>
+
+<div data-testid="user-card" class="card">
+  <!-- card content -->
+</div>
+```
+
+## Angular CLI via MCP
+
+**ALWAYS prefer Angular CLI MCP tools** for Angular workflows:
+- Generating components, services, modules
+- Running builds, tests, and dev server
+- Managing dependencies
+
+## Template Syntax
+
+```html
+<!-- ✅ CORRECT: Modern syntax -->
+@if (user) {
+  <div>{{ user.name }}</div>
+}
+
+@for (item of items; track item.id) {
+  <div>{{ item.name }}</div>
+}
+
+@switch (status) {
+  @case ('active') {
+    <span>Active</span>
+  }
+  @case ('inactive') {
+    <span>Inactive</span>
+  }
+  @default {
+    <span>Unknown</span>
+  }
+}
+
+<!-- ❌ WRONG: Old structural directives -->
+<div *ngIf="user">{{ user.name }}</div>
+<div *ngFor="let item of items">{{ item.name }}</div>
+```
+
+## Reactive Forms
+
+```typescript
+// ✅ CORRECT: Typed reactive forms
+interface LoginForm {
+  email: FormControl<string>;
+  password: FormControl<string>;
+}
+
+form = this.fb.group<LoginForm>({
+  email: this.fb.control('', { validators: [Validators.required, Validators.email], nonNullable: true }),
+  password: this.fb.control('', { validators: [Validators.required], nonNullable: true }),
+});
+```

@@ -1,0 +1,293 @@
+---
+description: CSS best practices and component class architecture
+alwaysApply: true
+---
+
+# CSS Best Practices
+
+These rules enforce CSS architecture best practices across the web application.
+
+## 1. Component Classes Required for UI Controls
+
+All reusable UI controls **must** use CSS component classes defined in `web/src/styles/globals.css`.
+
+### Required Component Classes
+
+**Buttons:**
+- Primary actions → `.btn-primary`
+- Secondary actions → `.btn-secondary`
+- Tertiary/ghost actions → `.btn-ghost`
+- Icon buttons → `.btn-icon`
+- Search buttons → `.btn-search`
+- Call buttons → `.btn-call`
+- CTA buttons → `.cta-button`
+- Location buttons → `.btn-location-primary` or `.btn-location-link`
+- Mobile menu toggle → `.btn-menu-toggle`
+- Close buttons → `.btn-close`
+- Footer CTAs → `.btn-footer-cta`
+
+**Links:**
+- Navigation links → `.link-nav`
+- Footer links → `.link-footer`
+- Text/inline links → `.link-text`
+- Mobile menu links → `.link-mobile`
+- State directory links → `.link-state`
+- Location chips/pills → `.link-location-chip`
+
+**Inputs:**
+- Standard inputs → `.input`
+- Search inputs → `.input-search`
+- Large search → `.input-search-lg`
+- Transparent (expandable search) → `.input-transparent`
+
+**Cards:**
+- Base card → `.card`
+- Hoverable card → `.card-hover`
+- Feature card → `.card-feature`
+
+**Badges:**
+- Promo → `.badge-promo`
+- Distance → `.badge-distance`
+- Tag → `.badge-tag`
+
+**Labels:**
+- Form labels → `.label`
+
+### Examples
+
+```tsx
+// ✅ CORRECT: Using component classes
+<button className="btn-primary">Submit</button>
+<Link to="/about" className="link-nav">About</Link>
+<input type="text" className="input-search" />
+<div className="card-hover">Content</div>
+
+// ❌ WRONG: Inline Tailwind for controls
+<button className="bg-brand-red-600 text-white px-4 py-2 rounded-lg hover:bg-brand-red-700">
+  Submit
+</button>
+```
+
+## 2. Component Class Implementation
+
+When creating components that wrap UI controls, map variants to component classes:
+
+```tsx
+// ✅ CORRECT
+export default function Button({ variant = 'primary', ...props }) {
+  const variantClasses = {
+    primary: 'btn-primary',
+    secondary: 'btn-secondary',
+    ghost: 'btn-ghost',
+  }
+  
+  return <button className={variantClasses[variant]} {...props} />
+}
+
+// ❌ WRONG
+export default function Button({ variant = 'primary', ...props }) {
+  const baseClasses = 'px-4 py-2 rounded-lg...'
+  const variantClasses = {
+    primary: 'bg-brand-red-600 text-white hover:bg-brand-red-700',
+    // ...
+  }
+  
+  return <button className={`${baseClasses} ${variantClasses[variant]}`} {...props} />
+}
+```
+
+## 3. Combining Component Classes with Utilities
+
+Component classes can be combined with Tailwind utilities for layout and spacing:
+
+```tsx
+// ✅ CORRECT: Component class + utility classes
+<button className="btn-primary mt-4 ml-2">Submit</button>
+<div className="card flex items-center gap-4">Content</div>
+
+// ✅ CORRECT: Utilities for layout, component classes for controls
+<div className="flex items-center gap-4">
+  <button className="btn-primary">Submit</button>
+  <button className="btn-secondary">Cancel</button>
+</div>
+```
+
+## 4. When to Use Utilities vs Component Classes
+
+### Use Component Classes For:
+- Buttons, links, inputs, cards, badges, labels
+- Any control defined in the design system
+- Repeated style patterns (used 3+ times)
+
+### Use Utility Classes For:
+- Layout (flexbox, grid, positioning)
+- Spacing (margins, padding, gaps)
+- One-off customizations
+- Responsive modifiers (`md:flex`, `lg:grid-cols-3`)
+- Typography overrides in specific contexts
+- Background/border colors for unique sections
+
+## 5. Adding New Component Classes
+
+Before adding new component classes:
+
+1. **Check if it's truly reusable** - Will this exact pattern be used elsewhere?
+2. **Consult the design system** - Is this pattern defined in `docs/design/design-system.md`?
+3. **Define in globals.css** - Add to `@layer components` section
+4. **Use `@apply` directive** - Compose from Tailwind utilities and design tokens
+5. **Follow naming convention** - `{element}-{variant}`
+6. **Document it** - Update `docs/design/css-architecture.md`
+
+Example:
+
+```css
+/* web/src/styles/globals.css */
+@layer components {
+  .btn-new-variant {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2;
+    @apply bg-your-color text-your-text;
+    @apply hover:bg-your-hover-color;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-default;
+  }
+}
+```
+
+## 6. Naming Conventions
+
+Component class names must follow this pattern:
+
+```
+{element}-{variant}
+```
+
+**Examples:**
+- `btn-primary` (button, primary variant)
+- `link-footer` (link, footer variant)
+- `input-search` (input, search variant)
+- `card-hover` (card, with hover state)
+- `badge-promo` (badge, promotional variant)
+
+**Special cases:**
+- `.card` - Base card (no variant needed)
+- `.cta-button` - Legacy special CTA (grandfathered in)
+
+## 7. Component File Structure
+
+Component files should be clean and focused on behavior:
+
+```tsx
+// ✅ CORRECT: Clean, readable, focused on behavior
+import { ButtonHTMLAttributes, ReactNode } from 'react'
+
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'primary' | 'secondary' | 'ghost'
+  children: ReactNode
+}
+
+export default function Button({ variant = 'primary', children, className = '', ...props }: ButtonProps) {
+  const variantClasses = {
+    primary: 'btn-primary',
+    secondary: 'btn-secondary',
+    ghost: 'btn-ghost',
+  }
+
+  return (
+    <button className={`${variantClasses[variant]} ${className}`} {...props}>
+      {children}
+    </button>
+  )
+}
+```
+
+## 8. Forbidden Patterns
+
+The following patterns are **not allowed**:
+
+```tsx
+// ❌ WRONG: Inline class concatenation for controls
+const baseClasses = 'px-4 py-2 rounded-lg font-semibold transition-colors...'
+const variantClasses = {
+  primary: 'bg-brand-red-600 text-white hover:bg-brand-red-700',
+}
+
+// ❌ WRONG: Hardcoded color values
+<button className="bg-[#C41F1D] text-white">Submit</button>
+
+// ❌ WRONG: Recreating component classes inline
+<a href="/about" className="text-sm text-black hover:text-brand-red-600 focus-visible:outline-none...">
+  About
+</a>
+```
+
+## 9. Design Token Usage
+
+Component classes **must** use design tokens (colors, spacing, typography) via Tailwind's `@apply` directive or CSS custom properties:
+
+```css
+/* ✅ CORRECT: Using design tokens */
+.btn-primary {
+  @apply bg-brand-red-600 text-text-on-brand;
+  @apply hover:bg-brand-red-700;
+}
+
+/* ✅ CORRECT: Using CSS custom properties */
+.btn-primary {
+  background-color: var(--color-brand-red-600);
+  color: var(--color-text-on-brand);
+}
+
+/* ❌ WRONG: Hardcoded values */
+.btn-primary {
+  background-color: #C41F1D;
+  color: #FFFFFF;
+}
+```
+
+## 10. Accessibility Requirements
+
+All component classes **must** include proper focus states:
+
+```css
+/* ✅ REQUIRED: Focus states for interactive elements */
+.btn-primary {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-default focus-visible:ring-offset-2;
+}
+
+.link-nav {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-default;
+}
+```
+
+## 11. Code Review Checklist
+
+When reviewing CSS/component code, ensure:
+
+- [ ] All buttons use `.btn-*` classes
+- [ ] All links use `.link-*` classes
+- [ ] All inputs use `.input-*` classes
+- [ ] All cards use `.card*` classes
+- [ ] No inline Tailwind class concatenation for controls
+- [ ] Utilities are used only for layout and spacing
+- [ ] Component classes are defined in `globals.css`
+- [ ] New component classes follow naming conventions
+- [ ] Focus states are present on interactive elements
+- [ ] Design tokens are used (no hardcoded values)
+
+## Related Files
+
+- **CSS Definition:** `web/src/styles/globals.css` - Component classes defined here
+- **Documentation:** `docs/design/css-architecture.md` - Detailed architecture guide
+- **Design System:** `docs/design/design-system.md` - Design tokens and values
+- **Component Library:** `docs/design/component-library.md` - Component specifications
+
+## Migration Status
+
+✅ **Completed (December 2025):**
+- Button, Card, Badge components refactored
+- Link, Input components created
+- Header, Footer refactored
+- SearchBar, ExpandableSearch refactored
+- Home components refactored
+- All core UI controls now use component classes
+
+When creating new components or modifying existing ones, follow this pattern consistently.

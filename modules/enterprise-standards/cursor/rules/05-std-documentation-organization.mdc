@@ -1,0 +1,155 @@
+---
+description: "Documentation organization standards for all projects."
+alwaysApply: true
+globs:
+  - "**/*.md"
+  - "**/docs/**"
+  - "**/memory-bank/**"
+---
+
+# Standard Documentation Organization
+
+## Directory Structure
+
+**Required structure for all projects:**
+
+```
+project-root/
+├── README.md                      # Public-facing: what, build, test, run
+├── docs/                          # Long-term stable documentation
+│   ├── README.md                 # Documentation index
+│   ├── requirements/             # Requirements and specifications
+│   ├── architecture/             # System architecture and design
+│   └── completed/                # Completed work documentation
+├── memory-bank/                   # Active work (internal team)
+│   ├── current/                  # Current phase work in progress
+│   └── planning/                 # Upcoming work plans
+└── .temp/                        # Temporary files (gitignored)
+```
+
+## Core Principles
+
+1. **Separation of Concerns:** Stable documentation (`docs/`) separate from active work (`memory-bank/`)
+2. **Single Source of Truth:** Each piece of information lives in one place
+3. **Clear Lifecycle:** Planning → Current → Completed
+4. **Minimal Root:** Root directory only contains essential public-facing files
+
+## Root Directory Rules
+
+**Allowed in root:**
+- `README.md`, `LICENSE`, `CONTRIBUTING.md`
+- Configuration files (`.gitignore`, `.env.example`, etc.)
+
+**❌ NEVER create in root:**
+- Documentation files (use `docs/` or `memory-bank/`)
+- Temporary scripts (use `.temp/`)
+- Build artifacts
+
+## File Headers
+
+**Every documentation file MUST include:**
+
+```markdown
+# Document Title
+
+**Last Updated:** YYYY-MM-DD  
+**Status:** Draft | Active | Completed | Deprecated  
+**Owner:** [Team/Person]
+```
+
+## Documentation Lifecycle
+
+### 1. Planning Phase
+
+```
+Create: memory-bank/planning/PHASEX_PLAN.md
+Include: Goals, timeline, deliverables, acceptance criteria, todo list
+Status: Planning
+```
+
+### 2. Implementation Phase
+
+**CRITICAL: Move file using terminal command:**
+
+```bash
+# ✅ CORRECT
+mv memory-bank/planning/PHASEX_PLAN.md memory-bank/current/PHASEX_PLAN.md
+
+# ❌ WRONG: Never read+create+delete (loses git history)
+```
+
+Then update:
+- Change status to "Active"
+- Update "Last Updated" date
+- Mark first task as `[~]` in-progress
+
+### 3. Completion Phase
+
+```bash
+# ✅ CORRECT
+mv memory-bank/current/PHASEX_PLAN.md docs/completed/PHASEX_PLAN.md
+```
+
+Update status to "Completed" in header.
+
+## Todo List Management
+
+**CRITICAL: Todo lists MUST be maintained in plan documents, NOT in-memory tools.**
+
+**Requirements:**
+1. Every plan document MUST include a Todo List section
+2. Update the document when tasks complete
+3. Never rely solely on AI in-memory todo lists
+4. Use clear status: `[ ]` not started, `[~]` in progress, `[x]` completed
+
+**Format:**
+
+```markdown
+## Todo List
+
+- [x] **Task 1:** Complete X
+  - Status: Completed
+  - Files: `src/x.ts`
+- [~] **Task 2:** Build Y
+  - Status: In Progress
+  - Next: Fix validation
+- [ ] **Task 3:** Add Z
+  - Status: Not Started
+```
+
+**AI Assistant Behavior:**
+- ✅ Update todo list in plan document
+- ❌ NEVER duplicate in `manage_todo_list` tool when plan exists
+- ✅ Use `manage_todo_list` ONLY for ad-hoc tasks without a plan document
+
+## File Moving
+
+**MUST use terminal commands for moving files:**
+
+```bash
+# ✅ CORRECT: Preserves git history
+mv source.md destination.md
+
+# ❌ WRONG: Creates new file in git
+# Read file → Create file → Delete file
+```
+
+**Rationale:** Terminal `mv` preserves file history in version control.
+
+## Temporary Files
+
+**Use `.temp/` for:**
+- Temporary test scripts
+- Experimental code
+- One-off debugging scripts
+- Scratch files
+
+**Must be gitignored.**
+
+## Quality Checklist
+
+- [ ] Header includes date, status, owner
+- [ ] Markdown is properly formatted
+- [ ] Document is in correct directory
+- [ ] Follows naming conventions
+- [ ] File moved with terminal command (if applicable)

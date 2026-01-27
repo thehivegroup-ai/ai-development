@@ -1,0 +1,11 @@
+---
+description: "Postgres schema and migration constraints."
+alwaysApply: false
+---
+
+# DB Postgres
+
+- All schema changes must use migrations (no manual edits).
+- Migrations must be reversible or explicitly marked irreversible.
+- Add indexes for query-critical paths.
+- Use transactions for multi-step changes.

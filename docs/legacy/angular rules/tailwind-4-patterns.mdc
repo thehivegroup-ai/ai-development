@@ -1,0 +1,638 @@
+---
+description: Tailwind CSS 4.1 patterns for Angular applications
+globs: ["**/*.html", "**/*.css", "**/*.ts"]
+alwaysApply: false
+---
+
+# Tailwind CSS 4.1 Patterns for Angular
+
+This rule defines patterns for using Tailwind CSS 4.1 in Angular applications.
+
+## Core Principles
+
+1. **Tailwind 4.1**: Use latest features and syntax
+2. **CSS-First Configuration**: Use `@theme` in CSS files
+3. **Component Classes**: Reusable control styles
+4. **Utility Classes**: Layout and spacing only
+5. **Three-Layer Architecture**: Utilities → Controls → Components
+6. **Angular Integration**: Work with Angular's styling system
+
+---
+
+## Tailwind 4.1 Configuration
+
+### ✅ CORRECT: CSS-first configuration with @theme
+
+```css
+/* src/styles.css */
+@import "tailwindcss";
+
+/* Tailwind 4.1: Define theme with @theme directive */
+@theme {
+  /* Colors */
+  --color-brand-red-600: #C41F1D;
+  --color-brand-red-700: #A01816;
+  --color-brand-red-50: #FEF2F2;
+  
+  --color-text-primary: #1A1A1A;
+  --color-text-secondary: #666666;
+  --color-text-on-brand: #FFFFFF;
+  
+  --color-surface-primary: #FFFFFF;
+  --color-surface-secondary: #F9FAFB;
+  --color-surface-hover: #F3F4F6;
+  
+  --color-border-default: #E5E7EB;
+  --color-border-focus: #C41F1D;
+  
+  /* Spacing */
+  --spacing-18: 4.5rem;
+  --spacing-88: 22rem;
+  
+  /* Font Family */
+  --font-sans: ui-sans-serif, system-ui, sans-serif;
+  --font-heading: 'Inter var', ui-sans-serif, system-ui, sans-serif;
+  
+  /* Border Radius */
+  --radius-DEFAULT: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-DEFAULT: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+}
+
+/* Component Classes */
+@layer components {
+  /* Buttons */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2;
+    @apply px-4 py-2 rounded-lg;
+    @apply bg-brand-red-600 text-text-on-brand font-semibold;
+    @apply hover:bg-brand-red-700;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red-600 focus-visible:ring-offset-2;
+    @apply transition-colors duration-200;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2;
+    @apply px-4 py-2 rounded-lg;
+    @apply bg-surface-secondary text-text-primary font-semibold;
+    @apply border border-border-default;
+    @apply hover:bg-surface-hover;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red-600 focus-visible:ring-offset-2;
+    @apply transition-colors duration-200;
+    @apply disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2;
+    @apply px-4 py-2 rounded-lg;
+    @apply text-text-primary font-semibold;
+    @apply hover:bg-surface-hover;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red-600;
+    @apply transition-colors duration-200;
+  }
+
+  /* Inputs */
+  .input {
+    @apply w-full px-4 py-2 rounded-lg;
+    @apply border border-border-default bg-surface-primary;
+    @apply text-text-primary placeholder:text-text-secondary;
+    @apply focus:outline-none focus:ring-2 focus:ring-border-focus focus:border-transparent;
+    @apply transition-colors duration-200;
+    @apply disabled:bg-surface-secondary disabled:cursor-not-allowed;
+  }
+
+  .input-checkbox {
+    @apply w-4 h-4 rounded border-border-default;
+    @apply text-brand-red-600 focus:ring-brand-red-600 focus:ring-offset-0;
+    @apply transition-colors duration-200;
+  }
+
+  .label {
+    @apply block text-sm font-medium text-text-primary mb-2;
+  }
+
+  /* Cards */
+  .card {
+    @apply bg-surface-primary rounded-lg shadow-sm;
+    @apply border border-border-default;
+  }
+
+  .card-hover {
+    @apply card transition-shadow duration-200;
+    @apply hover:shadow-md;
+  }
+
+  /* Links */
+  .link-nav {
+    @apply text-sm text-text-primary;
+    @apply hover:text-brand-red-600;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red-600;
+    @apply transition-colors duration-200;
+  }
+}
+
+/* Utilities */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+```
+
+### Tailwind 4.1 config file (minimal):
+
+```typescript
+// tailwind.config.ts
+import type { Config } from 'tailwindcss';
+
+export default {
+  content: [
+    './src/**/*.{html,ts}',
+  ],
+} satisfies Config;
+```
+
+### Angular configuration:
+
+```json
+// angular.json
+{
+  "projects": {
+    "your-app": {
+      "architect": {
+        "build": {
+          "options": {
+            "styles": [
+              "src/styles.css"
+            ]
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+### ❌ WRONG: Old Tailwind 3.x configuration style
+
+```javascript
+// ❌ BAD: Tailwind 3.x style (not 4.1)
+module.exports = {
+  theme: {
+    extend: {
+      colors: {
+        'brand-red': {
+          600: '#C41F1D',
+        }
+      }
+    }
+  }
+}
+```
+
+---
+
+## Component Architecture: Three Layers
+
+### Layer 1: Utility Classes (Layout & Spacing)
+
+```typescript
+// ✅ CORRECT: Use utilities for layout, spacing, responsive design
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-dashboard',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <div class="container mx-auto py-8 space-y-8"> <!-- Utilities -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"> <!-- Utilities -->
+        <app-metric-card />
+        <app-metric-card />
+        <app-metric-card />
+      </div>
+    </div>
+  `
+})
+export class DashboardComponent {}
+```
+
+### Layer 2: Control CSS Classes (Reusable Styles)
+
+```typescript
+// ✅ CORRECT: Use CSS classes for controls
+import { Component, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+interface FormFieldProps {
+  label: string;
+  error?: string;
+}
+
+@Component({
+  selector: 'app-form-field',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <div class="space-y-2"> <!-- Utility: spacing -->
+      <label class="label"> <!-- CSS class: control -->
+        {{ label }}
+      </label>
+      <ng-content></ng-content>
+      @if (error) {
+        <p class="text-sm text-red-600">{{ error }}</p> <!-- Utilities: text styling -->
+      }
+    </div>
+  `
+})
+export class FormFieldComponent {
+  @Input() label!: string;
+  @Input() error?: string;
+}
+```
+
+```html
+<!-- Usage -->
+<app-form-field label="Address" [error]="errors.address">
+  <input type="text" class="input" /> <!-- CSS class: control -->
+</app-form-field>
+```
+
+### Layer 3: Components (Composed from Controls + Utilities)
+
+```typescript
+// ✅ CORRECT: Components use both CSS classes and utilities
+import { Component, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+interface PropertyCardProps {
+  property: Property;
+}
+
+@Component({
+  selector: 'app-property-card',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <div class="card p-6 space-y-4"> <!-- CSS class + utilities -->
+      <h3 class="text-xl font-semibold">{{ property.address }}</h3>
+      
+      <div class="grid grid-cols-2 gap-4"> <!-- Utilities: layout -->
+        <div>
+          <p class="text-sm text-text-secondary">Square Footage</p>
+          <p class="font-medium">{{ property.squareFootage | number }}</p>
+        </div>
+        <div>
+          <p class="text-sm text-text-secondary">Pump Count</p>
+          <p class="font-medium">{{ property.pumpCount }}</p>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-4"> <!-- Utilities: layout -->
+        <button class="btn-secondary">Edit</button> <!-- CSS class -->
+        <button class="btn-primary">View Details</button> <!-- CSS class -->
+      </div>
+    </div>
+  `
+})
+export class PropertyCardComponent {
+  @Input() property!: Property;
+}
+```
+
+### ❌ WRONG: Mixing all three layers incorrectly
+
+```html
+<!-- ❌ BAD: All inline utilities (no CSS classes for controls) -->
+<button class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-brand-red-600 text-white font-semibold hover:bg-brand-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red-600 transition-colors duration-200">
+  Submit
+</button>
+<!-- Should use: class="btn-primary" -->
+```
+
+```css
+/* ❌ BAD: CSS class for layout */
+.property-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+/* Should use: class="grid grid-cols-3 gap-6" */
+```
+
+---
+
+## Tailwind 4.1 New Features
+
+### Container Queries
+
+```typescript
+// ✅ CORRECT: Use container queries for responsive components
+import { Component, Input } from '@angular/core';
+
+@Component({
+  selector: 'app-property-card',
+  standalone: true,
+  template: `
+    <div class="card p-6 @container"> <!-- Enable container queries -->
+      <h3 class="text-xl @lg:text-2xl font-semibold"> <!-- Responsive to container -->
+        {{ property.address }}
+      </h3>
+      
+      <div class="grid grid-cols-1 @md:grid-cols-2 gap-4">
+        <!-- Responsive based on container width, not viewport -->
+        <app-metric-display label="Square Footage" [value]="property.squareFootage" />
+        <app-metric-display label="Pump Count" [value]="property.pumpCount" />
+      </div>
+    </div>
+  `
+})
+export class PropertyCardComponent {
+  @Input() property!: Property;
+}
+```
+
+### Native CSS Nesting
+
+```css
+/* Tailwind 4.1 supports native CSS nesting */
+.card-hover {
+  @apply card transition-shadow duration-200;
+  
+  &:hover {
+    @apply shadow-md;
+    
+    .card-title {
+      @apply text-brand-red-600;
+    }
+  }
+}
+```
+
+### Arbitrary Variants
+
+```html
+<!-- ✅ CORRECT: Use arbitrary variants for complex conditions -->
+<div class="group">
+  <h3 class="group-hover:text-brand-red-600">Title</h3>
+  <button class="group-[&:has(:focus-visible)]:ring-2">
+    Button
+  </button>
+</div>
+
+<!-- Supports complex selectors -->
+<div class="[&>p]:my-4 [&>ul]:ml-6">
+  <!-- All direct <p> children get my-4, all <ul> get ml-6 -->
+  <p>Paragraph with my-4</p>
+  <ul>List with ml-6</ul>
+</div>
+```
+
+---
+
+## Responsive Design Patterns
+
+### ✅ CORRECT: Mobile-first responsive design
+
+```typescript
+import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
+
+@Component({
+  selector: 'app-header',
+  standalone: true,
+  imports: [RouterLink],
+  template: `
+    <header class="bg-surface-primary border-b border-border-default">
+      <div class="container mx-auto px-4 py-4">
+        <div class="flex items-center justify-between">
+          <!-- Mobile: Stack, Desktop: Row -->
+          <nav class="flex flex-col md:flex-row gap-2 md:gap-6">
+            <a routerLink="/explore" class="link-nav">Explore</a>
+            <a routerLink="/build" class="link-nav">Build</a>
+            <a routerLink="/report" class="link-nav">Report</a>
+          </nav>
+
+          <!-- Mobile: Small button, Desktop: Full button -->
+          <button class="btn-primary text-sm md:text-base px-3 md:px-4">
+            New Site
+          </button>
+        </div>
+      </div>
+    </header>
+  `
+})
+export class HeaderComponent {}
+```
+
+### ❌ WRONG: Desktop-first or no responsive design
+
+```html
+<!-- ❌ BAD: Desktop-first (max-* breakpoints) -->
+<div class="grid-cols-3 max-md:grid-cols-1">
+  <!-- Use mobile-first: grid-cols-1 md:grid-cols-3 -->
+</div>
+
+<!-- ❌ BAD: No responsive design -->
+<div class="grid-cols-3 gap-6">
+  <!-- Will break on mobile! -->
+</div>
+```
+
+---
+
+## Angular-Specific Patterns
+
+### Dynamic Classes with [ngClass]
+
+```typescript
+import { Component, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-button',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <!-- Using [ngClass] with object syntax -->
+    <button [ngClass]="{
+      'btn-primary': variant === 'primary',
+      'btn-secondary': variant === 'secondary',
+      'btn-ghost': variant === 'ghost',
+      'opacity-50': disabled,
+      'cursor-not-allowed': disabled
+    }">
+      <ng-content></ng-content>
+    </button>
+
+    <!-- Using [class] with string interpolation -->
+    <button [class]="buttonClass + ' ' + (disabled ? 'opacity-50' : '')">
+      <ng-content></ng-content>
+    </button>
+
+    <!-- Using [ngClass] with array syntax -->
+    <button [ngClass]="['btn-primary', disabled ? 'opacity-50' : '']">
+      <ng-content></ng-content>
+    </button>
+  `
+})
+export class ButtonComponent {
+  @Input() variant: 'primary' | 'secondary' | 'ghost' = 'primary';
+  @Input() disabled = false;
+
+  get buttonClass(): string {
+    const variantClasses = {
+      primary: 'btn-primary',
+      secondary: 'btn-secondary',
+      ghost: 'btn-ghost',
+    };
+    return variantClasses[this.variant];
+  }
+}
+```
+
+### Component-Scoped Styles with :host
+
+```typescript
+// property-card.component.ts
+import { Component, Input } from '@angular/core';
+
+@Component({
+  selector: 'app-property-card',
+  standalone: true,
+  templateUrl: './property-card.component.html',
+  styleUrls: ['./property-card.component.css'],
+  // ViewEncapsulation.Emulated is default (scoped styles)
+})
+export class PropertyCardComponent {
+  @Input() property!: Property;
+}
+```
+
+```css
+/* property-card.component.css */
+/* Style the host element itself */
+:host {
+  @apply block; /* Make component display: block */
+}
+
+:host(.featured) {
+  @apply ring-2 ring-brand-red-600; /* When component has 'featured' class */
+}
+
+/* Scoped to this component */
+.card-title {
+  @apply text-xl font-semibold;
+}
+
+/* Using @apply with Tailwind */
+.property-info {
+  @apply grid grid-cols-2 gap-4;
+}
+```
+
+```html
+<!-- property-card.component.html -->
+<div class="card p-6">
+  <h3 class="card-title">{{ property.address }}</h3>
+  <div class="property-info">
+    <!-- Component-scoped styles -->
+  </div>
+</div>
+```
+
+### Global Styles vs Component Styles
+
+**Global styles** (`src/styles.css`):
+```css
+/* Global component classes available everywhere */
+@layer components {
+  .btn-primary { /* ... */ }
+  .card { /* ... */ }
+  .input { /* ... */ }
+}
+```
+
+**Component styles** (`*.component.css`):
+```css
+/* Scoped to component only */
+:host {
+  @apply block;
+}
+
+.internal-class {
+  @apply p-4 bg-gray-50;
+}
+```
+
+---
+
+## Dark Mode Support (Optional)
+
+### ✅ CORRECT: Dark mode with Tailwind 4.1
+
+```css
+/* src/styles.css */
+@theme {
+  /* Light mode (default) */
+  --color-surface-primary: #FFFFFF;
+  --color-text-primary: #1A1A1A;
+  
+  /* Dark mode */
+  @media (prefers-color-scheme: dark) {
+    --color-surface-primary: #1F2937;
+    --color-text-primary: #F9FAFB;
+  }
+}
+```
+
+```html
+<!-- Components automatically adapt -->
+<div class="bg-surface-primary text-text-primary">
+  <!-- Automatically switches in dark mode -->
+</div>
+
+<!-- Or use dark: variant explicitly -->
+<div class="bg-white dark:bg-gray-900 text-black dark:text-white">
+  Content
+</div>
+```
+
+---
+
+## Related Rules
+
+- **Core:** `.cursor/rules/css.mdc` - CSS architecture and component classes
+- **Angular:** `web/.cursor/rules/angular-21-patterns.mdc` - Angular component patterns
+- **Design:** `docs/design/design-system.md` - Design tokens and system
+
+---
+
+## Summary
+
+✅ **DO:**
+- Use Tailwind 4.1 `@theme` directive in CSS
+- Follow three-layer architecture: Utilities → Controls → Components
+- Use CSS classes for reusable controls (.btn-primary, .input, .card)
+- Use utility classes for layout and spacing
+- Mobile-first responsive design
+- Container queries for component-level responsiveness
+- Use `[ngClass]` or `[class]` for dynamic classes in Angular
+- Use `:host` for styling component host elements
+- Scope styles with component styleUrls when appropriate
+
+❌ **DON'T:**
+- Use old Tailwind 3.x configuration style
+- Put all styles inline (use CSS classes for controls)
+- Use CSS classes for layout (use utilities)
+- Desktop-first responsive design
+- Skip responsive design considerations
+- Use `class` (Angular)

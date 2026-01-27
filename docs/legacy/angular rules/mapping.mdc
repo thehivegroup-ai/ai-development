@@ -1,0 +1,484 @@
+---
+description: GIS mapping and location analysis patterns for the Explore section in Angular
+globs: ["**/features/explore/**/*.ts", "**/lib/map/**/*.ts", "**/components/map/**/*.ts", "**/features/explore/**/*.html"]
+alwaysApply: false
+---
+
+# GIS Mapping Patterns for Angular
+
+This rule defines patterns for implementing interactive mapping with multiple data layers for site analysis using Angular.
+
+## Core Principles
+
+1. **Leaflet or Mapbox GL JS**: Primary mapping library for interactive GIS
+2. **Layer Management**: Organize data into toggleable layers
+3. **Server-Side Data**: Fetch geospatial data from Fastify backend
+4. **Angular Components**: Render maps in Angular components
+5. **Performance**: Lazy load map tiles and data layers with Signals
+
+---
+
+## Map Library Setup
+
+### ✅ CORRECT: Leaflet with Angular integration
+
+```bash
+npm install leaflet @types/leaflet
+```
+
+```typescript
+// lib/map/leaflet-config.ts
+
+export const LEAFLET_CONFIG = {
+  defaultCenter: { lat: 40.7608, lng: -111.8910 }, // Scottsdale, AZ
+  defaultZoom: 12,
+  maxBounds: [
+    [24.0, -125.0], // Southwest
+    [49.0, -66.0]   // Northeast (Continental US)
+  ] as [[number, number], [number, number]],
+  tileLayer: {
+    url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 19,
+  },
+};
+```
+
+```typescript
+// components/map/map-view/map-view.component.ts
+import { Component, OnInit, OnDestroy, AfterViewInit, signal, ElementRef, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import * as L from 'leaflet';
+import { LEAFLET_CONFIG } from '@/lib/map/leaflet-config';
+
+@Component({
+  selector: 'app-map-view',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './map-view.component.html',
+  styleUrls: ['./map-view.component.css']
+})
+export class MapViewComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef<HTMLDivElement>;
+  
+  private map: L.Map | null = null;
+  isLoaded = signal(false);
+
+  ngAfterViewInit(): void {
+    this.initializeMap();
+  }
+
+  private initializeMap(): void {
+    if (this.map) return; // Already initialized
+
+    // Initialize map
+    this.map = L.map(this.mapContainer.nativeElement, {
+      center: [LEAFLET_CONFIG.defaultCenter.lat, LEAFLET_CONFIG.defaultCenter.lng],
+      zoom: LEAFLET_CONFIG.defaultZoom,
+      maxBounds: LEAFLET_CONFIG.maxBounds as L.LatLngBoundsExpression,
+    });
+
+    // Add tile layer
+    L.tileLayer(LEAFLET_CONFIG.tileLayer.url, {
+      attribution: LEAFLET_CONFIG.tileLayer.attribution,
+      maxZoom: LEAFLET_CONFIG.tileLayer.maxZoom,
+    }).addTo(this.map);
+
+    // Wait for map to load
+    this.map.whenReady(() => {
+      this.isLoaded.set(true);
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.map) {
+      this.map.remove();
+      this.map = null;
+    }
+  }
+
+  ngOnInit(): void {
+    // Component initialization
+  }
+}
+```
+
+```html
+<!-- map-view.component.html -->
+<div class="relative h-full w-full">
+  <div #mapContainer class="absolute inset-0"></div>
+  
+  @if (!isLoaded()) {
+    <div class="absolute inset-0 flex items-center justify-center bg-gray-100">
+      <app-loading-spinner />
+    </div>
+  }
+</div>
+```
+
+```css
+/* map-view.component.css */
+@import 'leaflet/dist/leaflet.css';
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+```
+
+---
+
+## Map Layers and Data
+
+### Layer Service
+
+```typescript
+// services/map-layers.service.ts
+import { Injectable, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import * as L from 'leaflet';
+
+export interface MapLayer {
+  id: string;
+  name: string;
+  visible: boolean;
+  layerInstance?: L.Layer;
+}
+
+export interface SiteMarker {
+  id: string;
+  name: string;
+  lat: number;
+  lng: number;
+  type: 'existing' | 'proposed';
+  properties: Record<string, any>;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class MapLayersService {
+  private layersSignal = signal<MapLayer[]>([
+    { id: 'sites', name: 'Sites', visible: true },
+    { id: 'traffic', name: 'Traffic Data', visible: false },
+    { id: 'demographics', name: 'Demographics', visible: false },
+  ]);
+
+  layers = this.layersSignal.asReadonly();
+
+  constructor(private http: HttpClient) {}
+
+  toggleLayer(layerId: string): void {
+    this.layersSignal.update(layers =>
+      layers.map(layer =>
+        layer.id === layerId ? { ...layer, visible: !layer.visible } : layer
+      )
+    );
+  }
+
+  getSites(): Observable<SiteMarker[]> {
+    return this.http.get<SiteMarker[]>('/api/sites');
+  }
+
+  getTrafficData(bounds: L.LatLngBounds): Observable<GeoJSON.FeatureCollection> {
+    const bbox = `${bounds.getSouthWest().lng},${bounds.getSouthWest().lat},${bounds.getNorthEast().lng},${bounds.getNorthEast().lat}`;
+    return this.http.get<GeoJSON.FeatureCollection>(`/api/traffic?bbox=${bbox}`);
+  }
+}
+```
+
+### Interactive Map Component
+
+```typescript
+// components/map/interactive-map/interactive-map.component.ts
+import { Component, OnInit, OnDestroy, AfterViewInit, signal, computed, ElementRef, ViewChild, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import * as L from 'leaflet';
+import { MapLayersService, type SiteMarker } from '@/services/map-layers.service';
+import { LEAFLET_CONFIG } from '@/lib/map/leaflet-config';
+
+@Component({
+  selector: 'app-interactive-map',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './interactive-map.component.html',
+  styleUrls: ['./interactive-map.component.css']
+})
+export class InteractiveMapComponent implements AfterViewInit, OnDestroy {
+  @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef<HTMLDivElement>;
+  
+  private mapLayersService = inject(MapLayersService);
+  private map: L.Map | null = null;
+  private markers: L.Marker[] = [];
+  private layerGroups: Map<string, L.LayerGroup> = new Map();
+
+  isLoaded = signal(false);
+  sites = signal<SiteMarker[]>([]);
+  selectedSite = signal<SiteMarker | null>(null);
+
+  layers = this.mapLayersService.layers;
+
+  visibleLayers = computed(() => 
+    this.layers().filter(layer => layer.visible)
+  );
+
+  ngAfterViewInit(): void {
+    this.initializeMap();
+    this.loadSites();
+    this.watchLayerChanges();
+  }
+
+  private initializeMap(): void {
+    if (this.map) return;
+
+    this.map = L.map(this.mapContainer.nativeElement, {
+      center: [LEAFLET_CONFIG.defaultCenter.lat, LEAFLET_CONFIG.defaultCenter.lng],
+      zoom: LEAFLET_CONFIG.defaultZoom,
+      maxBounds: LEAFLET_CONFIG.maxBounds as L.LatLngBoundsExpression,
+    });
+
+    L.tileLayer(LEAFLET_CONFIG.tileLayer.url, {
+      attribution: LEAFLET_CONFIG.tileLayer.attribution,
+      maxZoom: LEAFLET_CONFIG.tileLayer.maxZoom,
+    }).addTo(this.map);
+
+    this.map.whenReady(() => {
+      this.isLoaded.set(true);
+    });
+  }
+
+  private loadSites(): void {
+    this.mapLayersService.getSites().subscribe({
+      next: (sites) => {
+        this.sites.set(sites);
+        this.addSiteMarkers(sites);
+      },
+      error: (error) => console.error('Failed to load sites', error)
+    });
+  }
+
+  private addSiteMarkers(sites: SiteMarker[]): void {
+    if (!this.map) return;
+
+    // Clear existing markers
+    this.markers.forEach(marker => marker.remove());
+    this.markers = [];
+
+    // Create site markers layer group
+    const sitesLayer = L.layerGroup();
+    this.layerGroups.set('sites', sitesLayer);
+
+    sites.forEach(site => {
+      const icon = this.createSiteIcon(site.type);
+      const marker = L.marker([site.lat, site.lng], { icon })
+        .on('click', () => this.onMarkerClick(site));
+      
+      this.markers.push(marker);
+      sitesLayer.addLayer(marker);
+    });
+
+    sitesLayer.addTo(this.map!);
+  }
+
+  private createSiteIcon(type: 'existing' | 'proposed'): L.Icon {
+    return L.icon({
+      iconUrl: `/assets/markers/${type}-site.png`,
+      iconSize: [32, 32],
+      iconAnchor: [16, 32],
+      popupAnchor: [0, -32],
+    });
+  }
+
+  private onMarkerClick(site: SiteMarker): void {
+    this.selectedSite.set(site);
+  }
+
+  private watchLayerChanges(): void {
+    // Watch for layer visibility changes
+    const subscription = this.layers();
+    // React to layer changes and show/hide layer groups
+    subscription.forEach(layer => {
+      const layerGroup = this.layerGroups.get(layer.id);
+      if (layerGroup && this.map) {
+        if (layer.visible) {
+          layerGroup.addTo(this.map);
+        } else {
+          layerGroup.removeFrom(this.map);
+        }
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.markers.forEach(marker => marker.remove());
+    this.layerGroups.forEach(group => group.remove());
+    
+    if (this.map) {
+      this.map.remove();
+      this.map = null;
+    }
+  }
+}
+```
+
+```html
+<!-- interactive-map.component.html -->
+<div class="relative h-full w-full">
+  <div #mapContainer class="absolute inset-0"></div>
+  
+  @if (!isLoaded()) {
+    <div class="absolute inset-0 flex items-center justify-center bg-gray-100">
+      <app-loading-spinner />
+    </div>
+  }
+
+  <!-- Map Controls -->
+  <div class="absolute top-4 right-4 space-y-2">
+    <button class="btn-secondary shadow-lg" (click)="resetView()">
+      Reset View
+    </button>
+  </div>
+
+  <!-- Selected Site Panel -->
+  @if (selectedSite()) {
+    <div class="absolute bottom-4 left-4 w-80 card p-4 shadow-lg">
+      <h3 class="font-semibold">{{ selectedSite()!.name }}</h3>
+      <p class="text-sm text-text-secondary">
+        {{ selectedSite()!.type === 'existing' ? 'Existing Site' : 'Proposed Site' }}
+      </p>
+      <button class="btn-primary mt-4 w-full" (click)="viewSiteDetails()">
+        View Details
+      </button>
+    </div>
+  }
+</div>
+```
+
+---
+
+## Layer Toggle Sidebar
+
+```typescript
+// components/map/layer-sidebar/layer-sidebar.component.ts
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MapLayersService } from '@/services/map-layers.service';
+
+@Component({
+  selector: 'app-layer-sidebar',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './layer-sidebar.component.html',
+  styleUrls: ['./layer-sidebar.component.css']
+})
+export class LayerSidebarComponent {
+  private mapLayersService = inject(MapLayersService);
+  
+  layers = this.mapLayersService.layers;
+
+  toggleLayer(layerId: string): void {
+    this.mapLayersService.toggleLayer(layerId);
+  }
+}
+```
+
+```html
+<!-- layer-sidebar.component.html -->
+<aside class="w-80 bg-surface-secondary border-r border-border-default overflow-y-auto">
+  <div class="p-6">
+    <h2 class="text-lg font-semibold mb-4">Map Layers</h2>
+    
+    <div class="space-y-3">
+      @for (layer of layers(); track layer.id) {
+        <label class="flex items-center gap-3 p-3 rounded-lg hover:bg-surface-hover cursor-pointer">
+          <input
+            type="checkbox"
+            [checked]="layer.visible"
+            (change)="toggleLayer(layer.id)"
+            class="input-checkbox"
+          />
+          <span class="font-medium">{{ layer.name }}</span>
+        </label>
+      }
+    </div>
+  </div>
+</aside>
+```
+
+---
+
+## Best Practices
+
+### 1. Proper Cleanup
+
+```typescript
+// ✅ CORRECT: Clean up map on destroy
+ngOnDestroy(): void {
+  if (this.map) {
+    this.map.remove();
+    this.map = null;
+  }
+}
+```
+
+### 2. Use Signals for Reactive State
+
+```typescript
+// ✅ CORRECT: Reactive layer visibility
+layers = signal<MapLayer[]>([]);
+visibleLayers = computed(() => this.layers().filter(l => l.visible));
+```
+
+### 3. Lazy Load Map Data
+
+```typescript
+// ✅ CORRECT: Load data based on map bounds
+this.map.on('moveend', () => {
+  const bounds = this.map!.getBounds();
+  this.loadDataInBounds(bounds);
+});
+```
+
+### 4. Error Handling
+
+```typescript
+// ✅ CORRECT: Handle map errors
+this.mapService.getSites().subscribe({
+  next: (sites) => this.addMarkers(sites),
+  error: (error) => {
+    console.error('Failed to load sites', error);
+    this.errorSignal.set('Failed to load map data');
+  }
+});
+```
+
+---
+
+## Related Rules
+
+- **Angular:** `web/.cursor/rules/angular-21-patterns.mdc` - Angular patterns
+- **Data:** `web/.cursor/rules/data-integration.mdc` - API integration
+- **CSS:** `.cursor/rules/css.mdc` - Component styling
+
+---
+
+## Summary
+
+✅ **DO:**
+- Use Leaflet or Mapbox with Angular
+- Clean up maps in `ngOnDestroy`
+- Use Signals for reactive layer state
+- Use `class` (not `className`)
+- Lazy load map data
+- Handle errors gracefully
+- Use component classes for styling
+
+❌ **DON'T:**
+- Use React hooks (useEffect, useState, useRef)
+- Forget to remove map on destroy
+- Use `className`
+- Load all data at once
+- Skip error handling
+- Use inline styles

@@ -1,0 +1,143 @@
+---
+description: Web UI component standards for React + TypeScript + Tailwind
+globs: **/*.tsx,**/*.css,**/*.html
+alwaysApply: false
+---
+# Web UI Component Standards
+
+This rule defines the standard pattern for implementing utility classes, css, controls, and components in React + Tailwind + TypeScript codebases.
+
+## Architecture Overview
+
+We use three layers:
+
+1. **Tailwind component classes** (`@apply`) – centralize visual styles
+2. **Utility function** (`cn`) – safely merge class names
+3. **React components** – `Button` for actions, `ButtonLink` for navigation
+
+## Tailwind Component Styles
+
+File: `src/styles/globals.css` (or equivalent)
+
+### As an example, this is how buttons should be created and strcutured
+All button variants **must** extend `.btn` base class. Visual design for buttons and button-like links is defined in CSS using `@apply`, not inline in JSX.
+
+```css
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center
+      rounded-md text-sm font-medium
+      px-4 py-2
+      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
+      disabled:opacity-50 disabled:pointer-events-none
+      transition-colors;
+  }
+
+  .btn-primary {
+    @apply btn
+      bg-blue-600 text-white
+      hover:bg-blue-700
+      focus-visible:ring-blue-600;
+  }
+
+  .btn-outline {
+    @apply btn
+      border border-blue-600 text-blue-600
+      hover:bg-blue-50
+      focus-visible:ring-blue-600;
+  }
+
+  .btn-ghost {
+    @apply btn
+      text-blue-600
+      hover:bg-blue-50
+      focus-visible:ring-blue-600;
+  }
+}
+```
+
+## Classname Utility (`cn`)
+
+File: `src/lib/cn.ts`
+
+Always use `cn` instead of manual string concatenation when building `className` values. This ensures proper Tailwind class merging and conflict resolution.
+
+```ts
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]): string {
+  return twMerge(clsx(inputs));
+}
+```
+
+## React Components
+
+We provide two components:
+
+- `Button` – renders a semantic `<button>` for actions
+- `ButtonLink` – renders an `<a>` styled like a button for navigation
+
+### Component Structure
+
+```tsx
+export type ButtonVariant = "primary" | "outline" | "ghost";
+export type ButtonSize = "sm" | "md" | "lg";
+
+const variantClassMap: Record<ButtonVariant, string> = {
+  primary: "btn-primary",
+  outline: "btn-outline",
+  ghost: "btn-ghost",
+};
+
+const sizeClassMap: Record<ButtonSize, string> = {
+  sm: "px-3 py-1.5 text-xs",
+  md: "px-4 py-2 text-sm",
+  lg: "px-5 py-2.5 text-base",
+};
+```
+
+### Button Component
+
+- Semantic `<button>` element
+- Use for actions, form submissions, and in-place interactions
+- Default `type="button"` to avoid unwanted form submits
+- Accepts all standard button HTML attributes
+
+### ButtonLink Component
+
+- Semantic `<a>` element styled like a button
+- Use for navigation (internal or external links)
+- Automatically adds `rel="noopener noreferrer"` when `target="_blank"`
+- Accepts all standard anchor HTML attributes
+
+## Usage Guidelines
+
+### When to Use Each Component
+
+| Scenario                          | Component      | Element |
+|----------------------------------|----------------|---------|
+| Trigger an in-page action        | `<Button>`     | `<button>` |
+| Submit a form                    | `<Button>`     | `<button>` |
+| Navigate within the app/site     | `<ButtonLink>` | `<a>` |
+| Navigate to an external website  | `<ButtonLink>` | `<a>` |
+
+### Best Practices
+
+- ✅ Use **`Button`** for actions, **`ButtonLink`** for navigation
+- ✅ Do **not** inline long Tailwind class lists for buttons; use the shared components
+- ✅ All new button-like UI must use this standard
+- ✅ Prefer `variant` and `size` props over custom per-use styling
+- ✅ Use the `cn` helper for any custom class merging
+- ✅ Never create ad-hoc button styles outside this system
+
+## Implementation Requirements
+
+When creating or modifying button-like UI elements:
+
+1. Check if `Button` or `ButtonLink` components exist
+2. If they don't exist, create them following the pattern above
+3. Use the Tailwind `@apply` directive for base styles
+4. Implement variant and size props for flexibility
+5. Ensure accessibility (focus states, disabled states, semantic HTML)
+6. Use `cn` utility for all className merging

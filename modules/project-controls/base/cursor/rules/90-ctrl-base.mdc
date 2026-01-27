@@ -1,0 +1,10 @@
+---
+description: "Base controls for quality and verification."
+alwaysApply: false
+---
+
+# Control Base
+
+- Changes must include validation steps (tests or checks).
+- Document user-facing behavior changes.
+- Ensure errors are handled and observable.

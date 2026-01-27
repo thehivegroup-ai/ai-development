@@ -1,0 +1,710 @@
+---
+description: Complex form patterns for the Build section with multi-step flows and real-time validation in Angular
+globs: ["**/features/build/**/*.ts", "**/components/forms/**/*.ts", "**/lib/validation/**/*.ts", "**/features/build/**/*.html"]
+alwaysApply: false
+---
+
+# Complex Form Patterns for Angular
+
+This rule defines patterns for building the multi-step Build section forms with real-time validation and calculation updates using Angular Reactive Forms.
+
+## Core Principles
+
+1. **Angular Reactive Forms**: Form state management with type safety
+2. **Custom Validators**: Schema-based validation functions
+3. **Type Safety**: Forms must be fully typed
+4. **Real-Time Updates**: Calculate as user types with Signals
+5. **Multi-Step**: Navigate between form sections with Router
+
+---
+
+## Form State Management
+
+### ✅ CORRECT: Typed Reactive Forms with Custom Validators
+
+```typescript
+// lib/validation/site-attributes.validators.ts
+import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+
+export const STORE_STYLES = ['Standard', 'Large Format', 'Compact', 'BonFire', 'Adventure First Stop'] as const;
+export const MENU_TYPES = ['Full Service', 'Limited Menu', 'Grab & Go'] as const;
+
+export type StoreStyle = typeof STORE_STYLES[number];
+export type MenuType = typeof MENU_TYPES[number];
+
+export function minValue(min: number): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (control.value == null) return null;
+    return control.value < min ? { min: { min, actual: control.value } } : null;
+  };
+}
+
+export function maxValue(max: number): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (control.value == null) return null;
+    return control.value > max ? { max: { max, actual: control.value } } : null;
+  };
+}
+
+export function rangeValidator(min: number, max: number): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    if (control.value == null) return null;
+    if (control.value < min) return { min: { min, actual: control.value } };
+    if (control.value > max) return { max: { max, actual: control.value } };
+    return null;
+  };
+}
+```
+
+```typescript
+// features/build/site-attributes/site-attributes.component.ts
+import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormGroup, FormControl, Validators, NonNullableFormBuilder } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { rangeValidator, STORE_STYLES, MENU_TYPES, StoreStyle, MenuType } from '@/lib/validation/site-attributes.validators';
+import { ProformaService } from '@/services/proforma.service';
+
+interface SiteAttributesForm {
+  targetLocation: FormControl<string>;
+  address: FormControl<string>;
+  storeStyle: FormControl<StoreStyle>;
+  pumpCount: FormControl<number>;
+  menu: FormControl<MenuType>;
+  squareFootage: FormControl<number>;
+  features: FormGroup<{
+    catScales: FormControl<boolean>;
+    evCharging: FormControl<boolean>;
+    highFlow: FormControl<boolean>;
+    lottery: FormControl<boolean>;
+  }>;
+}
+
+@Component({
+  selector: 'app-site-attributes',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  templateUrl: './site-attributes.component.html',
+  styleUrls: ['./site-attributes.component.css']
+})
+export class SiteAttributesComponent implements OnInit {
+  private fb = inject(NonNullableFormBuilder);
+  private router = inject(Router);
+  private proformaService = inject(ProformaService);
+
+  readonly storeStyles = STORE_STYLES;
+  readonly menuTypes = MENU_TYPES;
+
+  form = this.fb.group<SiteAttributesForm>({
+    targetLocation: this.fb.control('', [Validators.required]),
+    address: this.fb.control('', [Validators.required]),
+    storeStyle: this.fb.control<StoreStyle>('Standard', [Validators.required]),
+    pumpCount: this.fb.control(16, [
+      Validators.required,
+      rangeValidator(4, 32)
+    ]),
+    menu: this.fb.control<MenuType>('Full Service', [Validators.required]),
+    squareFootage: this.fb.control(5000, [
+      Validators.required,
+      rangeValidator(2000, 10000)
+    ]),
+    features: this.fb.group({
+      catScales: this.fb.control(false),
+      evCharging: this.fb.control(false),
+      highFlow: this.fb.control(false),
+      lottery: this.fb.control(true),
+    })
+  });
+
+  // Real-time value tracking with signals
+  pumpCount = signal(16);
+  squareFootage = signal(5000);
+
+  // Computed values for real-time calculations
+  estimatedCost = computed(() => {
+    const baseCost = 2000000;
+    const pumpCost = this.pumpCount() * 50000;
+    const sqftCost = this.squareFootage() * 200;
+    return baseCost + pumpCost + sqftCost;
+  });
+
+  ngOnInit(): void {
+    // Subscribe to form value changes for real-time updates
+    this.form.controls.pumpCount.valueChanges.subscribe(value => {
+      this.pumpCount.set(value);
+    });
+
+    this.form.controls.squareFootage.valueChanges.subscribe(value => {
+      this.squareFootage.set(value);
+    });
+
+    // Load existing data if available
+    const existingData = this.proformaService.getSiteAttributes();
+    if (existingData) {
+      this.form.patchValue(existingData);
+    }
+  }
+
+  onSubmit(): void {
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
+    const formData = this.form.getRawValue();
+    this.proformaService.updateSiteAttributes(formData);
+    this.router.navigate(['/build/lease-details']); // Next step
+  }
+
+  onBack(): void {
+    this.router.navigate(['/build']);
+  }
+
+  getFieldError(fieldName: string): string | null {
+    const control = this.form.get(fieldName);
+    if (!control || !control.touched || !control.errors) {
+      return null;
+    }
+
+    const errors = control.errors;
+    if (errors['required']) return 'This field is required';
+    if (errors['min']) return `Minimum value is ${errors['min'].min}`;
+    if (errors['max']) return `Maximum value is ${errors['max'].max}`;
+    
+    return 'Invalid value';
+  }
+}
+```
+
+```html
+<!-- site-attributes.component.html -->
+<div class="container mx-auto py-8 max-w-3xl">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-8">
+    <!-- Header -->
+    <header class="space-y-2">
+      <h1 class="text-3xl font-bold">Site Attributes</h1>
+      <p class="text-text-secondary">
+        Define the physical characteristics and features of your proposed site
+      </p>
+    </header>
+
+    <!-- Location Section -->
+    <section class="card p-6 space-y-6">
+      <h2 class="text-xl font-semibold">Location</h2>
+
+      <app-form-field
+        label="Target Location"
+        [error]="getFieldError('targetLocation')"
+        [required]="true">
+        <input
+          type="text"
+          formControlName="targetLocation"
+          class="input"
+          placeholder="Enter location"
+        />
+      </app-form-field>
+
+      <app-form-field
+        label="Address"
+        [error]="getFieldError('address')"
+        [required]="true">
+        <input
+          type="text"
+          formControlName="address"
+          class="input"
+          placeholder="Enter street address"
+        />
+      </app-form-field>
+    </section>
+
+    <!-- Configuration Section -->
+    <section class="card p-6 space-y-6">
+      <h2 class="text-xl font-semibold">Configuration</h2>
+
+      <div class="grid grid-cols-2 gap-6">
+        <app-form-field
+          label="Store Style"
+          [error]="getFieldError('storeStyle')"
+          [required]="true">
+          <select formControlName="storeStyle" class="input">
+            @for (style of storeStyles; track style) {
+              <option [value]="style">{{ style }}</option>
+            }
+          </select>
+        </app-form-field>
+
+        <app-form-field
+          label="Pump Count"
+          hint="Number of fuel pumps (4-32)"
+          [error]="getFieldError('pumpCount')"
+          [required]="true">
+          <input
+            type="number"
+            formControlName="pumpCount"
+            class="input"
+            min="4"
+            max="32"
+          />
+        </app-form-field>
+
+        <app-form-field
+          label="Menu Type"
+          [error]="getFieldError('menu')"
+          [required]="true">
+          <select formControlName="menu" class="input">
+            @for (menuType of menuTypes; track menuType) {
+              <option [value]="menuType">{{ menuType }}</option>
+            }
+          </select>
+        </app-form-field>
+
+        <app-form-field
+          label="Square Footage"
+          hint="Store size in sq ft (2,000-10,000)"
+          [error]="getFieldError('squareFootage')"
+          [required]="true">
+          <input
+            type="number"
+            formControlName="squareFootage"
+            class="input"
+            min="2000"
+            max="10000"
+          />
+        </app-form-field>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="card p-6 space-y-6">
+      <h2 class="text-xl font-semibold">Features</h2>
+
+      <div formGroupName="features" class="space-y-3">
+        <app-checkbox-field
+          formControlName="catScales"
+          label="CAT Scales"
+          description="Weigh station for commercial vehicles"
+        />
+
+        <app-checkbox-field
+          formControlName="evCharging"
+          label="EV Charging"
+          description="Electric vehicle charging stations"
+        />
+
+        <app-checkbox-field
+          formControlName="highFlow"
+          label="High Flow"
+          description="High-flow diesel lanes"
+        />
+
+        <app-checkbox-field
+          formControlName="lottery"
+          label="Lottery"
+          description="State lottery sales"
+        />
+      </div>
+    </section>
+
+    <!-- Estimated Cost Display -->
+    <div class="card p-6 bg-blue-50">
+      <h3 class="text-lg font-semibold mb-2">Estimated Construction Cost</h3>
+      <p class="text-3xl font-bold text-brand-red-600">
+        {{ estimatedCost() | currency }}
+      </p>
+      <p class="text-sm text-text-secondary mt-2">
+        Based on {{ pumpCount() }} pumps and {{ squareFootage() | number }} sq ft
+      </p>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="flex justify-between items-center pt-6 border-t border-border-default">
+      <button
+        type="button"
+        (click)="onBack()"
+        class="btn-secondary">
+        Back
+      </button>
+
+      <div class="flex items-center gap-4">
+        <p class="text-sm text-text-secondary">
+          Step 1 of 5
+        </p>
+        <button
+          type="submit"
+          class="btn-primary"
+          [disabled]="form.invalid">
+          Save & Continue
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+```
+
+### Reusable Form Field Component
+
+```typescript
+// components/forms/form-field/form-field.component.ts
+import { Component, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-form-field',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <div class="space-y-2">
+      <label class="label">
+        {{ label }}
+        @if (required) {
+          <span class="text-red-600 ml-1">*</span>
+        }
+      </label>
+
+      <ng-content></ng-content>
+
+      @if (hint && !error) {
+        <p class="text-sm text-text-secondary">{{ hint }}</p>
+      }
+
+      @if (error) {
+        <p class="text-sm text-red-600">{{ error }}</p>
+      }
+    </div>
+  `,
+})
+export class FormFieldComponent {
+  @Input() label!: string;
+  @Input() hint?: string;
+  @Input() error?: string | null;
+  @Input() required = false;
+}
+```
+
+### Reusable Checkbox Field Component
+
+```typescript
+// components/forms/checkbox-field/checkbox-field.component.ts
+import { Component, Input, forwardRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
+
+@Component({
+  selector: 'app-checkbox-field',
+  standalone: true,
+  imports: [CommonModule, ReactiveFormsModule],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => CheckboxFieldComponent),
+      multi: true
+    }
+  ],
+  template: `
+    <label class="flex items-start gap-3 p-3 rounded-lg hover:bg-surface-hover cursor-pointer">
+      <input
+        type="checkbox"
+        [checked]="value"
+        (change)="onChange($event)"
+        (blur)="onTouched()"
+        [disabled]="disabled"
+        class="input-checkbox mt-1"
+      />
+      <div class="flex-1">
+        <div class="font-medium">{{ label }}</div>
+        @if (description) {
+          <div class="text-sm text-text-secondary mt-1">{{ description }}</div>
+        }
+      </div>
+    </label>
+  `,
+})
+export class CheckboxFieldComponent implements ControlValueAccessor {
+  @Input() label!: string;
+  @Input() description?: string;
+
+  value = false;
+  disabled = false;
+  
+  private onChangeFn: (value: boolean) => void = () => {};
+  onTouched: () => void = () => {};
+
+  onChange(event: Event): void {
+    const checkbox = event.target as HTMLInputElement;
+    this.value = checkbox.checked;
+    this.onChangeFn(this.value);
+  }
+
+  writeValue(value: boolean): void {
+    this.value = value;
+  }
+
+  registerOnChange(fn: (value: boolean) => void): void {
+    this.onChangeFn = fn;
+  }
+
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled = isDisabled;
+  }
+}
+```
+
+---
+
+## Multi-Step Form Navigation
+
+### Form State Service
+
+```typescript
+// services/proforma.service.ts
+import { Injectable, signal } from '@angular/core';
+
+export interface SiteAttributesData {
+  targetLocation: string;
+  address: string;
+  storeStyle: string;
+  pumpCount: number;
+  menu: string;
+  squareFootage: number;
+  features: {
+    catScales: boolean;
+    evCharging: boolean;
+    highFlow: boolean;
+    lottery: boolean;
+  };
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ProformaService {
+  private siteAttributesSignal = signal<SiteAttributesData | null>(null);
+  
+  siteAttributes = this.siteAttributesSignal.asReadonly();
+
+  getSiteAttributes(): SiteAttributesData | null {
+    return this.siteAttributesSignal();
+  }
+
+  updateSiteAttributes(data: SiteAttributesData): void {
+    this.siteAttributesSignal.set(data);
+  }
+
+  // Save to backend
+  async saveToBackend(): Promise<void> {
+    const data = this.siteAttributesSignal();
+    if (!data) return;
+
+    // Call API
+    // await this.http.post('/api/proforma', data).toPromise();
+  }
+}
+```
+
+### Build Section Layout with Sidebar Navigation
+
+```typescript
+// features/build/build-layout.component.ts
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink, RouterOutlet, Router } from '@angular/router';
+
+interface NavSection {
+  label: string;
+  route: string;
+  children?: NavSection[];
+  completed?: boolean;
+}
+
+@Component({
+  selector: 'app-build-layout',
+  standalone: true,
+  imports: [CommonModule, RouterLink, RouterOutlet],
+  templateUrl: './build-layout.component.html',
+  styleUrls: ['./build-layout.component.css']
+})
+export class BuildLayoutComponent {
+  sections: NavSection[] = [
+    { label: 'Deal Summary', route: '/build', completed: false },
+    {
+      label: 'Capital Needs',
+      route: '/build/capital-needs',
+      children: [
+        { label: 'Site Attributes', route: '/build/site-attributes', completed: true },
+        { label: 'Lease Details', route: '/build/lease-details', completed: false },
+        { label: 'Financing Info', route: '/build/financing-info', completed: false },
+      ]
+    },
+    {
+      label: 'In-Store Model',
+      route: '/build/in-store-model',
+      children: [
+        { label: 'Sales Volumes', route: '/build/sales-volumes', completed: false },
+        { label: 'Merch/Food Mix', route: '/build/merch-food-mix', completed: false },
+        { label: 'Margin', route: '/build/margin', completed: false },
+      ]
+    },
+    {
+      label: 'Fuel Model',
+      route: '/build/fuel-model',
+      children: [
+        { label: 'Fuel Volume', route: '/build/fuel-volume', completed: false },
+        { label: 'Gas/Diesel Mix', route: '/build/gas-diesel-mix', completed: false },
+      ]
+    },
+    {
+      label: 'Operating Expenses',
+      route: '/build/operating-expenses',
+      completed: false
+    },
+  ];
+
+  constructor(public router: Router) {}
+
+  isActive(route: string): boolean {
+    return this.router.url === route;
+  }
+}
+```
+
+```html
+<!-- build-layout.component.html -->
+<div class="flex h-screen">
+  <!-- Sidebar -->
+  <aside class="w-72 bg-surface-secondary border-r border-border-default overflow-y-auto">
+    <div class="p-6 space-y-2">
+      <h2 class="text-lg font-semibold">Build Section</h2>
+      <p class="text-sm text-text-secondary">Create your proforma</p>
+    </div>
+
+    <nav class="px-4 pb-6 space-y-1">
+      @for (section of sections; track section.label) {
+        <div>
+          <a
+            [routerLink]="section.route"
+            [class]="isActive(section.route) 
+              ? 'flex items-center gap-3 px-4 py-2 rounded-lg bg-red-50 text-brand-red-600 font-medium'
+              : 'flex items-center gap-3 px-4 py-2 rounded-lg hover:bg-surface-hover text-text-primary'">
+            @if (section.completed) {
+              <svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+            }
+            <span>{{ section.label }}</span>
+          </a>
+
+          @if (section.children) {
+            <div class="ml-8 mt-1 space-y-1">
+              @for (child of section.children; track child.label) {
+                <a
+                  [routerLink]="child.route"
+                  [class]="isActive(child.route)
+                    ? 'block px-4 py-2 rounded-lg bg-red-50 text-brand-red-600 text-sm'
+                    : 'block px-4 py-2 rounded-lg hover:bg-surface-hover text-text-secondary text-sm'">
+                  {{ child.label }}
+                </a>
+              }
+            </div>
+          }
+        </div>
+      }
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 overflow-y-auto bg-surface-primary">
+    <router-outlet></router-outlet>
+  </main>
+</div>
+```
+
+---
+
+## Best Practices
+
+### 1. Use Typed Reactive Forms
+
+```typescript
+// ✅ CORRECT: Fully typed forms
+interface MyForm {
+  name: FormControl<string>;
+  age: FormControl<number>;
+}
+
+form = this.fb.group<MyForm>({
+  name: this.fb.control('', [Validators.required]),
+  age: this.fb.control(0, [Validators.required, Validators.min(18)])
+});
+```
+
+### 2. Real-Time Validation
+
+```typescript
+// ✅ CORRECT: Validate on change
+form = this.fb.group({
+  email: this.fb.control('', {
+    validators: [Validators.required, Validators.email],
+    updateOn: 'change' // Real-time validation
+  })
+});
+```
+
+### 3. Use Signals for Computed Values
+
+```typescript
+// ✅ CORRECT: Reactive calculations with signals
+value1 = signal(0);
+value2 = signal(0);
+total = computed(() => this.value1() + this.value2());
+```
+
+### 4. Centralize Form State
+
+```typescript
+// ✅ CORRECT: Use service for multi-step forms
+@Injectable({ providedIn: 'root' })
+export class FormStateService {
+  private formData = signal<FormData>({});
+  
+  updateSection(section: string, data: any): void {
+    this.formData.update(current => ({
+      ...current,
+      [section]: data
+    }));
+  }
+}
+```
+
+---
+
+## Related Rules
+
+- **Angular:** `web/.cursor/rules/angular-21-patterns.mdc` - Angular patterns
+- **CSS:** `.cursor/rules/css.mdc` - Form styling
+- **Tailwind:** `web/.cursor/rules/tailwind-4-patterns.mdc` - Utility classes
+
+---
+
+## Summary
+
+✅ **DO:**
+- Use Angular Reactive Forms with type safety
+- Create custom validators
+- Use Signals for real-time calculations
+- Centralize form state in services
+- Use `class` (not `className`)
+- Provide clear validation messages
+- Mark forms as touched on submit
+- Use component classes (`.input`, `.btn-primary`)
+
+❌ **DON'T:**
+- Use React Hook Form or Zod
+- Use template-driven forms for complex scenarios
+- Skip type safety
+- Forget accessibility (labels, ARIA)
+- Use inline styles
+- Skip error handling

@@ -1,0 +1,417 @@
+---
+alwaysApply: true
+---
+
+# Test Data Attributes Standard
+
+All interactive elements and testable components MUST include `data-testid` attributes for stable E2E test selectors.
+
+## Philosophy
+
+**Stable selectors prevent test brittleness.** CSS classes, DOM structure, and text content change frequently. `data-testid` attributes are semantic, stable, and intended solely for testing.
+
+## Naming Convention
+
+```
+data-testid="{module}-{component}-{element}-{action}"
+```
+
+**Rules:**
+- Use kebab-case (lowercase with dashes)
+- Be descriptive but concise
+- Include module prefix for context
+- Include action for interactive elements
+
+## Required Elements by Module
+
+### Global Navigation
+
+```html
+<!-- Main navigation -->
+<nav>
+  <a routerLink="/" data-testid="nav-home">Home</a>
+  <a routerLink="/explore" data-testid="nav-explore">Explore</a>
+  <a routerLink="/build" data-testid="nav-build">Build</a>
+  <a routerLink="/report" data-testid="nav-report">Report</a>
+</nav>
+
+<!-- Target location dropdown (always visible) -->
+<div data-testid="target-location-dropdown">
+  <span data-testid="target-location-display">Denver, CO</span>
+  <button data-testid="target-location-clear">×</button>
+</div>
+```
+
+### Explore Module
+
+```html
+<!-- Page container -->
+<div data-testid="explore-page">
+
+  <!-- Map -->
+  <div data-testid="explore-map-container" class="map-loaded">
+    <!-- Map markers -->
+    <div data-testid="explore-map-target-marker"></div>
+    <div data-testid="explore-map-comparable-marker-1"></div>
+  </div>
+
+  <!-- Location search -->
+  <input
+    data-testid="explore-location-search-input"
+    type="text"
+    placeholder="Search location">
+  <button data-testid="explore-location-search-button">Search</button>
+
+  <!-- Target location selection -->
+  <div data-testid="explore-target-location-panel">
+    <h3 data-testid="explore-target-location-address"></h3>
+    <button data-testid="explore-target-location-select">Select</button>
+  </div>
+
+  <!-- Comparables list -->
+  <div data-testid="explore-comparables-list">
+    <div data-testid="explore-comparable-item-1">
+      <span data-testid="explore-comparable-address-1"></span>
+      <span data-testid="explore-comparable-distance-1"></span>
+    </div>
+  </div>
+</div>
+```
+
+### Build Module
+
+```html
+<!-- Page container -->
+<div data-testid="build-page">
+
+  <!-- Proforma management -->
+  <button data-testid="build-create-proforma-button">Create Proforma</button>
+  <select data-testid="build-proforma-selector">
+    <option data-testid="build-proforma-option-1">Proforma 1</option>
+  </select>
+
+  <!-- Proforma form -->
+  <form data-testid="build-proforma-form">
+
+    <!-- Basic info -->
+    <input
+      data-testid="build-proforma-name-input"
+      type="text"
+      placeholder="Proforma Name">
+
+    <!-- Target location display -->
+    <div data-testid="build-target-location">Denver, CO</div>
+
+    <!-- Financial inputs -->
+    <input data-testid="build-land-cost-input" type="number">
+    <input data-testid="build-building-cost-input" type="number">
+    <input data-testid="build-revenue-input" type="number">
+    <input data-testid="build-expenses-input" type="number">
+
+    <!-- Calculated fields (read-only) -->
+    <div data-testid="build-calculated-noi">$150,000</div>
+    <div data-testid="build-calculated-cap-rate">6.0%</div>
+    <div data-testid="build-calculated-roi">7.5%</div>
+
+    <!-- Actions -->
+    <button data-testid="build-save-button">Save</button>
+    <button data-testid="build-reset-button">Reset</button>
+    <button data-testid="build-delete-button">Delete</button>
+  </form>
+
+  <!-- Success/error messages -->
+  <div data-testid="build-save-success">Proforma saved!</div>
+  <div data-testid="build-error-message">Error message here</div>
+
+  <!-- Proforma list -->
+  <div data-testid="build-proforma-list">
+    <div data-testid="build-proforma-item-1">
+      <span data-testid="build-proforma-name-1">Denver Property</span>
+    </div>
+  </div>
+</div>
+```
+
+### Report Module
+
+```html
+<!-- Page container -->
+<div data-testid="report-page">
+
+  <!-- Chart containers -->
+  <div data-testid="report-chart-noi">
+    <canvas data-testid="report-chart-noi-canvas"></canvas>
+  </div>
+
+  <div data-testid="report-chart-revenue-expenses">
+    <canvas data-testid="report-chart-revenue-expenses-canvas"></canvas>
+  </div>
+
+  <div data-testid="report-chart-financial-metrics">
+    <canvas data-testid="report-chart-financial-metrics-canvas"></canvas>
+  </div>
+
+  <!-- Data tables -->
+  <table data-testid="report-data-table">
+    <tr data-testid="report-data-row-noi">
+      <td>NOI</td>
+      <td data-testid="report-data-value-noi">$150,000</td>
+    </tr>
+  </table>
+
+  <!-- Export controls -->
+  <button data-testid="report-export-pdf-button">Export PDF</button>
+  <button data-testid="report-print-button">Print</button>
+
+  <!-- Success/error messages -->
+  <div data-testid="report-export-success">PDF exported!</div>
+  <div data-testid="report-error-message">Error message here</div>
+</div>
+```
+
+## Naming Patterns
+
+### Common Patterns
+
+| Element Type | Pattern | Example |
+|--------------|---------|---------|
+| Button | `{module}-{action}-button` | `build-save-button` |
+| Input | `{module}-{field}-input` | `build-land-cost-input` |
+| Link | `{module}-{target}-link` | `explore-comparables-link` |
+| Container | `{module}-{section}-container` | `explore-map-container` |
+| List | `{module}-{items}-list` | `build-proforma-list` |
+| List Item | `{module}-{item}-item-{id}` | `build-proforma-item-1` |
+| Display | `{module}-{data}-display` | `build-calculated-noi` |
+| Message | `{module}-{type}-message` | `build-error-message` |
+
+### Dynamic IDs
+
+For lists or repeated elements, append an index or unique ID:
+
+```html
+<!-- Static ID (single element) -->
+<button data-testid="create-proforma-button">Create</button>
+
+<!-- Dynamic ID (list items) -->
+<div data-testid="proforma-item-1">Proforma 1</div>
+<div data-testid="proforma-item-2">Proforma 2</div>
+
+<!-- Or use semantic ID -->
+<div data-testid="proforma-item-denver">Denver Property</div>
+```
+
+## Implementation Guidelines
+
+### Angular Components
+
+```typescript
+// ✅ GOOD: Add data-testid to template
+@Component({
+  selector: 'app-build',
+  template: `
+    <div data-testid="build-page">
+      <button
+        data-testid="build-create-proforma-button"
+        (click)="createProforma()">
+        Create Proforma
+      </button>
+    </div>
+  `
+})
+export class BuildComponent {
+  createProforma() { }
+}
+```
+
+### Dynamic Attributes
+
+```typescript
+// ✅ GOOD: Dynamic data-testid with ngFor
+@Component({
+  template: `
+    @for (proforma of proformas; track proforma.id) {
+      <div [attr.data-testid]="'proforma-item-' + proforma.id">
+        {{ proforma.name }}
+      </div>
+    }
+  `
+})
+```
+
+### Conditional Elements
+
+```typescript
+// ✅ GOOD: data-testid on conditional elements
+@Component({
+  template: `
+    @if (error) {
+      <div data-testid="build-error-message">
+        {{ error }}
+      </div>
+    }
+
+    @if (success) {
+      <div data-testid="build-save-success">
+        Saved successfully!
+      </div>
+    }
+  `
+})
+```
+
+## What NOT to Use as Selectors
+
+### ❌ BAD: CSS Classes
+
+```html
+<!-- ❌ DON'T: CSS classes change with styling -->
+<button class="btn-primary">Submit</button>
+```
+
+**Why:** Classes are for styling. They change frequently with design updates.
+
+### ❌ BAD: Element Position
+
+```typescript
+// ❌ DON'T: Nth-child selectors
+await page.click('button:nth-child(3)');
+```
+
+**Why:** DOM structure changes. Adding/removing elements breaks tests.
+
+### ❌ BAD: Text Content
+
+```typescript
+// ❌ DON'T: Text selectors
+await page.click('text=Submit');
+```
+
+**Why:** Copy changes. Internationalization breaks tests.
+
+### ❌ BAD: Element IDs (usually)
+
+```html
+<!-- ❌ DON'T: IDs for styling -->
+<button id="submit-btn">Submit</button>
+```
+
+**Why:** IDs are often used for JavaScript/styling, not testing. They may conflict or change.
+
+## Using data-testid in Tests
+
+### Page Object Model
+
+```typescript
+// page-objects/build/build-page.ts
+export class BuildPage {
+  readonly createButton = this.page.locator('[data-testid="build-create-proforma-button"]');
+  readonly nameInput = this.page.locator('[data-testid="build-proforma-name-input"]');
+  readonly saveButton = this.page.locator('[data-testid="build-save-button"]');
+
+  constructor(private page: Page) {}
+
+  async createProforma(name: string) {
+    await this.createButton.click();
+    await this.nameInput.fill(name);
+    await this.saveButton.click();
+  }
+}
+```
+
+### Direct Usage in Tests
+
+```typescript
+test('user can create proforma', async ({ page }) => {
+  await page.click('[data-testid="build-create-proforma-button"]');
+  await page.fill('[data-testid="build-proforma-name-input"]', 'Test');
+  await page.click('[data-testid="build-save-button"]');
+
+  await expect(page.locator('[data-testid="build-save-success"]'))
+    .toBeVisible();
+});
+```
+
+## Verification
+
+### How to Verify Attributes Are Added
+
+Use Playwright MCP to inspect page:
+
+```
+1. browser_navigate to http://localhost:4200/build
+2. browser_snapshot
+3. Verify output shows data-testid attributes
+```
+
+Or check browser DevTools:
+```javascript
+// In browser console
+document.querySelectorAll('[data-testid]').length
+```
+
+## Migration Strategy
+
+### For Existing Code
+
+1. **Identify interactive elements** without data-testid
+2. **Add attributes** following naming convention
+3. **Update tests** to use new selectors
+4. **Verify tests pass** with new selectors
+5. **Remove old selectors** from tests
+
+### Priority Order
+
+1. **Critical journey elements** (P0)
+   - Navigation buttons
+   - Create/save/delete buttons
+   - Primary input fields
+
+2. **Module-specific elements** (P1)
+   - Secondary actions
+   - Display elements
+   - Lists
+
+3. **Edge case elements** (P2)
+   - Error messages
+   - Success messages
+   - Optional features
+
+## Exceptions
+
+### When NOT to Add data-testid
+
+- **Purely decorative elements** (icons, dividers)
+- **Non-interactive text** (unless displayed value needs verification)
+- **Internal implementation details** (not tested)
+- **Third-party components** (use library-provided selectors)
+
+## Checklist for New Components
+
+When creating a new Angular component:
+
+- [ ] Add `data-testid` to page container
+- [ ] Add `data-testid` to all buttons
+- [ ] Add `data-testid` to all inputs/forms
+- [ ] Add `data-testid` to all links
+- [ ] Add `data-testid` to all display elements (if tested)
+- [ ] Add `data-testid` to success/error messages
+- [ ] Follow naming convention
+- [ ] Verify in browser DevTools
+- [ ] Update page object model
+- [ ] Write E2E test using data-testid
+
+## Related Documentation
+
+- **Testing Philosophy:** `docs/qa/README.md`
+- **Testing Strategy:** `.cursor/rules/testing-strategy.mdc`
+- **Critical User Journeys:** `docs/qa/critical-user-journeys.md`
+
+## Summary
+
+**Why data-testid?**
+- ✅ Stable (doesn't change with styling)
+- ✅ Semantic (describes what element does)
+- ✅ Explicit (intentional testing hooks)
+- ✅ Prevents brittleness (tests survive refactoring)
+
+**Remember:** Every interactive element should have a `data-testid`. If you're writing a test and can't find a stable selector, add `data-testid` to the component first.

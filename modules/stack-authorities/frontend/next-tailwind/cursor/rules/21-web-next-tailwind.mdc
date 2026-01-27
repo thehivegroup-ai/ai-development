@@ -1,0 +1,11 @@
+---
+description: "Next.js + Tailwind constraints."
+alwaysApply: false
+---
+
+# Web Next Tailwind
+
+- Prefer Server Components; use Client Components only when needed.
+- Use App Router conventions for routing and layouts.
+- Use `next/link` and `next/image` for navigation and images.
+- Follow Tailwind component/utility architecture for controls.
