@@ -14,12 +14,13 @@ work across all projects.
 ### Rules
 
 - `00-std-foundation.mdc` – Foundational constraints (commands, git, secrets, errors)
-- `01-std-solution-hermeneutic.mdc` – Solution framing constraints
-- `02-std-planning-teleological.mdc` – Planning constraints
+- `01-std-solution-hermeneutic.mdc` – Solution framing constraints (hermeneutic circle)
+- `02-std-planning-teleological.mdc` – Planning constraints (teleological planning)
 - `03-std-quality-clean-test-deploy.mdc` – Quality gates and testing
 - `04-std-environment-config.mdc` – Environment variable and secrets management
 - `05-std-documentation-organization.mdc` – Documentation structure (docs/, memory-bank/, lifecycle)
 - `06-std-workflow-modes.mdc` – Extended 8-mode workflow: SOLUTION → PLAN → DESIGN-FLOW → BUILD-SCREEN → BUILD-API → CLEAN-SWEEP → TEST-LOOP → DEPLOY-RELEASE
+- `07-std-evidence-based-claims.mdc` – Evidence requirements for success claims
 
 ### Commands
 

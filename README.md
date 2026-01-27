@@ -120,6 +120,7 @@ ai-development/
 - **[WORKFLOWS.md](./WORKFLOWS.md)** – Complete guide to how rules, commands, skills, and subagents work together
 - **[COMPOSITION.md](./COMPOSITION.md)** – How to compose modules into your project
 - **[LEGACY_MAPPING.md](./LEGACY_MAPPING.md)** – How legacy rules map to the new structure
+- **[LEGACY_SKILLS_INTEGRATION.md](./LEGACY_SKILLS_INTEGRATION.md)** – How legacy skills were transformed into the new structure
 - **[ENHANCEMENTS.md](./ENHANCEMENTS.md)** – Summary of enhancements made to this repository
 - **Module READMEs** – Each module has a README explaining its focus and purpose
 
