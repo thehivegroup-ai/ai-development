@@ -144,8 +144,8 @@ export async function resolveSelection(
 ): Promise<ModuleMetadata[]> {
   const modules: ModuleMetadata[] = [];
   
-  // Resolve enterprise module
-  if (selection.enterprise) {
+  // Resolve enterprise module (including empty string for enterprise-standards)
+  if (selection.enterprise !== undefined && selection.enterprise !== null) {
     const module = await findModule(repoPath, selection.enterprise);
     if (!module) {
       throw new Error(`Enterprise module not found: ${selection.enterprise}`);

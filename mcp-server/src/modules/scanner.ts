@@ -52,6 +52,8 @@ function inferCategory(modulePath: string, repoRoot: string): ModuleCategory {
 /**
  * Infer module ID from path
  * e.g., modules/stack-authorities/frontend/react-tailwind → frontend/react-tailwind
+ * e.g., modules/enterprise-standards → "" (empty string for top-level enterprise module)
+ * e.g., modules/project-controls/base → base
  */
 function inferModuleId(modulePath: string, repoRoot: string): string {
   const relativePath = relative(repoRoot, modulePath);
@@ -61,7 +63,13 @@ function inferModuleId(modulePath: string, repoRoot: string): string {
   if (parts[0] === 'modules') {
     parts.shift(); // remove 'modules'
     parts.shift(); // remove category (enterprise-standards, stack-authorities, project-controls)
-    return parts.join('/');
+    
+    // Special case: enterprise-standards is a top-level module with empty ID
+    // project-controls and stack-authorities have sub-modules
+    const moduleId = parts.join('/');
+    
+    // Return empty string for enterprise-standards (it's the only top-level category module)
+    return moduleId;
   }
   
   return parts.join('/');
