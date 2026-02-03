@@ -1,0 +1,38 @@
+{
+  "$schema": "../../../../schemas/module.schema.json",
+  "id": "frontend/vue-tailwind",
+  "type": "stack-authority",
+  "name": "Vue.js + Tailwind CSS Frontend",
+  "description": "Vue 3 Composition API with TypeScript and Tailwind CSS standards for modern frontend development",
+  "version": "1.0.0",
+  "provides": {
+    "rules": [
+      "cursor/rules/21-web-vue-tailwind.mdc"
+    ],
+    "commands": [
+      "cursor/commands/web.vue.build-component.md"
+    ],
+    "skills": [
+      "cursor/skills/vue-component-standards"
+    ],
+    "agents": [
+      "cursor/agents/web.vue-critic.md"
+    ]
+  },
+  "requires": [
+    ""
+  ],
+  "compatibility": {
+    "frontends": ["vue"],
+    "excludes": ["frontend/react-tailwind", "frontend/next-tailwind", "frontend/angular-tailwind"]
+  },
+  "tags": [
+    "frontend",
+    "vue",
+    "vue3",
+    "composition-api",
+    "typescript",
+    "tailwind",
+    "spa"
+  ]
+}

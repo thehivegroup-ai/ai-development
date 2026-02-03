@@ -1,0 +1,36 @@
+{
+  "$schema": "../../../../schemas/module.schema.json",
+  "id": "backend/python-fastapi",
+  "type": "stack-authority",
+  "name": "Python + FastAPI Backend",
+  "description": "FastAPI with Pydantic validation and async/await for modern Python API development",
+  "version": "1.0.0",
+  "provides": {
+    "rules": [
+      "cursor/rules/32-api-python-fastapi.mdc"
+    ],
+    "commands": [
+      "cursor/commands/api.fastapi.add-endpoint.md"
+    ],
+    "skills": [
+      "cursor/skills/fastapi-api-standards"
+    ],
+    "agents": [
+      "cursor/agents/api.fastapi-reviewer.md"
+    ]
+  },
+  "requires": [
+    ""
+  ],
+  "compatibility": {
+    "backends": ["python-fastapi"],
+    "excludes": ["backend/node-fastify", "backend/java"]
+  },
+  "tags": [
+    "backend",
+    "python",
+    "fastapi",
+    "async",
+    "rest-api"
+  ]
+}

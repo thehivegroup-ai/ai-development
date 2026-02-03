@@ -1,0 +1,33 @@
+FROM mcr.microsoft.com/playwright:v1.40.0-focal
+
+# Set working directory
+WORKDIR /app
+
+# Install Node.js 18
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get install -y nodejs
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Install Playwright with dependencies
+RUN npx playwright install --with-deps chromium
+
+# Copy application code
+COPY . .
+
+# Build application
+RUN npm run build
+
+# Expose port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=10s --timeout=3s --start-period=30s \
+  CMD curl -f http://localhost:3000 || exit 1
+
+# Default command runs visual parity tests
+CMD ["sh", "-c", "npm start & npm run test:visual"]

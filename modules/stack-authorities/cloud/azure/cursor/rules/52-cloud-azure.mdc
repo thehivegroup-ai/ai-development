@@ -1,0 +1,129 @@
+# 52: Cloud - Microsoft Azure
+
+**Authority Type:** Cloud Infrastructure Stack  
+**Technology:** Microsoft Azure + Bicep/ARM Templates  
+**Module ID:** `cloud/azure`
+
+---
+
+## Purpose
+
+Enforce Azure deployment patterns, infrastructure as code with Bicep, and security best practices.
+
+---
+
+## Core Principles
+
+### 1. Infrastructure as Code
+Use Bicep templates for all infrastructure.
+
+### 2. Resource Grouping
+Organize resources by environment and application.
+
+### 3. Security First
+Use Key Vault for secrets, Managed Identities for authentication.
+
+### 4. Cost Optimization
+Use appropriate SKUs, implement auto-scaling.
+
+---
+
+## Bicep Templates
+
+### Resource Group
+
+```bicep
+// main.bicep
+param location string = resourceGroup().location
+param environmentName string
+
+resource appServicePlan 'Microsoft.Web/serverfarms@2022-03-01' = {
+  name: 'plan-${environmentName}'
+  location: location
+  sku: {
+    name: 'B1'
+    tier: 'Basic'
+  }
+  properties: {
+    reserved: true  // Linux
+  }
+}
+
+resource webApp 'Microsoft.Web/sites@2022-03-01' = {
+  name: 'app-${environmentName}'
+  location: location
+  properties: {
+    serverFarmId: appServicePlan.id
+    siteConfig: {
+      linuxFxVersion: 'NODE|18'
+    }
+  }
+}
+```
+
+---
+
+## Key Services
+
+### App Service
+- Web applications
+- API backends
+- Container apps
+
+### Azure SQL Database
+- Managed SQL Server
+- Auto-scaling
+- Geo-replication
+
+### Cosmos DB
+- NoSQL database
+- Global distribution
+- Multiple APIs (SQL, MongoDB, etc.)
+
+### Key Vault
+- Secret management
+- Certificate storage
+- Encryption keys
+
+### Storage Account
+- Blob storage
+- File shares
+- Queue storage
+
+---
+
+## Deployment
+
+```bash
+# Login
+az login
+
+# Create resource group
+az group create --name rg-myapp-dev --location eastus
+
+# Deploy Bicep template
+az deployment group create \
+  --resource-group rg-myapp-dev \
+  --template-file main.bicep \
+  --parameters environmentName=dev
+```
+
+---
+
+## Security Best Practices
+
+✅ Use Managed Identities (no credentials in code)  
+✅ Store secrets in Key Vault  
+✅ Enable Azure Defender  
+✅ Use Private Endpoints  
+✅ Implement RBAC (Role-Based Access Control)
+
+---
+
+## Success Metrics
+
+- ✅ All infrastructure defined in Bicep
+- ✅ No hardcoded secrets
+- ✅ Managed Identities used
+- ✅ Resources properly tagged
+- ✅ Cost monitoring enabled

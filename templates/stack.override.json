@@ -1,1 +1,105 @@
-{}
+{
+  "$schema": "../schemas/module.schema.json",
+  
+  "_comment": "Stack Override Template - Customize module behavior per project",
+  "_description": "Use this file to override or extend module configurations without modifying the source modules",
+  
+  "_when_to_use": [
+    "Project-specific customizations",
+    "Temporary rule adjustments",
+    "Team-specific conventions",
+    "Client-specific requirements"
+  ],
+  
+  "_usage": "Create stack.override.json in your project root alongside stack.profile.json",
+  
+  "rules": {
+    "_description": "Override or extend rule configurations",
+    
+    "_example_disable_rule": {
+      "path": ".cursor/rules/20-web-react-tailwind.mdc",
+      "enabled": false,
+      "reason": "Using custom CSS framework"
+    },
+    
+    "_example_add_project_rule": {
+      "path": ".cursor/rules/99-project-custom.mdc",
+      "content": "# Project-Specific Rules\n\nCustom rules for this project..."
+    }
+  },
+  
+  "commands": {
+    "_description": "Add or override commands",
+    
+    "_example_custom_command": {
+      "path": ".cursor/commands/project.deploy-staging.md",
+      "content": "# Deploy to Staging\n\nCustom staging deployment..."
+    }
+  },
+  
+  "skills": {
+    "_description": "Extend skills with project-specific examples",
+    
+    "_example_add_references": {
+      "skill": "react-component-standards",
+      "references": [
+        {
+          "path": "references/project-components.md",
+          "content": "# Project Component Examples\n\n..."
+        }
+      ]
+    }
+  },
+  
+  "agents": {
+    "_description": "Customize agent behavior",
+    
+    "_example_custom_agent": {
+      "path": ".cursor/agents/project.code-reviewer.md",
+      "content": "# Project Code Reviewer\n\n..."
+    }
+  },
+  
+  "substitutions": {
+    "_description": "Replace values across all modules",
+    
+    "_example_company_name": {
+      "find": "The Hive Group",
+      "replace": "Your Company Name"
+    },
+    
+    "_example_api_url": {
+      "find": "https://api.example.com",
+      "replace": "https://api.yourcompany.com"
+    }
+  },
+  
+  "_common_use_cases": {
+    "disable_unused_modules": "Set enabled: false for modules you don't need",
+    "add_project_conventions": "Add project-specific rules in 99-project-*.mdc files",
+    "customize_deployment": "Override cloud deployment commands for your infrastructure",
+    "team_preferences": "Add team-specific coding standards",
+    "client_requirements": "Add client-specific documentation or checks"
+  },
+  
+  "_override_priority": [
+    "1. Source modules (lowest priority)",
+    "2. stack.profile.json selections",
+    "3. stack.override.json customizations (highest priority)"
+  ],
+  
+  "_best_practices": {
+    "version_control": "Commit stack.override.json to version control",
+    "document_changes": "Always include 'reason' field for overrides",
+    "minimal_changes": "Only override what's necessary",
+    "team_communication": "Communicate overrides to team",
+    "test_overrides": "Test after applying overrides"
+  },
+  
+  "_anti_patterns": {
+    "excessive_overrides": "AVOID: Overriding too many modules (consider custom module instead)",
+    "no_documentation": "AVOID: Overrides without reason/documentation",
+    "conflicting_overrides": "AVOID: Overrides that contradict each other",
+    "security_weakening": "NEVER: Disable security rules in regulated environments"
+  }
+}

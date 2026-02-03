@@ -1,0 +1,39 @@
+{
+  "$schema": "../../../../../schemas/module.schema.json",
+  "id": "database/sqlserver",
+  "type": "stack-authority",
+  "name": "SQL Server",
+  "description": "SQL Server patterns with migration safety and schema conventions",
+  "version": "1.0.0",
+  "provides": {
+    "rules": [
+      "41-db-sqlserver.mdc"
+    ],
+    "commands": [
+      "db.sqlserver.migration.md"
+    ],
+    "skills": [
+      "sqlserver-standards"
+    ],
+    "agents": [
+      "db.sqlserver-reviewer.md"
+    ]
+  },
+  "requires": [""],
+  "compatibility": {
+    "cursor": ">=0.40.0",
+    "modules": {
+      "": "*",
+      "frontend/react-tailwind": "*",
+      "frontend/next-tailwind": "*",
+      "frontend/angular-tailwind": "*",
+      "backend/node-fastify": "*",
+      "backend/java": "*",
+      "cloud/aws": "*",
+      "cloud/gcp": "*"
+    }
+  },
+  "tags": ["database", "sqlserver", "sql", "microsoft", "migration"],
+  "author": "The Hive Group",
+  "license": "MIT"
+}

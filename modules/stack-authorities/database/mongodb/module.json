@@ -1,0 +1,20 @@
+{
+  "$schema": "../../../../schemas/module.schema.json",
+  "id": "database/mongodb",
+  "type": "stack-authority",
+  "name": "MongoDB Database",
+  "description": "MongoDB schema design and query optimization patterns",
+  "version": "1.0.0",
+  "provides": {
+    "rules": ["cursor/rules/42-db-mongodb.mdc"],
+    "commands": ["cursor/commands/db.mongodb.schema.md"],
+    "skills": ["cursor/skills/mongodb-standards"],
+    "agents": ["cursor/agents/db.mongodb-reviewer.md"]
+  },
+  "requires": [""],
+  "compatibility": {
+    "databases": ["mongodb"],
+    "excludes": ["database/postgres", "database/sqlserver"]
+  },
+  "tags": ["database", "mongodb", "nosql", "document-store"]
+}

@@ -72,31 +72,42 @@ const viewports = {
 
 ### Step 3: Capture Production
 
-**Preferred method:** Playwright capture script
+**Run the capture script for production:**
 
 ```bash
-node scripts/parity/capture_rendered.mjs prod "<PROD_URL>" ".temp/parity/prod"
+npm run capture:production
+# or
+tsx scripts/visual-parity/capture.ts visual-parity.production.config.json
 ```
 
-**What this captures:**
-- Screenshots at each viewport (`.temp/parity/prod/<viewport>/screenshot.png`)
-- Rendered HTML at each viewport (`.temp/parity/prod/<viewport>/page.html`)
-
-**If script doesn't exist yet, create it using the `playwright-capture` skill.**
-
-**Fallback method (no screenshots):**
-
-```bash
-curl "<PROD_URL>" > .temp/parity/prod/page.html
-```
+**What this script does:**
+1. Reads configuration from `visual-parity.production.config.json`
+2. Launches Playwright browser
+3. Authenticates if credentials provided
+4. Navigates to each page
+5. Captures screenshots at each viewport
+6. Saves to `visual-tests/production/`
+7. Generates capture report
 
 **Verify capture:**
 
 ```bash
-ls -la .temp/parity/prod/
+ls -R visual-tests/production/
 ```
 
-**Expected:** One directory per viewport with `screenshot.png` and `page.html`
+**Expected:** Directory per page, subdirectory per viewport with `screenshot.png`
+
+**Example:**
+```
+visual-tests/production/
+├── home/
+│   ├── mobile/screenshot.png
+│   ├── tablet/screenshot.png
+│   └── desktop/screenshot.png
+├── products/
+│   └── ...
+└── capture-report.json
+```
 
 ---
 
@@ -104,21 +115,33 @@ ls -la .temp/parity/prod/
 
 **Ensure local dev server is running before capturing.**
 
+Check server is up:
 ```bash
-node scripts/parity/capture_rendered.mjs local "<LOCAL_URL>" ".temp/parity/local"
+curl -I http://localhost:3000
 ```
 
-**What this captures:**
-- Screenshots at each viewport (`.temp/parity/local/<viewport>/screenshot.png`)
-- Rendered HTML at each viewport (`.temp/parity/local/<viewport>/page.html`)
+**Run the capture script for local:**
+
+```bash
+npm run capture:local
+# or
+tsx scripts/visual-parity/capture.ts visual-parity.local.config.json
+```
+
+**What this script does:**
+1. Reads configuration from `visual-parity.local.config.json`
+2. Connects to local server
+3. Captures same pages and viewports as production
+4. Saves to `visual-tests/local/`
+5. Generates capture report
 
 **Verify capture:**
 
 ```bash
-ls -la .temp/parity/local/
+ls -R visual-tests/local/
 ```
 
-**Expected:** Same structure as prod (one directory per viewport with artifacts)
+**Expected:** Same structure as production
 
 ---
 
@@ -128,27 +151,23 @@ ls -la .temp/parity/local/
 
 ```bash
 # Expected structure
-.temp/parity/
-├── prod/
-│   ├── desktop/
-│   │   ├── screenshot.png
-│   │   └── page.html
-│   ├── tablet/
-│   │   ├── screenshot.png
-│   │   └── page.html
-│   └── mobile/
-│       ├── screenshot.png
-│       └── page.html
-├── local/
-│   ├── desktop/
-│   │   ├── screenshot.png
-│   │   └── page.html
-│   ├── tablet/
-│   │   ├── screenshot.png
-│   │   └── page.html
-│   └── mobile/
-│       ├── screenshot.png
-│       └── page.html
+visual-tests/
+├── production/
+│   ├── home/
+│   │   ├── mobile/screenshot.png
+│   │   ├── tablet/screenshot.png
+│   │   └── desktop/screenshot.png
+│   ├── products/
+│   │   └── ...
+│   └── capture-report.json
+└── local/
+    ├── home/
+    │   ├── mobile/screenshot.png
+    │   ├── tablet/screenshot.png
+    │   └── desktop/screenshot.png
+    ├── products/
+    │   └── ...
+    └── capture-report.json
 ```
 
 **If any artifacts missing, identify why and re-capture.**
@@ -160,17 +179,30 @@ ls -la .temp/parity/local/
 **Report artifacts generated:**
 
 ```markdown
-## Capture Complete
+## Capture Complete ✅
+
+### Configuration
+- Production URL: https://your-production-site.com
+- Local URL: http://localhost:3000
+- Pages: 4 (home, products, about, contact)
+- Viewports: 3 (mobile, tablet, desktop)
+- Total Screenshots: 24 (4 pages × 3 viewports × 2 environments)
 
 ### Production Captures
-- Desktop (1920x1080): ✅ `.temp/parity/prod/desktop/screenshot.png`
-- Tablet (768x1024): ✅ `.temp/parity/prod/tablet/screenshot.png`
-- Mobile (375x667): ✅ `.temp/parity/prod/mobile/screenshot.png`
+- home/mobile: ✅ visual-tests/production/home/mobile/screenshot.png
+- home/tablet: ✅ visual-tests/production/home/tablet/screenshot.png
+- home/desktop: ✅ visual-tests/production/home/desktop/screenshot.png
+- (... and so on for all pages)
 
 ### Local Captures
-- Desktop (1920x1080): ✅ `.temp/parity/local/desktop/screenshot.png`
-- Tablet (768x1024): ✅ `.temp/parity/local/tablet/screenshot.png`
-- Mobile (375x667): ✅ `.temp/parity/local/mobile/screenshot.png`
+- home/mobile: ✅ visual-tests/local/home/mobile/screenshot.png
+- home/tablet: ✅ visual-tests/local/home/tablet/screenshot.png
+- home/desktop: ✅ visual-tests/local/home/desktop/screenshot.png
+- (... and so on for all pages)
+
+### Reports Generated
+- Production: visual-tests/production/capture-report.json
+- Local: visual-tests/local/capture-report.json
 
 ### Next Step
 Run `/test.parity.compare` to generate visual comparison.

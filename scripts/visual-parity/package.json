@@ -1,0 +1,25 @@
+{
+  "name": "visual-parity-scripts",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Visual parity testing scripts for screenshot capture and comparison",
+  "scripts": {
+    "capture:production": "tsx capture.ts ../../visual-parity.production.config.json",
+    "capture:local": "tsx capture.ts ../../visual-parity.local.config.json",
+    "compare": "tsx compare.ts ../../visual-compare.config.json",
+    "test:visual": "npm run capture:production && npm run capture:local && npm run compare"
+  },
+  "dependencies": {
+    "playwright": "^1.40.0",
+    "pixelmatch": "^5.3.0",
+    "pngjs": "^7.0.0",
+    "sharp": "^0.33.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/pixelmatch": "^5.2.6",
+    "@types/pngjs": "^6.0.5",
+    "tsx": "^4.7.0"
+  }
+}

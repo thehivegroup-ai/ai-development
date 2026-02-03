@@ -1,1 +1,122 @@
-{}
+{
+  "$schema": "../schemas/module.schema.json",
+  
+  "_comment": "Stack Profile Template - Configure your technology stack",
+  
+  "enterprise": "",
+  "_enterprise_options": [
+    "\"\" - Enterprise Standards (required for all projects)"
+  ],
+  
+  "controls": [],
+  "_controls_options": [
+    "base - Baseline quality and verification (recommended for all)",
+    "regulated - Additional controls for regulated environments (finance, healthcare, government)"
+  ],
+  "_controls_examples": {
+    "basic_project": ["base"],
+    "regulated_project": ["base", "regulated"],
+    "no_controls": []
+  },
+  
+  "stacks": [],
+  "_stacks_description": "Choose modules for your technology stack",
+  
+  "_frontend_options": [
+    "frontend/react-tailwind - React with Tailwind CSS",
+    "frontend/next-tailwind - Next.js with App Router and Tailwind",
+    "frontend/angular-tailwind - Angular with standalone components and Signals"
+  ],
+  
+  "_backend_options": [
+    "backend/node-fastify - Node.js with Fastify framework",
+    "backend/java - Java with Spring Boot"
+  ],
+  
+  "_database_options": [
+    "database/postgres - PostgreSQL",
+    "database/sqlserver - Microsoft SQL Server"
+  ],
+  
+  "_cloud_options": [
+    "cloud/aws - Amazon Web Services",
+    "cloud/gcp - Google Cloud Platform"
+  ],
+  
+  "_testing_options": [
+    "testing/visual-parity - Visual regression testing with Playwright"
+  ],
+  
+  "_example_modern_js": {
+    "description": "Modern JavaScript full-stack",
+    "enterprise": "",
+    "controls": ["base"],
+    "stacks": [
+      "frontend/react-tailwind",
+      "backend/node-fastify",
+      "database/postgres",
+      "cloud/aws"
+    ]
+  },
+  
+  "_example_enterprise_regulated": {
+    "description": "Enterprise with compliance",
+    "enterprise": "",
+    "controls": ["base", "regulated"],
+    "stacks": [
+      "frontend/next-tailwind",
+      "backend/java",
+      "database/sqlserver",
+      "cloud/gcp"
+    ]
+  },
+  
+  "_example_angular_app": {
+    "description": "Angular application",
+    "enterprise": "",
+    "controls": ["base"],
+    "stacks": [
+      "frontend/angular-tailwind",
+      "backend/node-fastify",
+      "database/postgres",
+      "cloud/aws"
+    ]
+  },
+  
+  "_example_frontend_only": {
+    "description": "Frontend-only project",
+    "enterprise": "",
+    "controls": ["base"],
+    "stacks": [
+      "frontend/react-tailwind"
+    ]
+  },
+  
+  "_example_backend_api": {
+    "description": "Backend API only",
+    "enterprise": "",
+    "controls": ["base"],
+    "stacks": [
+      "backend/node-fastify",
+      "database/postgres",
+      "cloud/aws"
+    ]
+  },
+  
+  "_usage_instructions": {
+    "step_1": "Copy this file to your project root as 'stack.profile.json'",
+    "step_2": "Remove all '_comment' and '_*' fields (they're just documentation)",
+    "step_3": "Set 'enterprise' to empty string \"\" (required)",
+    "step_4": "Choose 'controls' from options above",
+    "step_5": "Choose 'stacks' modules for your technology stack",
+    "step_6": "Run install_environment tool or copy modules manually"
+  },
+  
+  "_anti_patterns": {
+    "missing_enterprise": "ERROR: 'enterprise' field is required, must be \"\"",
+    "invalid_module_id": "ERROR: Module IDs are case-sensitive, check spelling",
+    "empty_stacks": "WARNING: No stacks selected, only enterprise standards will be installed",
+    "duplicate_modules": "WARNING: Same module listed multiple times",
+    "incompatible_cloud": "WARNING: Selecting multiple cloud providers (choose one)"
+  }
+}

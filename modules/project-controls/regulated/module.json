@@ -1,0 +1,33 @@
+{
+  "$schema": "../../../../schemas/module.schema.json",
+  "id": "regulated",
+  "type": "project-control",
+  "name": "Regulated Controls",
+  "description": "Additional controls for regulated environments requiring stricter validation",
+  "version": "1.0.0",
+  "provides": {
+    "rules": [
+      "91-ctrl-regulated.mdc"
+    ],
+    "commands": [
+      "ctrl.regulated.security-check.md"
+    ],
+    "skills": [
+      "regulated-delivery"
+    ],
+    "agents": [
+      "ctrl.security-reviewer.md"
+    ]
+  },
+  "requires": ["", "base"],
+  "compatibility": {
+    "cursor": ">=0.40.0",
+    "modules": {
+      "": "*",
+      "base": "*"
+    }
+  },
+  "tags": ["controls", "security", "compliance", "regulated", "audit"],
+  "author": "The Hive Group",
+  "license": "MIT"
+}

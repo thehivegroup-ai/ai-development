@@ -1,0 +1,76 @@
+# 42: Database - MongoDB
+
+**Authority Type:** Database Stack  
+**Technology:** MongoDB + Mongoose/Motor  
+**Module ID:** `database/mongodb`
+
+---
+
+## Purpose
+
+Enforce MongoDB schema design, indexing strategies, and query optimization patterns for document-based data storage.
+
+---
+
+## Core Principles
+
+### 1. Schema Design
+Use Mongoose schemas or Pydantic models for structure validation.
+
+### 2. Indexing Strategy
+Create indexes for common query patterns.
+
+### 3. Embedding vs Referencing
+- Embed: One-to-few relationships, data read together
+- Reference: One-to-many, many-to-many relationships
+
+### 4. Query Optimization
+Use aggregation pipelines efficiently, avoid N+1 queries.
+
+---
+
+## Mongoose Schema (Node.js)
+
+```typescript
+import mongoose, { Schema, Document } from 'mongoose';
+
+export interface IUser extends Document {
+  email: string;
+  name: string;
+  createdAt: Date;
+}
+
+const UserSchema = new Schema({
+  email: { type: String, required: true, unique: true, index: true },
+  name: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now },
+});
+
+export const User = mongoose.model<IUser>('User', UserSchema);
+```
+
+---
+
+## Motor (Python)
+
+```python
+from motor.motor_asyncio import AsyncIOMotorClient
+from pydantic import BaseModel, EmailStr
+
+class UserModel(BaseModel):
+    email: EmailStr
+    name: str
+
+client = AsyncIOMotorClient(DATABASE_URL)
+db = client.myapp
+users_collection = db.users
+```
+
+---
+
+## Success Metrics
+
+- ✅ Schemas defined for all collections
+- ✅ Indexes created for query patterns
+- ✅ Aggregation pipelines used for complex queries
+- ✅ No N+1 query patterns

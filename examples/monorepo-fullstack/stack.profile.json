@@ -1,0 +1,40 @@
+{
+  "description": "Full-stack monorepo with multiple frontends and shared backend",
+  "workspaces": {
+    "frontend-admin": {
+      "enterprise": "",
+      "controls": ["base", "regulated"],
+      "stacks": [
+        "frontend/angular-tailwind",
+        "backend/node-fastify",
+        "database/postgres",
+        "cloud/aws"
+      ]
+    },
+    "frontend-customer": {
+      "enterprise": "",
+      "controls": ["base"],
+      "stacks": [
+        "frontend/react-tailwind",
+        "backend/node-fastify",
+        "database/postgres",
+        "cloud/aws"
+      ]
+    },
+    "backend-api": {
+      "enterprise": "",
+      "controls": ["base", "regulated"],
+      "stacks": [
+        "backend/node-fastify",
+        "database/postgres",
+        "cloud/aws"
+      ]
+    }
+  },
+  "shared": {
+    "note": "Install enterprise standards and shared modules at monorepo root",
+    "enterprise": "",
+    "controls": ["base"],
+    "stacks": []
+  }
+}

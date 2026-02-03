@@ -1,0 +1,54 @@
+{
+  "description": "Microservices architecture with per-service profiles",
+  "services": {
+    "user-service": {
+      "enterprise": "",
+      "controls": ["base", "regulated"],
+      "stacks": [
+        "backend/node-fastify",
+        "database/postgres",
+        "cloud/aws"
+      ]
+    },
+    "order-service": {
+      "enterprise": "",
+      "controls": ["base"],
+      "stacks": [
+        "backend/node-fastify",
+        "database/postgres",
+        "cloud/aws"
+      ]
+    },
+    "inventory-service": {
+      "enterprise": "",
+      "controls": ["base"],
+      "stacks": [
+        "backend/java",
+        "database/sqlserver",
+        "cloud/aws"
+      ]
+    },
+    "notification-service": {
+      "enterprise": "",
+      "controls": ["base"],
+      "stacks": [
+        "backend/node-fastify",
+        "cloud/aws"
+      ]
+    },
+    "api-gateway": {
+      "enterprise": "",
+      "controls": ["base", "regulated"],
+      "stacks": [
+        "backend/node-fastify",
+        "cloud/aws"
+      ]
+    }
+  },
+  "shared": {
+    "note": "Minimal shared configuration - each service is independent",
+    "enterprise": "",
+    "controls": [],
+    "stacks": []
+  }
+}

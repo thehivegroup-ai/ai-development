@@ -30,163 +30,83 @@ This is the **second step** in visual parity testing (after `/test.parity.captur
 ### Step 1: Verify Captures Exist
 
 ```bash
-ls -la .temp/parity/prod/
-ls -la .temp/parity/local/
+ls -R visual-tests/production/
+ls -R visual-tests/local/
 ```
 
-**Expected:** Matching directory structure with screenshots and HTML for each viewport
+**Expected:** Matching directory structure with screenshots for each page and viewport
 
-**If missing, stop and report which captures are incomplete.**
+**If missing, run `/test.parity.capture-all` first.**
 
 ---
 
-### Step 2: Generate Visual Gallery
-
-**Preferred method:** Visual review gallery script
+### Step 2: Run Comparison Script
 
 ```bash
-node scripts/parity/make_visual_gallery.mjs ".temp/parity/prod" ".temp/parity/local" ".temp/parity/diff/visual-review.html"
+npm run compare
+# or
+tsx scripts/visual-parity/compare.ts visual-compare.config.json
 ```
 
-**What this generates:**
-- Side-by-side screenshot comparison
-- One row per viewport (desktop, tablet, mobile)
-- Visual diff highlighting (if available)
+**What this script does:**
+1. Reads comparison config
+2. Loads production and local screenshots
+3. Compares pixel-by-pixel using pixelmatch
+4. Generates diff images highlighting differences
+5. Creates HTML report with side-by-side view
+6. Creates JSON results for programmatic access
+7. Calculates pass/fail based on threshold
 
-**Output:** `.temp/parity/diff/visual-review.html`
-
-**If script doesn't exist yet, create it using the `visual-parity-testing` skill.**
+**Output:**
+- `visual-tests/diff/report.html` - Interactive HTML report
+- `visual-tests/diff/results.json` - Machine-readable results
+- `visual-tests/diff/<page>/<viewport>/diff.png` - Diff images (if differences found)
 
 ---
 
-### Step 3: Extract UI Text and SEO Metadata
+### Step 3: Review HTML Report
 
-**Purpose:** Catch copy/SEO mismatches that may not be obvious in screenshots
-
-**Extract from production HTML:**
+**Open report in browser:**
 
 ```bash
-node scripts/parity/extract_ui_text.mjs ".temp/parity/prod" ".temp/parity/diff/prod-text.json"
+open visual-tests/diff/report.html
+# or: xdg-open visual-tests/diff/report.html (Linux)
 ```
 
-**Extract from local HTML:**
-
-```bash
-node scripts/parity/extract_ui_text.mjs ".temp/parity/local" ".temp/parity/diff/local-text.json"
-```
-
-**What this extracts:**
-- Button labels, CTA text, headings
-- `<title>` tag content
-- Meta description
-- Visible text content
-
-**Generate diff report:**
-
-```bash
-node scripts/parity/diff_text.mjs ".temp/parity/diff/prod-text.json" ".temp/parity/diff/local-text.json" ".temp/parity/diff/ui-text-diff.json"
-```
-
-**Output:** `.temp/parity/diff/ui-text-diff.json`
-
----
-
-### Step 4: Generate Parity Report
-
-**Purpose:** Summarize visual and copy mismatches in a single markdown report
-
-**Structure:**
-
-```markdown
-# Parity Report
-
-**Date:** YYYY-MM-DD  
-**Production URL:** <PROD_URL>  
-**Local URL:** <LOCAL_URL>
-
-## Visual Parity Assessment
-
-### Desktop (1920x1080)
-- **Status:** ✅ Match | ⚠️ Minor mismatch | ❌ Major mismatch
-- **Issues:**
-  - [List specific visual issues if any]
-
-### Tablet (768x1024)
-- **Status:** ✅ Match | ⚠️ Minor mismatch | ❌ Major mismatch
-- **Issues:**
-  - [List specific visual issues if any]
-
-### Mobile (375x667)
-- **Status:** ✅ Match | ⚠️ Minor mismatch | ❌ Major mismatch
-- **Issues:**
-  - [List specific visual issues if any]
-
-## Copy + SEO Assessment
-
-### Text Mismatches
-- Button label: Expected "Sign Up", found "Register"
-- CTA text: Missing on mobile viewport
-
-### SEO Mismatches
-- Title tag: Expected "Storage Facilities | NSA", found "NSA Storage"
-- Meta description: Missing
-
-## Overall Assessment
-
-**Visual Parity:** ✅ Achieved | ⚠️ Partial | ❌ Not achieved  
-**Copy/SEO Parity:** ✅ Achieved | ⚠️ Partial | ❌ Not achieved
-
-**Recommended Actions:**
-1. [Specific fix for issue 1]
-2. [Specific fix for issue 2]
-
-## Evidence Artifacts
-
-- Visual gallery: `.temp/parity/diff/visual-review.html`
-- Text diff: `.temp/parity/diff/ui-text-diff.json`
-- Production screenshots: `.temp/parity/prod/<viewport>/screenshot.png`
-- Local screenshots: `.temp/parity/local/<viewport>/screenshot.png`
-```
-
-**Save report:**
-
-```bash
-# Generate report programmatically or manually based on evidence
-cat > .temp/parity/diff/parity-report.md <<'EOF'
-[Report content here]
-EOF
-```
-
-**Output:** `.temp/parity/diff/parity-report.md`
-
----
-
-### Step 5: Review Evidence Artifacts
-
-**Open visual gallery in browser:**
-
-```bash
-open .temp/parity/diff/visual-review.html
-# or: xdg-open .temp/parity/diff/visual-review.html (Linux)
-```
-
-**Review side-by-side screenshots:**
-- Are layouts identical?
-- Are spacing and typography consistent?
-- Are all components present?
-- Do responsive breakpoints work correctly?
-
-**Review text diff:**
-
-```bash
-cat .temp/parity/diff/ui-text-diff.json
-```
+**Report shows:**
+- Overall pass/fail summary
+- Per-page/viewport results
+- Side-by-side comparison images
+- Difference highlighting
+- Pixel diff percentage
 
 **Look for:**
-- Button label mismatches
-- Missing CTAs
-- Incorrect headings
-- SEO metadata issues
+- Layout differences
+- Missing elements
+- Color variations
+- Spacing issues
+- Responsive behavior differences
+
+---
+
+### Step 4: Review JSON Results
+
+```bash
+cat visual-tests/diff/results.json
+```
+
+**Contains:**
+- Timestamp
+- Configuration used
+- Per-comparison results
+- Summary statistics
+- Duration
+
+**Use for:**
+- CI/CD integration
+- Automated reporting
+- Historical tracking
+- Trend analysis
 
 ---
 
@@ -195,26 +115,50 @@ cat .temp/parity/diff/ui-text-diff.json
 **Report comparison results:**
 
 ```markdown
-## Comparison Complete
+## Comparison Complete ✅
 
-### Evidence Artifacts Generated
-- ✅ Visual gallery: `.temp/parity/diff/visual-review.html`
-- ✅ Text diff: `.temp/parity/diff/ui-text-diff.json`
-- ✅ Parity report: `.temp/parity/diff/parity-report.md`
+### Results Summary
+- **Total Comparisons:** 12 (4 pages × 3 viewports)
+- **Passed:** 10 ✅
+- **Failed:** 2 ❌
+- **Threshold:** 1% difference allowed
 
-### Assessment Summary
+### Detailed Results
 
-**Visual Parity:**
-- Desktop: ⚠️ Minor spacing issue in header
-- Tablet: ✅ Match
-- Mobile: ❌ Button missing
+#### Home Page
+- mobile: ✅ Passed (0.02% diff - pixel perfect)
+- tablet: ✅ Passed (0.15% diff - minor font rendering)
+- desktop: ✅ Passed (identical)
 
-**Copy/SEO:**
-- Title tag mismatch: Expected "Storage Facilities | NSA", found "NSA Storage"
-- Button label: "Register" should be "Sign Up"
+#### Products Page
+- mobile: ❌ Failed (3.5% diff - button missing)
+- tablet: ✅ Passed (0.5% diff)
+- desktop: ⚠️  Passed (0.8% diff - close to threshold)
+
+#### About Page
+- mobile: ✅ Passed (identical)
+- tablet: ✅ Passed (identical)
+- desktop: ✅ Passed (identical)
+
+#### Contact Page
+- mobile: ✅ Passed (0.3% diff)
+- tablet: ❌ Failed (2.1% diff - form layout issue)
+- desktop: ✅ Passed (identical)
+
+### Evidence Generated
+- HTML Report: visual-tests/diff/report.html
+- JSON Results: visual-tests/diff/results.json
+- Diff Images: visual-tests/diff/<page>/<viewport>/diff.png (for failures)
+
+### Issues Found
+1. **Products/Mobile:** Missing "Add to Cart" button (3.5% diff)
+   - Diff image: visual-tests/diff/products/mobile/diff.png
+   
+2. **Contact/Tablet:** Form layout incorrect (2.1% diff)
+   - Diff image: visual-tests/diff/contact/tablet/diff.png
 
 ### Next Step
-Review visual gallery in browser, then run `/test.parity.fix-from-report` to address mismatches.
+Open visual-tests/diff/report.html to review screenshots, then run `/test.parity.fix-from-report` to address issues.
 ```
 
 ---

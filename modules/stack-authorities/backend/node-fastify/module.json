@@ -1,0 +1,40 @@
+{
+  "$schema": "../../../../../schemas/module.schema.json",
+  "id": "backend/node-fastify",
+  "type": "stack-authority",
+  "name": "Node.js + Fastify",
+  "description": "Fastify API patterns with schema validation and plugin architecture",
+  "version": "1.0.0",
+  "provides": {
+    "rules": [
+      "30-api-node-fastify.mdc"
+    ],
+    "commands": [
+      "api.fastify.add-route.md",
+      "api.fastify.test-loop.md"
+    ],
+    "skills": [
+      "fastify-api-standards"
+    ],
+    "agents": [
+      "api.fastify-debugger.md"
+    ]
+  },
+  "requires": [""],
+  "compatibility": {
+    "cursor": ">=0.40.0",
+    "modules": {
+      "": "*",
+      "frontend/react-tailwind": "*",
+      "frontend/next-tailwind": "*",
+      "frontend/angular-tailwind": "*",
+      "database/postgres": "*",
+      "database/sqlserver": "*",
+      "cloud/aws": "*",
+      "cloud/gcp": "*"
+    }
+  },
+  "tags": ["backend", "nodejs", "fastify", "api", "typescript", "rest"],
+  "author": "The Hive Group",
+  "license": "MIT"
+}

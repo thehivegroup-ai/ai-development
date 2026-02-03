@@ -1,1 +1,10 @@
-{}
+{
+  "enterprise": "",
+  "controls": ["base", "regulated"],
+  "stacks": [
+    "frontend/next-tailwind",
+    "backend/java",
+    "database/sqlserver",
+    "cloud/gcp"
+  ]
+}

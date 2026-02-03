@@ -4,13 +4,14 @@ Complete guide to using the MCP server tools for managing AI development modules
 
 ## Tools Overview
 
-The server provides 5 main tools:
+The server provides 6 main tools:
 
 1. **list_modules** - Discover available modules
-2. **diff_environment** - Preview changes before applying
-3. **install_environment** - Install modules into a project
-4. **validate_environment** - Check environment health
-5. **update_environment** - Update from lockfile/profile
+2. **select_modules** - Interactive guide for module selection (NEW)
+3. **diff_environment** - Preview changes before applying
+4. **install_environment** - Install modules into a project
+5. **validate_environment** - Check environment health
+6. **update_environment** - Update from lockfile/profile
 
 ---
 
@@ -97,7 +98,217 @@ The server provides 5 main tools:
 
 ---
 
-## Tool 2: diff_environment
+## Tool 2: select_modules (NEW)
+
+**Purpose:** Interactive guide to help you select modules for your project. Shows categorized options with descriptions and suggests common stack combinations.
+
+### Features
+
+- Categorized module listing (Frontend, Backend, Database, Cloud, Testing, CI/CD)
+- Module descriptions and capability counts
+- Common stack combination suggestions
+- Selection validation
+- Summary generation
+
+### Parameters
+
+```typescript
+{
+  repoUrl?: string;         // Optional, defaults to configured repo
+  ref?: string;             // Optional, defaults to 'main'
+  showSuggestions?: boolean; // Show common stack combinations (default: true)
+  validateOnly?: boolean;   // Only validate a selection (default: false)
+  selection?: {             // Selection to validate (used with validateOnly)
+    enterprise: string;
+    controls: string[];
+    stacks: string[];
+  }
+}
+```
+
+### Mode 1: Interactive Selection Guide
+
+**Show all available modules organized by category:**
+
+```json
+{
+  "ref": "main",
+  "showSuggestions": true
+}
+```
+
+**Response:** Formatted guide with:
+- Enterprise Standards (required)
+- Project Controls (optional, multi-select)
+- Frontend Frameworks (choose one or more)
+- Backend Frameworks (choose one or more)  
+- Databases (choose one or more)
+- Cloud Providers (choose one)
+- Testing modules (optional)
+- CI/CD modules (optional)
+- Common stack combination suggestions
+
+**Example Output:**
+
+```markdown
+# Module Selection
+
+Select modules for your project. Enterprise standards are required.
+
+## Enterprise Standards (Required)
+
+These provide core workflow standards and are always included:
+
+- **Enterprise Standards** (ID: `""`)
+  Core development standards and workflows
+  Provides: 7 rules, 5 commands, 3 skills, 3 agents
+
+## Project Controls (Optional)
+
+Choose quality and governance controls:
+
+- **Base Controls** (ID: `base`)
+  Minimum quality and verification standards
+  Provides: 1 rule, 1 command, 1 skill, 1 agent
+
+- **Regulated Controls** (ID: `regulated`)
+  Additional controls for regulated environments
+  Provides: 1 rule, 1 command, 1 skill, 1 agent
+
+## Frontend Framework (Choose one or more)
+
+- **React + Tailwind** (ID: `frontend/react-tailwind`)
+  React component standards with Tailwind CSS patterns
+  Provides: 1 rule, 3 commands, 2 skills, 1 agent
+
+- **Next.js + Tailwind** (ID: `frontend/next-tailwind`)
+  Next.js conventions with App Router and Tailwind
+  Provides: 1 rule, 2 commands, 1 skill, 1 agent
+
+- **Angular + Tailwind** (ID: `frontend/angular-tailwind`)
+  Modern Angular with standalone components and Signals
+  Provides: 1 rule, 1 command, 3 skills, 1 agent
+
+## Backend Framework (Choose one or more)
+
+- **Node.js + Fastify** (ID: `backend/node-fastify`)
+  Fastify API patterns with schema validation
+  Provides: 1 rule, 2 commands, 1 skill, 1 agent
+
+- **Java** (ID: `backend/java`)
+  Java API standards with layered architecture
+  Provides: 1 rule, 2 commands, 1 skill, 1 agent
+
+...and more
+
+---
+
+## Common Stack Combinations
+
+### Modern JavaScript Stack
+```json
+{
+  "enterprise": "",
+  "controls": ["base"],
+  "stacks": [
+    "frontend/react-tailwind",
+    "backend/node-fastify",
+    "database/postgres",
+    "cloud/aws"
+  ]
+}
+```
+**Use case:** Modern web application with React frontend and Node.js backend
+```
+
+### Mode 2: Validate Selection
+
+**Validate a selection and show summary:**
+
+```json
+{
+  "validateOnly": true,
+  "selection": {
+    "enterprise": "",
+    "controls": ["base"],
+    "stacks": [
+      "frontend/react-tailwind",
+      "backend/node-fastify",
+      "database/postgres"
+    ]
+  }
+}
+```
+
+**Success Response:**
+
+```json
+{
+  "valid": true,
+  "summary": "# Your Module Selection\n\n## Enterprise Standards\n- Enterprise Standards\n  7 rules, 5 commands, 3 skills, 3 agents\n\n## Project Controls\n- Base Controls\n  1 rule, 1 command, 1 skill, 1 agent\n\n## Technology Stack\n- React + Tailwind (`frontend/react-tailwind`)\n  1 rule, 3 commands, 2 skills, 1 agent\n- Node.js + Fastify (`backend/node-fastify`)\n  1 rule, 2 commands, 1 skill, 1 agent\n- PostgreSQL (`database/postgres`)\n  1 rule, 2 commands, 1 skill, 1 agent\n\n## Total Provides\n- **11** rules\n- **13** commands\n- **9** skills\n- **7** agents\n\n---\n\nNext steps:\n1. Review this selection\n2. Use `diff_environment` to preview changes\n3. Use `install_environment` to apply\n",
+  "selection": {
+    "enterprise": "",
+    "controls": ["base"],
+    "stacks": [
+      "frontend/react-tailwind",
+      "backend/node-fastify",
+      "database/postgres"
+    ]
+  }
+}
+```
+
+**Error Response (invalid selection):**
+
+```json
+{
+  "valid": false,
+  "errors": [
+    "Stack module not found: \"frontend/invalid-module\"",
+    "At least one stack module is required"
+  ]
+}
+```
+
+### Workflow: From Selection to Installation
+
+1. **Discover modules:**
+   ```json
+   { "tool": "select_modules", "showSuggestions": true }
+   ```
+
+2. **Review suggested combinations or build your own**
+
+3. **Validate your selection:**
+   ```json
+   { 
+     "tool": "select_modules",
+     "validateOnly": true,
+     "selection": { "enterprise": "", "controls": ["base"], "stacks": [...] }
+   }
+   ```
+
+4. **Preview changes:**
+   ```json
+   {
+     "tool": "diff_environment",
+     "projectPath": "/path/to/project",
+     "selection": { "enterprise": "", "controls": ["base"], "stacks": [...] }
+   }
+   ```
+
+5. **Install:**
+   ```json
+   {
+     "tool": "install_environment",
+     "projectPath": "/path/to/project",
+     "selection": { "enterprise": "", "controls": ["base"], "stacks": [...] }
+   }
+   ```
+
+---
+
+## Tool 3: diff_environment
 
 **Purpose:** Preview what would change in a project without applying it.
 
@@ -165,7 +376,7 @@ The server provides 5 main tools:
 
 ---
 
-## Tool 3: install_environment
+## Tool 4: install_environment
 
 **Purpose:** Install or update module configuration in a project.
 
@@ -274,7 +485,7 @@ my-project/
 
 ---
 
-## Tool 4: validate_environment
+## Tool 5: validate_environment
 
 **Purpose:** Check that `.cursor/` environment is properly structured and valid.
 
@@ -329,7 +540,7 @@ my-project/
 
 ---
 
-## Tool 5: update_environment
+## Tool 6: update_environment
 
 **Purpose:** Update project environment based on existing lockfile or profile.
 

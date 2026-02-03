@@ -1,0 +1,9 @@
+{
+  "productionDir": "./visual-tests/production",
+  "localDir": "./visual-tests/local",
+  "outputDir": "./visual-tests/diff",
+  "threshold": 0.01,
+  "ignoreAntialiasing": true,
+  "_thresholdInfo": "0.01 = 1% difference allowed (adjust based on your needs)",
+  "_ignoreAntialiasingInfo": "true recommended to avoid false positives from font rendering"
+}

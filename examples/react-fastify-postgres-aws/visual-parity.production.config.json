@@ -1,0 +1,53 @@
+{
+  "baseUrl": "https://your-production-site.com",
+  "outputDir": "./visual-tests/production",
+  "pages": [
+    {
+      "path": "/",
+      "name": "home",
+      "waitFor": "main"
+    },
+    {
+      "path": "/products",
+      "name": "products",
+      "waitFor": "[data-testid='product-list']",
+      "waitTimeout": 5000
+    },
+    {
+      "path": "/about",
+      "name": "about",
+      "waitFor": "h1"
+    },
+    {
+      "path": "/contact",
+      "name": "contact",
+      "waitFor": "form"
+    }
+  ],
+  "viewports": [
+    {
+      "name": "mobile",
+      "width": 375,
+      "height": 667
+    },
+    {
+      "name": "tablet",
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "name": "desktop",
+      "width": 1920,
+      "height": 1080
+    }
+  ],
+  "authentication": {
+    "_comment": "Optional: Remove this section if your site doesn't require auth",
+    "loginUrl": "https://your-production-site.com/login",
+    "username": "test@example.com",
+    "password": "your-test-password",
+    "usernameSelector": "[data-testid='login-email']",
+    "passwordSelector": "[data-testid='login-password']",
+    "submitSelector": "[data-testid='login-submit']"
+  }
+}

@@ -1,0 +1,601 @@
+# 21: Web - Vue.js + Tailwind CSS
+
+**Authority Type:** Frontend Framework Stack  
+**Technology:** Vue 3 + Composition API + TypeScript + Tailwind CSS  
+**Module ID:** `frontend/vue-tailwind`
+
+---
+
+## Purpose
+
+Enforce Vue.js 3 Composition API patterns, TypeScript integration, and Tailwind CSS standards for component development.
+
+---
+
+## Core Principles
+
+### 1. Composition API over Options API
+Use `<script setup>` with Composition API for all new components.
+
+**Rationale:** Better TypeScript support, better code organization, better reusability.
+
+### 2. TypeScript for Type Safety
+All components, composables, and utilities MUST be TypeScript.
+
+### 3. Tailwind for Styling
+Use Tailwind utility classes, avoid custom CSS except for animations and complex layouts.
+
+### 4. Single File Components (SFC)
+Standard `.vue` structure: `<script setup>`, `<template>`, `<style scoped>`.
+
+---
+
+## Component Standards
+
+### Component Structure
+
+```vue
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue';
+import type { User } from '@/types';
+
+interface Props {
+  userId: string;
+  initialData?: User;
+}
+
+const props = defineProps<Props>();
+
+const emit = defineEmits<{
+  save: [user: User];
+  cancel: [];
+}>();
+
+// Reactive state
+const user = ref<User | null>(props.initialData ?? null);
+const loading = ref(false);
+
+// Computed properties
+const displayName = computed(() => 
+  user.value ? `${user.value.firstName} ${user.value.lastName}` : ''
+);
+
+// Methods
+async function loadUser() {
+  loading.value = true;
+  try {
+    // Load user data
+  } finally {
+    loading.value = false;
+  }
+}
+
+// Lifecycle
+onMounted(() => {
+  if (!props.initialData) {
+    loadUser();
+  }
+});
+</script>
+
+<template>
+  <div class="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+    <div v-if="loading" class="flex items-center justify-center">
+      <span class="text-gray-500">Loading...</span>
+    </div>
+    
+    <div v-else-if="user" class="space-y-4">
+      <h2 class="text-xl font-semibold text-gray-900">
+        {{ displayName }}
+      </h2>
+      
+      <button
+        @click="emit('save', user)"
+        class="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+        data-testid="user-save-button"
+      >
+        Save Changes
+      </button>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+/* Only for animations or complex layouts not possible with Tailwind */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>
+```
+
+### Naming Conventions
+
+**Components:**
+- PascalCase: `UserProfile.vue`, `DataTable.vue`
+- Multi-word names: `UserProfileCard.vue` (not `User.vue`)
+
+**Props:**
+- camelCase in script: `userId`, `initialData`
+- kebab-case in template: `<UserProfile :user-id="id" />`
+
+**Events:**
+- camelCase: `emit('updateUser', user)`
+- kebab-case in template: `@update-user="handleUpdate"`
+
+**Composables:**
+- Prefix with `use`: `useUser.ts`, `useAuth.ts`, `useForm.ts`
+
+---
+
+## Composables (Reusable Logic)
+
+### Structure
+
+```typescript
+// composables/useUser.ts
+import { ref, computed } from 'vue';
+import type { Ref } from 'vue';
+import type { User } from '@/types';
+
+export function useUser(userId: string) {
+  const user = ref<User | null>(null);
+  const loading = ref(false);
+  const error = ref<Error | null>(null);
+
+  const displayName = computed(() =>
+    user.value ? `${user.value.firstName} ${user.value.lastName}` : ''
+  );
+
+  async function loadUser() {
+    loading.value = true;
+    error.value = null;
+    
+    try {
+      const response = await fetch(`/api/users/${userId}`);
+      user.value = await response.json();
+    } catch (e) {
+      error.value = e as Error;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  return {
+    user,
+    loading,
+    error,
+    displayName,
+    loadUser,
+  };
+}
+```
+
+### Usage
+
+```vue
+<script setup lang="ts">
+import { useUser } from '@/composables/useUser';
+
+const props = defineProps<{ userId: string }>();
+
+const { user, loading, error, displayName, loadUser } = useUser(props.userId);
+
+loadUser();
+</script>
+```
+
+---
+
+## State Management (Pinia)
+
+### Store Definition
+
+```typescript
+// stores/user.ts
+import { defineStore } from 'pinia';
+import { ref, computed } from 'vue';
+import type { User } from '@/types';
+
+export const useUserStore = defineStore('user', () => {
+  // State
+  const currentUser = ref<User | null>(null);
+  const users = ref<User[]>([]);
+  
+  // Getters
+  const isAuthenticated = computed(() => currentUser.value !== null);
+  const userCount = computed(() => users.value.length);
+  
+  // Actions
+  async function login(email: string, password: string) {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    
+    currentUser.value = await response.json();
+  }
+  
+  function logout() {
+    currentUser.value = null;
+  }
+  
+  return {
+    // State
+    currentUser,
+    users,
+    // Getters
+    isAuthenticated,
+    userCount,
+    // Actions
+    login,
+    logout,
+  };
+});
+```
+
+### Usage
+
+```vue
+<script setup lang="ts">
+import { useUserStore } from '@/stores/user';
+
+const userStore = useUserStore();
+
+// Access state
+console.log(userStore.currentUser);
+
+// Access getters
+console.log(userStore.isAuthenticated);
+
+// Call actions
+await userStore.login(email, password);
+</script>
+```
+
+---
+
+## Tailwind CSS Standards
+
+### Utility-First Approach
+
+```vue
+<template>
+  <!-- Good: Utility classes -->
+  <div class="flex items-center gap-4 rounded-lg bg-white p-6 shadow-sm">
+    <img src="..." class="h-12 w-12 rounded-full" />
+    <div class="flex-1">
+      <h3 class="text-lg font-semibold text-gray-900">{{ name }}</h3>
+      <p class="text-sm text-gray-500">{{ email }}</p>
+    </div>
+  </div>
+  
+  <!-- Bad: Custom CSS -->
+  <div class="user-card">
+    <img src="..." class="avatar" />
+    <div class="user-info">
+      <h3 class="user-name">{{ name }}</h3>
+      <p class="user-email">{{ email }}</p>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+/* Bad: Avoid unless necessary */
+.user-card {
+  display: flex;
+  padding: 1.5rem;
+  background: white;
+  /* ... */
+}
+</style>
+```
+
+### Responsive Design
+
+```vue
+<template>
+  <!-- Mobile-first responsive -->
+  <div class="
+    grid grid-cols-1 gap-4
+    md:grid-cols-2 md:gap-6
+    lg:grid-cols-3 lg:gap-8
+  ">
+    <div v-for="item in items" :key="item.id">
+      {{ item.name }}
+    </div>
+  </div>
+</template>
+```
+
+### Design Tokens (Custom Config)
+
+```javascript
+// tailwind.config.js
+export default {
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          50: '#eff6ff',
+          500: '#3b82f6',
+          900: '#1e3a8a',
+        },
+      },
+      spacing: {
+        '128': '32rem',
+      },
+    },
+  },
+};
+```
+
+---
+
+## Routing (Vue Router)
+
+### Route Definition
+
+```typescript
+// router/index.ts
+import { createRouter, createWebHistory } from 'vue-router';
+import type { RouteRecordRaw } from 'vue-router';
+
+const routes: RouteRecordRaw[] = [
+  {
+    path: '/',
+    name: 'home',
+    component: () => import('@/views/HomeView.vue'),
+  },
+  {
+    path: '/users/:id',
+    name: 'user-detail',
+    component: () => import('@/views/UserDetailView.vue'),
+    props: true, // Pass route params as props
+  },
+  {
+    path: '/dashboard',
+    name: 'dashboard',
+    component: () => import('@/views/DashboardView.vue'),
+    meta: { requiresAuth: true },
+  },
+];
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes,
+});
+
+// Navigation guard
+router.beforeEach((to, from, next) => {
+  if (to.meta.requiresAuth && !isAuthenticated()) {
+    next('/login');
+  } else {
+    next();
+  }
+});
+
+export default router;
+```
+
+---
+
+## Testing Standards
+
+### Component Testing (Vitest + Vue Test Utils)
+
+```typescript
+import { describe, it, expect } from 'vitest';
+import { mount } from '@vue/test-utils';
+import UserCard from '@/components/UserCard.vue';
+
+describe('UserCard', () => {
+  it('renders user name', () => {
+    const wrapper = mount(UserCard, {
+      props: {
+        user: {
+          id: '1',
+          name: 'John Doe',
+          email: 'john@example.com',
+        },
+      },
+    });
+
+    expect(wrapper.text()).toContain('John Doe');
+  });
+
+  it('emits save event when button clicked', async () => {
+    const wrapper = mount(UserCard, {
+      props: { user: mockUser },
+    });
+
+    await wrapper.find('[data-testid="user-save-button"]').trigger('click');
+
+    expect(wrapper.emitted()).toHaveProperty('save');
+    expect(wrapper.emitted('save')?.[0]).toEqual([mockUser]);
+  });
+});
+```
+
+---
+
+## Data Fetching Patterns
+
+### Using Composables
+
+```typescript
+// composables/useApi.ts
+import { ref } from 'vue';
+
+export function useApi<T>(url: string) {
+  const data = ref<T | null>(null);
+  const loading = ref(false);
+  const error = ref<Error | null>(null);
+
+  async function fetch() {
+    loading.value = true;
+    error.value = null;
+
+    try {
+      const response = await window.fetch(url);
+      data.value = await response.json();
+    } catch (e) {
+      error.value = e as Error;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  return { data, loading, error, fetch };
+}
+```
+
+---
+
+## Performance Patterns
+
+### Lazy Loading
+
+```typescript
+// Lazy load components
+const HeavyComponent = defineAsyncComponent(() =>
+  import('@/components/HeavyComponent.vue')
+);
+
+// Lazy load routes
+{
+  path: '/heavy',
+  component: () => import('@/views/HeavyView.vue'),
+}
+```
+
+### Keep-Alive
+
+```vue
+<template>
+  <router-view v-slot="{ Component }">
+    <keep-alive :max="10">
+      <component :is="Component" />
+    </keep-alive>
+  </router-view>
+</template>
+```
+
+---
+
+## Accessibility Standards
+
+### ARIA Attributes
+
+```vue
+<template>
+  <button
+    @click="toggleMenu"
+    :aria-expanded="isOpen"
+    aria-controls="menu"
+    aria-label="Toggle menu"
+    class="..."
+  >
+    Menu
+  </button>
+  
+  <div
+    v-if="isOpen"
+    id="menu"
+    role="menu"
+    class="..."
+  >
+    <!-- Menu items -->
+  </div>
+</template>
+```
+
+### Keyboard Navigation
+
+```vue
+<template>
+  <div
+    @keydown.enter="handleSelect"
+    @keydown.escape="handleCancel"
+    tabindex="0"
+    role="button"
+  >
+    Press Enter to select
+  </div>
+</template>
+```
+
+---
+
+## Anti-Patterns
+
+❌ **Using Options API for new code**
+```vue
+<script>
+export default {
+  data() { return {}; },
+  methods: {},
+}
+</script>
+```
+
+✅ **Use Composition API**
+```vue
+<script setup lang="ts">
+const data = ref({});
+function method() {}
+</script>
+```
+
+❌ **Mixing v-for and v-if**
+```vue
+<div v-for="item in items" v-if="item.active">
+```
+
+✅ **Filter first, then loop**
+```vue
+<div v-for="item in activeItems">
+```
+
+❌ **Not using keys**
+```vue
+<div v-for="item in items">
+```
+
+✅ **Always use unique keys**
+```vue
+<div v-for="item in items" :key="item.id">
+```
+
+---
+
+## Required Tools
+
+- Vue 3.3+
+- TypeScript 5.0+
+- Vite (build tool)
+- Vue Router 4+
+- Pinia (state management)
+- Tailwind CSS 3+
+- Vitest (testing)
+- Vue Test Utils (component testing)
+
+---
+
+## Success Metrics
+
+Code reviews MUST verify:
+- ✅ All components use `<script setup>` with TypeScript
+- ✅ All components have proper TypeScript interfaces
+- ✅ Tailwind classes used, minimal custom CSS
+- ✅ Composables for shared logic
+- ✅ Proper use of reactive refs and computed
+- ✅ `data-testid` attributes on interactive elements
+- ✅ Accessibility attributes where needed
+- ✅ No Options API in new code

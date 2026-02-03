@@ -1,0 +1,10 @@
+{
+  "enterprise": "",
+  "controls": ["base"],
+  "stacks": [
+    "frontend/angular-tailwind",
+    "backend/node-fastify",
+    "database/postgres",
+    "cloud/aws"
+  ]
+}

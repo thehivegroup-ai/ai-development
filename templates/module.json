@@ -1,0 +1,22 @@
+{
+  "$schema": "../../../schemas/module.schema.json",
+  "id": "",
+  "type": "enterprise-standards",
+  "name": "Module Name",
+  "description": "Brief description of what this module provides",
+  "version": "1.0.0",
+  "provides": {
+    "rules": [],
+    "commands": [],
+    "skills": [],
+    "agents": []
+  },
+  "requires": [],
+  "compatibility": {
+    "cursor": ">=0.40.0",
+    "modules": {}
+  },
+  "tags": [],
+  "author": "The Hive Group",
+  "license": "MIT"
+}

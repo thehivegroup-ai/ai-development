@@ -1,0 +1,40 @@
+{
+  "$schema": "../../../../../schemas/module.schema.json",
+  "id": "backend/java",
+  "type": "stack-authority",
+  "name": "Java",
+  "description": "Java API standards with layered architecture and Spring Boot patterns",
+  "version": "1.0.0",
+  "provides": {
+    "rules": [
+      "31-api-java.mdc"
+    ],
+    "commands": [
+      "api.java.add-endpoint.md",
+      "api.java.test-loop.md"
+    ],
+    "skills": [
+      "java-api-standards"
+    ],
+    "agents": [
+      "api.java-debugger.md"
+    ]
+  },
+  "requires": [""],
+  "compatibility": {
+    "cursor": ">=0.40.0",
+    "modules": {
+      "": "*",
+      "frontend/react-tailwind": "*",
+      "frontend/next-tailwind": "*",
+      "frontend/angular-tailwind": "*",
+      "database/postgres": "*",
+      "database/sqlserver": "*",
+      "cloud/aws": "*",
+      "cloud/gcp": "*"
+    }
+  },
+  "tags": ["backend", "java", "spring-boot", "api", "rest", "layered-architecture"],
+  "author": "The Hive Group",
+  "license": "MIT"
+}

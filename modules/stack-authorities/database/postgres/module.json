@@ -1,0 +1,40 @@
+{
+  "$schema": "../../../../../schemas/module.schema.json",
+  "id": "database/postgres",
+  "type": "stack-authority",
+  "name": "PostgreSQL",
+  "description": "PostgreSQL patterns with migration discipline and query optimization",
+  "version": "1.0.0",
+  "provides": {
+    "rules": [
+      "40-db-postgres.mdc"
+    ],
+    "commands": [
+      "db.postgres.migration.md",
+      "db.postgres.performance-check.md"
+    ],
+    "skills": [
+      "postgres-standards"
+    ],
+    "agents": [
+      "db.postgres-reviewer.md"
+    ]
+  },
+  "requires": [""],
+  "compatibility": {
+    "cursor": ">=0.40.0",
+    "modules": {
+      "": "*",
+      "frontend/react-tailwind": "*",
+      "frontend/next-tailwind": "*",
+      "frontend/angular-tailwind": "*",
+      "backend/node-fastify": "*",
+      "backend/java": "*",
+      "cloud/aws": "*",
+      "cloud/gcp": "*"
+    }
+  },
+  "tags": ["database", "postgres", "postgresql", "sql", "migration", "performance"],
+  "author": "The Hive Group",
+  "license": "MIT"
+}

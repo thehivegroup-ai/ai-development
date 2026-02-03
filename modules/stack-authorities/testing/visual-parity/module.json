@@ -1,0 +1,38 @@
+{
+  "$schema": "../../../../../schemas/module.schema.json",
+  "id": "testing/visual-parity",
+  "type": "stack-authority",
+  "name": "Visual Parity Testing",
+  "description": "Playwright-based visual regression testing between production and local environments",
+  "version": "1.0.0",
+  "provides": {
+    "rules": [
+      "30-test-visual-parity.mdc"
+    ],
+    "commands": [
+      "test.parity.capture-all.md",
+      "test.parity.compare.md",
+      "test.parity.fix-from-report.md"
+    ],
+    "skills": [
+      "playwright-capture",
+      "visual-parity-testing"
+    ],
+    "agents": [
+      "test.parity-critic.md"
+    ]
+  },
+  "requires": [""],
+  "compatibility": {
+    "cursor": ">=0.40.0",
+    "modules": {
+      "": "*",
+      "frontend/react-tailwind": "*",
+      "frontend/next-tailwind": "*",
+      "frontend/angular-tailwind": "*"
+    }
+  },
+  "tags": ["testing", "visual", "playwright", "regression", "screenshot", "e2e"],
+  "author": "The Hive Group",
+  "license": "MIT"
+}

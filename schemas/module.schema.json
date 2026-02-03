@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://thehivegroup.ai/schemas/module.json",
+  "title": "AI Development Module Manifest",
+  "description": "Metadata for AI development modules (rules, commands, skills, agents)",
+  "type": "object",
+  "required": ["id", "type", "name", "description", "version", "provides"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique module identifier (e.g., 'frontend/react-tailwind' or '' for enterprise-standards)",
+      "examples": ["", "frontend/react-tailwind", "backend/node-fastify", "base"]
+    },
+    "type": {
+      "type": "string",
+      "enum": ["enterprise-standards", "stack-authority", "project-control"],
+      "description": "Module category"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable module name",
+      "examples": ["Enterprise Standards", "React + Tailwind", "Base Controls"]
+    },
+    "description": {
+      "type": "string",
+      "description": "Brief description of what this module provides"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version (e.g., '1.0.0')"
+    },
+    "provides": {
+      "type": "object",
+      "description": "What files this module contains",
+      "required": ["rules", "commands", "skills", "agents"],
+      "properties": {
+        "rules": {
+          "type": "array",
+          "description": "Rule files (.mdc or .md)",
+          "items": {
+            "type": "string",
+            "pattern": "\\.(mdc|md)$"
+          }
+        },
+        "commands": {
+          "type": "array",
+          "description": "Command files (.md)",
+          "items": {
+            "type": "string",
+            "pattern": "\\.md$"
+          }
+        },
+        "skills": {
+          "type": "array",
+          "description": "Skill directory names (containing SKILL.md)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "agents": {
+          "type": "array",
+          "description": "Agent files (.md)",
+          "items": {
+            "type": "string",
+            "pattern": "\\.md$"
+          }
+        }
+      }
+    },
+    "requires": {
+      "type": "array",
+      "description": "Module dependencies (required module IDs)",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "compatibility": {
+      "type": "object",
+      "description": "Version compatibility information",
+      "properties": {
+        "cursor": {
+          "type": "string",
+          "description": "Minimum Cursor version (semver range)",
+          "examples": [">=0.40.0"]
+        },
+        "modules": {
+          "type": "object",
+          "description": "Compatible module versions (module ID → version range)",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "tags": {
+      "type": "array",
+      "description": "Tags for discovery and filtering",
+      "items": {
+        "type": "string"
+      },
+      "examples": [["frontend", "react", "tailwind"], ["backend", "nodejs", "api"]]
+    },
+    "author": {
+      "type": "string",
+      "description": "Module author or organization"
+    },
+    "license": {
+      "type": "string",
+      "description": "License identifier (e.g., 'MIT', 'Apache-2.0')"
+    },
+    "repository": {
+      "type": "string",
+      "description": "Repository URL",
+      "format": "uri"
+    }
+  }
+}

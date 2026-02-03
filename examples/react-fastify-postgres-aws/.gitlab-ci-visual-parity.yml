@@ -1,0 +1,64 @@
+visual-parity:
+  image: mcr.microsoft.com/playwright:v1.40.0-focal
+  stage: test
+  only:
+    - merge_requests
+  
+  variables:
+    NODE_VERSION: "18"
+  
+  before_script:
+    - npm ci
+    - npx playwright install --with-deps chromium
+  
+  script:
+    # Build application
+    - npm run build
+    
+    # Start application in background
+    - npm start &
+    - SERVER_PID=$!
+    
+    # Wait for server to be ready
+    - |
+      for i in {1..30}; do
+        if curl -f http://localhost:3000 > /dev/null 2>&1; then
+          echo "Server is ready"
+          break
+        fi
+        echo "Waiting for server... ($i/30)"
+        sleep 2
+      done
+    
+    # Capture screenshots
+    - npm run capture:production || true
+    - npm run capture:local || true
+    
+    # Compare
+    - npm run compare || COMPARE_FAILED=1
+    
+    # Stop server
+    - kill $SERVER_PID || true
+    
+    # Fail if comparison failed
+    - if [ "$COMPARE_FAILED" = "1" ]; then exit 1; fi
+  
+  after_script:
+    # Parse results for summary
+    - |
+      if [ -f visual-tests/diff/results.json ]; then
+        TOTAL=$(jq '.summary.total' visual-tests/diff/results.json)
+        PASSED=$(jq '.summary.passed' visual-tests/diff/results.json)
+        FAILED=$(jq '.summary.failed' visual-tests/diff/results.json)
+        echo "Visual Parity: $PASSED/$TOTAL passed, $FAILED failed"
+      fi
+  
+  artifacts:
+    when: always
+    paths:
+      - visual-tests/
+    expire_in: 30 days
+    reports:
+      junit: visual-tests/diff/results.xml
+  
+  allow_failure: false

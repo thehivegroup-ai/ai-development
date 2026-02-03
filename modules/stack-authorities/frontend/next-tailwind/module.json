@@ -1,0 +1,39 @@
+{
+  "$schema": "../../../../../schemas/module.schema.json",
+  "id": "frontend/next-tailwind",
+  "type": "stack-authority",
+  "name": "Next.js + Tailwind",
+  "description": "Next.js conventions with App Router, server components, and Tailwind CSS",
+  "version": "1.0.0",
+  "provides": {
+    "rules": [
+      "21-web-next-tailwind.mdc"
+    ],
+    "commands": [
+      "web.next.build-screen.md",
+      "web.next.route-audit.md"
+    ],
+    "skills": [
+      "next-standards"
+    ],
+    "agents": [
+      "web.next-critic.md"
+    ]
+  },
+  "requires": [""],
+  "compatibility": {
+    "cursor": ">=0.40.0",
+    "modules": {
+      "": "*",
+      "backend/node-fastify": "*",
+      "backend/java": "*",
+      "database/postgres": "*",
+      "database/sqlserver": "*",
+      "cloud/aws": "*",
+      "cloud/gcp": "*"
+    }
+  },
+  "tags": ["frontend", "nextjs", "react", "tailwind", "typescript", "ssr", "app-router"],
+  "author": "The Hive Group",
+  "license": "MIT"
+}

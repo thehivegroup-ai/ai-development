@@ -1,0 +1,41 @@
+{
+  "$schema": "../../../../../schemas/module.schema.json",
+  "id": "frontend/react-tailwind",
+  "type": "stack-authority",
+  "name": "React + Tailwind",
+  "description": "React component standards with Tailwind CSS patterns and conventions",
+  "version": "1.0.0",
+  "provides": {
+    "rules": [
+      "20-web-react-tailwind.mdc"
+    ],
+    "commands": [
+      "web.react.build-screen.md",
+      "web.react.compare-screens.md",
+      "web.react.tailwind-refactor.md"
+    ],
+    "skills": [
+      "react-component-standards",
+      "react-tailwind-conventions"
+    ],
+    "agents": [
+      "web.react-critic.md"
+    ]
+  },
+  "requires": [""],
+  "compatibility": {
+    "cursor": ">=0.40.0",
+    "modules": {
+      "": "*",
+      "backend/node-fastify": "*",
+      "backend/java": "*",
+      "database/postgres": "*",
+      "database/sqlserver": "*",
+      "cloud/aws": "*",
+      "cloud/gcp": "*"
+    }
+  },
+  "tags": ["frontend", "react", "tailwind", "typescript", "jsx", "ui"],
+  "author": "The Hive Group",
+  "license": "MIT"
+}

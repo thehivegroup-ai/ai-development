@@ -1,0 +1,40 @@
+{
+  "$schema": "../../../../../schemas/module.schema.json",
+  "id": "frontend/angular-tailwind",
+  "type": "stack-authority",
+  "name": "Angular + Tailwind",
+  "description": "Modern Angular with standalone components, Signals, and Tailwind CSS",
+  "version": "1.0.0",
+  "provides": {
+    "rules": [
+      "22-web-angular-tailwind.mdc"
+    ],
+    "commands": [
+      "web.angular.template-audit.md"
+    ],
+    "skills": [
+      "angular-data-integration",
+      "angular-forms-validation",
+      "angular-tailwind-standards"
+    ],
+    "agents": [
+      "web.angular-critic.md"
+    ]
+  },
+  "requires": [""],
+  "compatibility": {
+    "cursor": ">=0.40.0",
+    "modules": {
+      "": "*",
+      "backend/node-fastify": "*",
+      "backend/java": "*",
+      "database/postgres": "*",
+      "database/sqlserver": "*",
+      "cloud/aws": "*",
+      "cloud/gcp": "*"
+    }
+  },
+  "tags": ["frontend", "angular", "tailwind", "typescript", "signals", "standalone"],
+  "author": "The Hive Group",
+  "license": "MIT"
+}

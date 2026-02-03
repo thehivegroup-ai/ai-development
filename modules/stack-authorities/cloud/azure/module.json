@@ -1,0 +1,23 @@
+{
+  "$schema": "../../../../schemas/module.schema.json",
+  "id": "cloud/azure",
+  "type": "stack-authority",
+  "name": "Microsoft Azure Cloud",
+  "description": "Azure deployment patterns with Bicep and security best practices",
+  "version": "1.0.0",
+  "provides": {
+    "rules": ["cursor/rules/52-cloud-azure.mdc"],
+    "commands": [
+      "cursor/commands/cloud.azure.deploy.md",
+      "cursor/commands/cloud.azure.preflight.md"
+    ],
+    "skills": ["cursor/skills/azure-infra-standards"],
+    "agents": ["cursor/agents/cloud.azure-release-manager.md"]
+  },
+  "requires": [""],
+  "compatibility": {
+    "clouds": ["azure"],
+    "excludes": ["cloud/aws", "cloud/gcp"]
+  },
+  "tags": ["cloud", "azure", "infrastructure", "bicep", "deployment"]
+}
