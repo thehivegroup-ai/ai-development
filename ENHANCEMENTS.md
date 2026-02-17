@@ -52,7 +52,7 @@ Vue.js, Python FastAPI, MongoDB, Azure
 **Files:** 20 files | **Impact:** Dependency tracking
 
 ### Initiative 6: Agent Enhancements ✅
-std.planner, std.debugger, std.verifier, test.parity-critic
+std-planner, std-debugger, std-verifier, test.parity-critic
 **Files:** 4 agents | **Lines Added:** 1,326+ | **Impact:** Systematic processes
 
 ### Initiative 7: Skills Reference Materials ✅
@@ -302,7 +302,7 @@ std.planner, std.debugger, std.verifier, test.parity-critic
 ## What's Now Clear
 
 ### Workflow Clarity
-- **Entry point:** User types command (e.g., `/std.solution`)
+- **Entry point:** User types command (e.g., `/std-solution`)
 - **Orchestration:** Command references skills and rules
 - **Constraints:** Rules enforce "must" and "must not"
 - **Guidance:** Skills provide "how to"
@@ -319,13 +319,13 @@ std.planner, std.debugger, std.verifier, test.parity-critic
 ```
 User Request
   ↓
-Command Invoked (/std.solution)
+Command Invoked (/std-solution)
   ↓
 Rules Apply (00-std-foundation.mdc, 01-std-solution-hermeneutic.mdc)
   ↓
 Skills Consulted (hermeneutic-solution)
   ↓
-Subagents Invoked (std.planner, if needed)
+Subagents Invoked (std-planner, if needed)
   ↓
 Agent Executes with Constraints + Guidance
   ↓
@@ -378,7 +378,7 @@ Legacy files serve as:
 1. Read `WORKFLOWS.md` to understand how everything works
 2. Read `COMPOSITION.md` to learn how to use in your project
 3. Copy modules to your project's `.cursor/` directory
-4. Start using commands (`/std.solution`, `/std.plan`, etc.)
+4. Start using commands (`/std-solution`, `/std-plan`, etc.)
 
 ### For Extension
 1. Add project-specific rules to `.cursor/rules/99-project-specific.mdc`

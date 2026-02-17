@@ -199,7 +199,7 @@ monorepo/
 ### Cross-Workspace Feature
 
 ```
-1. Root: /std.solution
+1. Root: /std-solution
    - Frame feature affecting multiple apps
    
 2. API: /api.fastify.add-route
@@ -214,28 +214,28 @@ monorepo/
 5. Customer: /web.react.build-screen
    - Build customer UI
    
-6. Root: /std.test-loop
+6. Root: /std-test-loop
    - Integration testing across apps
    
-7. Root: /std.deploy-release
+7. Root: /std-deploy-release
    - Coordinate deployment
 ```
 
 ### Admin-Only Feature
 
 ```
-1. Admin: /std.solution
+1. Admin: /std-solution
    - Frame admin feature
    
 2. Admin: /ctrl.regulated.security-check
    - Verify security requirements
    
-3. Admin: /std.plan
+3. Admin: /std-plan
    - Plan implementation
    
 4. Admin: Build feature
    
-5. Admin: /std.clean-sweep
+5. Admin: /std-clean-sweep
    
 6. Admin: /cloud.aws.deploy
 ```
@@ -295,7 +295,7 @@ Deploy all apps together (recommended for tightly coupled apps):
 
 ```bash
 # Root level
-/std.deploy-release
+/std-deploy-release
 # Deploys: API → Admin → Customer
 ```
 
@@ -356,7 +356,7 @@ Enterprise standards at root, technology-specific at app level.
 3. Install per-app modules
 4. Set up shared package
 5. Configure build system (Turborepo, Nx, etc.)
-6. Start building with `/std.solution` at appropriate level
+6. Start building with `/std-solution` at appropriate level
 
 ## Support
 

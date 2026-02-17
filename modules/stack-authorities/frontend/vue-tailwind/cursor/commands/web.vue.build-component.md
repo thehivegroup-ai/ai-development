@@ -20,7 +20,7 @@ Generate a production-ready Vue component with proper TypeScript typing, reactiv
 - User interactions identified
 - Visual design reference (or Tailwind guidelines)
 
-**If unclear, use `/std.solution` first.**
+**If unclear, use `/std-solution` first.**
 
 ---
 

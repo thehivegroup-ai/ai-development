@@ -237,9 +237,9 @@ Checkout completion time < 30 seconds (currently 2 minutes)
 
 **Good:**
 ```markdown
-1. Frame problem first (/std.solution)
-2. Validate framing (std.verifier)
-3. THEN plan backward (/std.plan)
+1. Frame problem first (/std-solution)
+2. Validate framing (std-verifier)
+3. THEN plan backward (/std-plan)
 ```
 
 ---

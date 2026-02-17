@@ -1,9 +1,7 @@
 ---
 description: "Constraints for visual parity testing - evidence-driven, visual-first."
 alwaysApply: false
-globs:
-  - "**/parity/**"
-  - "**/.temp/parity/**"
+globs: **/parity/**,**/.temp/parity/**
 ---
 
 # Test Visual Parity

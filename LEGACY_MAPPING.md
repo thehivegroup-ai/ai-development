@@ -16,25 +16,25 @@ This document shows how legacy rules from `docs/legacy/` are transformed into th
 
 | Legacy Concept | Extended Mode | New Rule/Command | File |
 |----------------|---------------|------------------|------|
-| SOLUTION mode (hermeneutic circle) | **SOLUTION** mode | `/std.solution` command + rule | `modules/enterprise-standards/cursor/commands/std.solution.md` |
+| SOLUTION mode (hermeneutic circle) | **SOLUTION** mode | `/std-solution` skill + rule | `modules/enterprise-standards/cursor/skills/std-solution/SKILL.md` |
 |  |  | Constraint rule | `modules/enterprise-standards/cursor/rules/01-std-solution-hermeneutic.mdc` |
 |  |  | Guidance skill | `modules/enterprise-standards/cursor/skills/hermeneutic-solution/SKILL.md` |
-| PLAN mode (teleological planning) | **PLAN** mode | `/std.plan` command + rule | `modules/enterprise-standards/cursor/commands/std.plan.md` |
+| PLAN mode (teleological planning) | **PLAN** mode | `/std-plan` skill + rule | `modules/enterprise-standards/cursor/skills/std-plan/SKILL.md` |
 |  |  | Constraint rule | `modules/enterprise-standards/cursor/rules/02-std-planning-teleological.mdc` |
 |  |  | Guidance skill | `modules/enterprise-standards/cursor/skills/teleological-planning/SKILL.md` |
-|  |  | Specialist subagent | `modules/enterprise-standards/cursor/agents/std.planner.md` |
+|  |  | Specialist subagent | `modules/enterprise-standards/cursor/agents/std-planner.md` |
 | ACT mode (implementation) | **DESIGN-FLOW** mode (UI design) | Stack UI commands | `modules/stack-authorities/frontend/*/cursor/commands/*.md` |
 |  | **BUILD-SCREEN** mode (frontend) | Stack UI build commands | `modules/stack-authorities/frontend/*/cursor/commands/*.md` |
 |  | **BUILD-API** mode (backend) | Stack API build commands | `modules/stack-authorities/backend/*/cursor/commands/*.md` |
 |  |  |  | `modules/stack-authorities/database/*/cursor/commands/*.md` |
-| CLEAN mode | **CLEAN-SWEEP** mode | `/std.clean-sweep` command + rule | `modules/enterprise-standards/cursor/commands/std.clean-sweep.md` |
+| CLEAN mode | **CLEAN-SWEEP** mode | `/std-clean-sweep` skill + rule | `modules/enterprise-standards/cursor/skills/std-clean-sweep/SKILL.md` |
 |  |  | Constraint rule | `modules/enterprise-standards/cursor/rules/03-std-quality-clean-test-deploy.mdc` |
 |  |  | Guidance skill | `modules/enterprise-standards/cursor/skills/engineering-hygiene/SKILL.md` |
-|  |  | Verification subagent | `modules/enterprise-standards/cursor/agents/std.verifier.md` |
-| (implicit) | **TEST-LOOP** mode | `/std.test-loop` command | `modules/enterprise-standards/cursor/commands/std.test-loop.md` |
+|  |  | Verification subagent | `modules/enterprise-standards/cursor/agents/std-verifier.md` |
+| (implicit) | **TEST-LOOP** mode | `/std-test-loop` skill | `modules/enterprise-standards/cursor/skills/std-test-loop/SKILL.md` |
 |  |  | Stack test commands | `modules/stack-authorities/*/cursor/commands/*test*.md` |
-|  |  | Debugger subagent | `modules/enterprise-standards/cursor/agents/std.debugger.md` |
-| (implicit) | **DEPLOY-RELEASE** mode | `/std.deploy-release` command | `modules/enterprise-standards/cursor/commands/std.deploy-release.md` |
+|  |  | Debugger subagent | `modules/enterprise-standards/cursor/agents/std-debugger.md` |
+| (implicit) | **DEPLOY-RELEASE** mode | `/std-deploy-release` skill | `modules/enterprise-standards/cursor/skills/std-deploy-release/SKILL.md` |
 |  |  | Stack deploy commands | `modules/stack-authorities/cloud/*/cursor/commands/*.md` |
 |  |  | Release manager subagents | `modules/stack-authorities/cloud/*/cursor/agents/*.md` |
 | Mode state machine | Extended 8-mode workflow | Full workflow mode system | `modules/enterprise-standards/cursor/rules/06-std-workflow-modes.mdc` |
@@ -230,7 +230,7 @@ This document shows how legacy rules from `docs/legacy/` are transformed into th
 ### Commands (Workflows)
 - **What:** Repeatable workflow entry points
 - **Trigger:** User types `/command-name`
-- **Examples:** `/std.solution`, `/web.react.build-screen`, `/db.postgres.migration`
+- **Examples:** `/std-solution`, `/web.react.build-screen`, `/db.postgres.migration`
 
 ### Skills (Guidance)
 - **What:** How-to guidance with examples and patterns
@@ -240,7 +240,7 @@ This document shows how legacy rules from `docs/legacy/` are transformed into th
 ### Subagents (Specialists)
 - **What:** Specialized AI perspectives
 - **Trigger:** Agent delegates or command invokes
-- **Examples:** `std.planner`, `std.verifier`, `web.react-critic`
+- **Examples:** `std-planner`, `std-verifier`, `web.react-critic`
 
 ---
 

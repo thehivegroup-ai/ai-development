@@ -1,9 +1,7 @@
 ---
 description: "Angular + Tailwind constraints."
 alwaysApply: false
-globs:
-  - "**/*.component.ts"
-  - "**/*.component.html"
+globs: **/*.component.ts,**/*.component.html
 ---
 
 # Web Angular Tailwind

@@ -19,25 +19,31 @@ work across all projects.
 - `03-std-quality-clean-test-deploy.mdc` – Quality gates and testing
 - `04-std-environment-config.mdc` – Environment variable and secrets management
 - `05-std-documentation-organization.mdc` – Documentation structure (docs/, memory-bank/, lifecycle)
-- `06-std-workflow-modes.mdc` – Extended 8-mode workflow: SOLUTION → PLAN → DESIGN-FLOW → BUILD-SCREEN → BUILD-API → CLEAN-SWEEP → TEST-LOOP → DEPLOY-RELEASE
+- `06-std-workflow-modes.mdc` – 9-mode workflow: SOLUTION → PLAN → DESIGN-FLOW → DESIGN-REVIEW → BUILD-SCREEN → BUILD-API → CLEAN-SWEEP → TEST-LOOP → DEPLOY-RELEASE
 - `07-std-evidence-based-claims.mdc` – Evidence requirements for success claims
 
-### Commands
+### Skills (invocable via `/skill-name`)
 
-- `std.solution.md` – Frame problems using hermeneutic approach
-- `std.plan.md` – Create execution plans using teleological planning
-- `std.clean-sweep.md` – Clean and review changes
-- `std.test-loop.md` – Run tests and fix failures
-- `std.deploy-release.md` – Prepare release checklist
+- `std-solution/` – Frame problems using hermeneutic approach
+- `std-plan/` – Create execution plans using teleological planning
+- `std-design-review/` – Evaluate UI against usability heuristics and visual design principles
+- `std-clean-sweep/` – Clean and review changes
+- `std-test-loop/` – Run tests and fix failures
+- `std-deploy-release/` – Prepare release checklist
 
-### Skills
+### Skills (teaching/reference)
 
 - `hermeneutic-solution/` – How to interpret user intent and frame solutions
 - `teleological-planning/` – How to create outcome-driven plans
+- `heuristic-design-review/` – How to evaluate UI design quality using heuristics
 - `engineering-hygiene/` – How to ensure quality before handoff
 
 ### Agents
 
-- `std.planner.md` – Planning specialist subagent
-- `std.verifier.md` – Quality verification subagent
-- `std.debugger.md` – Root-cause analysis subagent
+- `std-planner.md` – Planning specialist subagent
+- `std-verifier.md` – Quality verification subagent
+- `std-debugger.md` – Root-cause analysis subagent
+- `ux-heuristic-evaluator.md` – Usability heuristic evaluator
+- `ux-visual-design-critic.md` – Visual design principles evaluator
+- `ux-platform-evaluator.md` – Platform compliance checker
+- `ux-accessibility-auditor.md` – Accessibility auditor

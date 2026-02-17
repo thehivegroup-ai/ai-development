@@ -93,13 +93,13 @@ The AI will:
 In Cursor, try these commands:
 
 ```
-/std.solution
+/std-solution
 ```
 
 Frame your problem before implementing.
 
 ```
-/std.plan
+/std-plan
 ```
 
 Create a structured execution plan.
@@ -133,10 +133,10 @@ cursor.lock.json     # Version pinning for reproducibility
 
 | Command | What It Does |
 |---------|--------------|
-| `/std.solution` | Frame a problem before coding |
-| `/std.plan` | Create execution plan |
-| `/std.clean-sweep` | Clean and review changes |
-| `/std.test-loop` | Run tests, fix failures |
+| `/std-solution` | Frame a problem before coding |
+| `/std-plan` | Create execution plan |
+| `/std-clean-sweep` | Clean and review changes |
+| `/std-test-loop` | Run tests, fix failures |
 | `/web.react.build-screen` | Build React UI |
 | `/api.fastify.add-route` | Add API endpoint |
 | `/db.postgres.migration` | Create DB migration |

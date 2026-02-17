@@ -653,9 +653,9 @@ Add structured metadata to all modules for better dependency management and vali
   "version": "1.0.0",
   "provides": {
     "rules": ["00-std-foundation.mdc", ...],
-    "commands": ["std.plan.md", ...],
+    "commands": ["std-plan.md", ...],
     "skills": ["hermeneutic-solution", ...],
-    "agents": ["std.planner.md", ...]
+    "agents": ["std-planner.md", ...]
   },
   "requires": [],
   "compatibility": {
@@ -806,27 +806,27 @@ Transform agents from basic definitions to powerful, detailed AI assistants.
 **Goal:** Enhance core workflow agents
 
 **Tasks:**
-1. **std.planner** - Enhanced planning specialist
+1. **std-planner** - Enhanced planning specialist
    - Detailed teleological planning prompts
    - Phase breakdown examples
    - Risk identification patterns
    - Tool invocations for research
    - Example: Plan a multi-phase feature
-   - Handoff to std.verifier
+   - Handoff to std-verifier
 
-2. **std.debugger** - Enhanced debugging specialist
+2. **std-debugger** - Enhanced debugging specialist
    - Systematic debugging approach
    - Hypothesis generation
    - Tool invocations for log analysis
    - Example: Debug a production issue
-   - Handoff to std.verifier
+   - Handoff to std-verifier
 
-3. **std.verifier** - Enhanced quality checker
+3. **std-verifier** - Enhanced quality checker
    - Comprehensive checklist execution
    - Rule compliance verification
    - Test coverage analysis
    - Example: Verify a feature is complete
-   - Handoff to std.planner (if issues)
+   - Handoff to std-planner (if issues)
 
 **Deliverables:**
 - 3 enhanced agent definitions

@@ -1,9 +1,7 @@
 ---
 description: "React + Tailwind constraints for UI structure."
 alwaysApply: false
-globs:
-  - "**/*.tsx"
-  - "**/*.jsx"
+globs: **/*.tsx,**/*.jsx
 ---
 
 # Web React Tailwind

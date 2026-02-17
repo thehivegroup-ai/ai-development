@@ -85,11 +85,11 @@ cp -r ../ai-development/modules/stack-authorities/cloud/gcp/cursor/* .cursor/
 ## Key Commands
 
 ### Workflow Commands
-- `/std.solution` - Frame the problem using hermeneutic circle
-- `/std.plan` - Create teleological execution plan
-- `/std.clean-sweep` - Code cleanup and review
-- `/std.test-loop` - Testing workflow
-- `/std.deploy-release` - Deployment preparation with security checks
+- `/std-solution` - Frame the problem using hermeneutic circle
+- `/std-plan` - Create teleological execution plan
+- `/std-clean-sweep` - Code cleanup and review
+- `/std-test-loop` - Testing workflow
+- `/std-deploy-release` - Deployment preparation with security checks
 
 ### Frontend Commands
 - `/web.next.build-screen` - Build Next.js screen with App Router
@@ -214,14 +214,14 @@ After installation, your `.cursor/` directory will contain:
 ### Feature Development (Regulated)
 
 ```
-1. /std.solution
+1. /std-solution
    - Frame: "Add patient records management"
    - Document compliance requirements
    
 2. /ctrl.regulated.security-check
    - Verify security controls in design
    
-3. /std.plan
+3. /std-plan
    - Plan with security milestones
    - Include audit trail requirements
    
@@ -236,10 +236,10 @@ After installation, your `.cursor/` directory will contain:
 6. /web.next.build-screen
    - Build UI with role-based access
    
-7. /std.clean-sweep
+7. /std-clean-sweep
    - Security code review
    
-8. /std.test-loop
+8. /std-test-loop
    - Run security tests
    
 9. /ctrl.regulated.security-check
@@ -288,7 +288,7 @@ After installation, your `.cursor/` directory will contain:
 3. Review security requirements in `.cursor/rules/91-ctrl-regulated.mdc`
 4. Configure secrets management
 5. Set up audit logging
-6. Start building with `/std.solution`
+6. Start building with `/std-solution`
 7. Run `/ctrl.regulated.security-check` before each release
 
 ## Compliance Support

@@ -77,9 +77,9 @@ Commands act as the **entry point into interpretation**.
 
 ### Implementation
 
-**File:** `modules/enterprise-standards/cursor/commands/std.solution.md`
+**File:** `modules/enterprise-standards/cursor/skills/std-solution/SKILL.md`
 
-**Command:** `/std.solution`
+**Command:** `/std-solution`
 
 ### What the Command Does
 
@@ -190,9 +190,9 @@ They embody the **part ↔ whole tension**.
 
 ### Implementation
 
-#### std.planner
+#### std-planner
 
-**File:** `modules/enterprise-standards/cursor/agents/std.planner.md`
+**File:** `modules/enterprise-standards/cursor/agents/std-planner.md`
 
 **Role:** Tests interpretation from **feasibility perspective**
 
@@ -210,9 +210,9 @@ They embody the **part ↔ whole tension**.
 
 ---
 
-#### std.verifier
+#### std-verifier
 
-**File:** `modules/enterprise-standards/cursor/agents/std.verifier.md`
+**File:** `modules/enterprise-standards/cursor/agents/std-verifier.md`
 
 **Role:** Tests interpretation from **consistency perspective**
 
@@ -266,7 +266,7 @@ They embody the **part ↔ whole tension**.
 
 ```
 1. Command invoked
-   └─> /std.solution
+   └─> /std-solution
 
 2. Rules activate
    └─> Interpretation required
@@ -279,8 +279,8 @@ They embody the **part ↔ whole tension**.
    └─> Produces artifacts
 
 4. Subagents review
-   └─> std.planner challenges from feasibility
-   └─> std.verifier challenges from consistency
+   └─> std-planner challenges from feasibility
+   └─> std-verifier challenges from consistency
    └─> Domain critics challenge from expertise
 
 5. Interpretation revised
@@ -294,7 +294,7 @@ They embody the **part ↔ whole tension**.
 
 7. Transition to planning
    └─> Only when interpretation survives challenges
-   └─> Artifacts become inputs to /std.plan
+   └─> Artifacts become inputs to /std-plan
 ```
 
 ---
@@ -437,7 +437,7 @@ DEPLOY-RELEASE
 ### Step 1: Command Invoked
 
 ```
-/std.solution
+/std-solution
 ```
 
 ### Step 2: Gather Context (Fore-Having)
@@ -491,7 +491,7 @@ Checkout API response time <1 second for 95th percentile under peak load.
 
 ### Step 7: Challenge with Subagents
 
-**std.planner challenges:**
+**std-planner challenges:**
 ```
 Can this be planned?
 - Yes, but need to identify root cause first
@@ -504,7 +504,7 @@ Questions:
 - Is it query count, query complexity, or data volume?
 ```
 
-**std.verifier challenges:**
+**std-verifier challenges:**
 ```
 Does this hold together?
 - Problem statement good: ties performance to business impact

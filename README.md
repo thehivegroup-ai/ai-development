@@ -62,7 +62,7 @@ cp -r ../ai-development/modules/stack-authorities/cloud/aws/cursor/* .cursor/
 cp -r ../ai-development/modules/project-controls/base/cursor/* .cursor/
 
 # 3. Start using workflows
-# In Cursor, type: /std.solution
+# In Cursor, type: /std-solution
 ```
 
 ---
@@ -207,7 +207,7 @@ See [COMPLETION-SUMMARY.md](./docs/functionality/COMPLETION-SUMMARY.md) for full
 **Purpose:** Technology-agnostic workflow and quality norms
 
 **Provides:**
-- Standard workflow commands (`/std.solution`, `/std.plan`, `/std.clean-sweep`, `/std.test-loop`, `/std.deploy-release`)
+- Standard workflow commands (`/std-solution`, `/std-plan`, `/std-clean-sweep`, `/std-test-loop`, `/std-deploy-release`)
 - Core constraints (foundation, solution framing, planning, quality gates, environment config)
 - Skills (hermeneutic solution, teleological planning, engineering hygiene)
 - Subagents (planner, verifier, debugger)
@@ -400,22 +400,22 @@ See [COMPLETION-SUMMARY.md](./docs/functionality/COMPLETION-SUMMARY.md) for full
 ### Feature Development
 
 ```
-1. /std.solution              # Frame the problem
-2. /std.plan                  # Create execution plan
+1. /std-solution              # Frame the problem
+2. /std-plan                  # Create execution plan
 3. /web.react.build-screen    # Build UI (example)
 4. /api.fastify.add-route     # Build API (example)
-5. /std.clean-sweep           # Clean and review
-6. /std.test-loop             # Test and fix
-7. /std.deploy-release        # Prepare for deployment
+5. /std-clean-sweep           # Clean and review
+6. /std-test-loop             # Test and fix
+7. /std-deploy-release        # Prepare for deployment
 ```
 
 ### Bug Fix
 
 ```
-1. std.debugger subagent      # Root cause analysis
+1. std-debugger subagent      # Root cause analysis
 2. Fix issue
-3. /std.test-loop             # Verify fix
-4. /std.clean-sweep           # Clean state
+3. /std-test-loop             # Verify fix
+4. /std-clean-sweep           # Clean state
 ```
 
 ### Refactoring
@@ -423,7 +423,7 @@ See [COMPLETION-SUMMARY.md](./docs/functionality/COMPLETION-SUMMARY.md) for full
 ```
 1. /web.react.compare-screens  # Analyze current state
 2. /web.react.tailwind-refactor # Refactor to standards
-3. /std.test-loop              # Verify no breakage
+3. /std-test-loop              # Verify no breakage
 ```
 
 ---

@@ -293,7 +293,7 @@ Users can't find products easily.
 - Assumptions not tested
 
 **Good:**
-[Invoke std.verifier to challenge interpretation]
+[Invoke std-verifier to challenge interpretation]
 
 **Verifier asks:**
 - Does desired outcome match problem statement?
@@ -309,7 +309,7 @@ Users can't find products easily.
 2. **Make outcomes observable and measurable**
 3. **Question assumptions - don't accept first interpretation**
 4. **Iterate through hermeneutic circle**
-5. **Invoke std.planner and std.verifier agents**
+5. **Invoke std-planner and std-verifier agents**
 6. **Derive solutions backward from outcome**
 7. **Define non-goals explicitly**
 8. **Document constraints**

@@ -39,9 +39,9 @@ Expected output should include:
   "description": "Core development standards and workflows",
   "provides": {
     "rules": ["00-std-foundation.mdc", "01-std-solution-hermeneutic.mdc", ...],
-    "commands": ["std.clean-sweep.md", "std.deploy-release.md", ...],
+    "commands": ["std-clean-sweep.md", "std-deploy-release.md", ...],
     "skills": ["engineering-hygiene", "hermeneutic-solution", ...],
-    "agents": ["std.debugger.md", "std.planner.md", ...]
+    "agents": ["std-debugger.md", "std-planner.md", ...]
   }
 }
 ```

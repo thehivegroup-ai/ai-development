@@ -47,11 +47,6 @@ Your `.cursor/` directory now contains:
     50-cloud-aws.mdc
     90-ctrl-base.mdc
   commands/
-    std.solution.md
-    std.plan.md
-    std.clean-sweep.md
-    std.test-loop.md
-    std.deploy-release.md
     web.react.build-screen.md
     web.react.compare-screens.md
     web.react.tailwind-refactor.md
@@ -63,6 +58,11 @@ Your `.cursor/` directory now contains:
     cloud.aws.preflight.md
     ctrl.base.check.md
   skills/
+    std-solution/
+    std-plan/
+    std-clean-sweep/
+    std-test-loop/
+    std-deploy-release/
     hermeneutic-solution/
     teleological-planning/
     engineering-hygiene/
@@ -73,9 +73,9 @@ Your `.cursor/` directory now contains:
     aws-infra-standards/
     project-basics/
   agents/
-    std.planner.md
-    std.verifier.md
-    std.debugger.md
+    std-planner.md
+    std-verifier.md
+    std-debugger.md
     web.react-critic.md
     api.fastify-debugger.md
     db.postgres-reviewer.md
@@ -100,7 +100,7 @@ Your `.cursor/` directory now contains:
 - `project-controls/base` ✓
 
 **Available commands:**
-- `/std.solution`, `/std.plan`, `/std.clean-sweep`, `/std.test-loop`, `/std.deploy-release`
+- `/std-solution`, `/std-plan`, `/std-clean-sweep`, `/std-test-loop`, `/std-deploy-release`
 - `/web.react.build-screen`, `/web.react.compare-screens`, `/web.react.tailwind-refactor`
 - `/api.fastify.add-route`, `/api.fastify.test-loop`
 - `/db.postgres.migration`, `/db.postgres.performance-check`
@@ -123,7 +123,7 @@ Your `.cursor/` directory now contains:
 - `project-controls/regulated` ✓ (if needed)
 
 **Available commands:**
-- `/std.solution`, `/std.plan`, `/std.clean-sweep`, `/std.test-loop`, `/std.deploy-release`
+- `/std-solution`, `/std-plan`, `/std-clean-sweep`, `/std-test-loop`, `/std-deploy-release`
 - `/web.next.route-audit`, `/web.next.build-screen`
 - `/api.java.add-endpoint`, `/api.java.test-loop`
 - `/db.sqlserver.migration`
@@ -145,7 +145,7 @@ Your `.cursor/` directory now contains:
 - `project-controls/base` ✓
 
 **Available commands:**
-- `/std.solution`, `/std.plan`, `/std.clean-sweep`, `/std.test-loop`, `/std.deploy-release`
+- `/std-solution`, `/std-plan`, `/std-clean-sweep`, `/std-test-loop`, `/std-deploy-release`
 - `/web.angular.template-audit`
 - `/api.fastify.add-route`, `/api.fastify.test-loop`
 - `/db.postgres.migration`, `/db.postgres.performance-check`

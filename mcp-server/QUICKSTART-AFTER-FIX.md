@@ -36,16 +36,16 @@ install_environment({
 - `06-std-workflow-modes.mdc` - Development workflow modes
 
 **Commands (5 files):**
-- `std.clean-sweep.md` - Code cleanup workflow
-- `std.deploy-release.md` - Deployment workflow
-- `std.plan.md` - Planning workflow
-- `std.solution.md` - Solution framing workflow
-- `std.test-loop.md` - Testing workflow
+- `std-clean-sweep.md` - Code cleanup workflow
+- `std-deploy-release.md` - Deployment workflow
+- `std-plan.md` - Planning workflow
+- `std-solution.md` - Solution framing workflow
+- `std-test-loop.md` - Testing workflow
 
 **Agents (3 files):**
-- `std.debugger.md` - Debugging specialist
-- `std.planner.md` - Planning specialist
-- `std.verifier.md` - Quality verification specialist
+- `std-debugger.md` - Debugging specialist
+- `std-planner.md` - Planning specialist
+- `std-verifier.md` - Quality verification specialist
 
 **Skills (3 modules):**
 - `engineering-hygiene/` - Clean code practices
@@ -96,16 +96,16 @@ You should see:
 │   ├── 90-ctrl-base.mdc
 │   └── [stack-specific rules]
 ├── commands/
-│   ├── std.clean-sweep.md
-│   ├── std.deploy-release.md
-│   ├── std.plan.md
-│   ├── std.solution.md
-│   ├── std.test-loop.md
+│   ├── std-clean-sweep.md
+│   ├── std-deploy-release.md
+│   ├── std-plan.md
+│   ├── std-solution.md
+│   ├── std-test-loop.md
 │   └── [other commands]
 ├── agents/
-│   ├── std.debugger.md
-│   ├── std.planner.md
-│   ├── std.verifier.md
+│   ├── std-debugger.md
+│   ├── std-planner.md
+│   ├── std-verifier.md
 │   └── [other agents]
 └── skills/
     ├── engineering-hygiene/

@@ -223,10 +223,10 @@ But differ in:
 ### Cross-Service Feature
 
 ```
-1. Gateway: /std.solution
+1. Gateway: /std-solution
    - Frame feature spanning multiple services
    
-2. Gateway: /std.plan
+2. Gateway: /std-plan
    - Plan API changes and service coordination
    
 3. User Service: /api.fastify.add-route
@@ -244,7 +244,7 @@ But differ in:
 7. Gateway: Update routing
    - Wire new endpoints through gateway
    
-8. All Services: /std.test-loop
+8. All Services: /std-test-loop
    - Integration testing
    
 9. Gateway: /ctrl.regulated.security-check
@@ -257,18 +257,18 @@ But differ in:
 ### Single-Service Feature
 
 ```
-1. Order Service: /std.solution
+1. Order Service: /std-solution
    - Feature contained to one service
    
-2. Order Service: /std.plan
+2. Order Service: /std-plan
    
 3. Order Service: /api.fastify.add-route
    
 4. Order Service: /db.postgres.migration
    
-5. Order Service: /std.clean-sweep
+5. Order Service: /std-clean-sweep
    
-6. Order Service: /std.test-loop
+6. Order Service: /std-test-loop
    
 7. Order Service: /cloud.aws.deploy
 ```
@@ -313,7 +313,7 @@ Order Created → Inventory Service (reserve stock)
 ### Per-Service Tests
 ```bash
 cd services/user-service
-/std.test-loop  # Unit + integration tests
+/std-test-loop  # Unit + integration tests
 ```
 
 ### Contract Tests
@@ -454,7 +454,7 @@ Standards provided by enterprise module.
 Begin with monolith using single stack profile.
 
 ### Identify Boundaries
-Use `/std.solution` to identify service boundaries.
+Use `/std-solution` to identify service boundaries.
 
 ### Extract Services
 One at a time, extract services with their own profiles.
@@ -474,7 +474,7 @@ Continue extracting services as needed.
 5. Implement inter-service communication
 6. Set up deployment pipelines
 7. Implement monitoring and logging
-8. Start building with `/std.solution` per service
+8. Start building with `/std-solution` per service
 
 ## Support
 

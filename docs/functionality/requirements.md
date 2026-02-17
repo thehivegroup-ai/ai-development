@@ -71,11 +71,11 @@ Define *how the organization thinks about building software*.
 Rules here never mention React, AWS, databases, etc.
 
 #### Commands
-- `/std.solution` – hermeneutic interpretation
-- `/std.plan` – teleological planning
-- `/std.clean-sweep`
-- `/std.test-loop`
-- `/std.deploy-release`
+- `/std-solution` – hermeneutic interpretation
+- `/std-plan` – teleological planning
+- `/std-clean-sweep`
+- `/std-test-loop`
+- `/std-deploy-release`
 
 These commands define **how work starts and progresses**, not how tech is implemented.
 
@@ -88,9 +88,9 @@ These commands define **how work starts and progresses**, not how tech is implem
 Skills explain *how to think and work*, not what tools to use.
 
 #### Subagents
-- `std.planner` – converts intent into structured plans
-- `std.verifier` – validates outcomes against expectations
-- `std.debugger` – focuses on root cause analysis
+- `std-planner` – converts intent into structured plans
+- `std-verifier` – validates outcomes against expectations
+- `std-debugger` – focuses on root cause analysis
 
 ---
 
@@ -225,7 +225,7 @@ These commands layer *additional rituals* on top of standard workflows.
 A typical workflow looks like:
 
 1. **Command invoked**
-   - `/std.solution`
+   - `/std-solution`
    - `/web.react.build-screen`
 
 2. **Rules constrain behavior**

@@ -5,16 +5,17 @@ alwaysApply: false
 
 # Standard Workflow Modes
 
-## Eight Modes of Operation
+## Nine Modes of Operation
 
 1. **SOLUTION** → Interpret & refine using hermeneutic circle
 2. **PLAN** → Build goal tree backward using teleological planning
 3. **DESIGN-FLOW** → Map plan to screens/components/design tokens (UI)
-4. **BUILD-SCREEN** → Implement UI incrementally (frontend)
-5. **BUILD-API** → Implement API incrementally (backend)
-6. **CLEAN-SWEEP** → Refactor and standardize to best practices
-7. **TEST-LOOP** → Green tests, check for regressions
-8. **DEPLOY-RELEASE** → Gated deployment with preflight checks
+4. **DESIGN-REVIEW** → Evaluate UI against usability heuristics and visual design principles
+5. **BUILD-SCREEN** → Implement UI incrementally (frontend)
+6. **BUILD-API** → Implement API incrementally (backend)
+7. **CLEAN-SWEEP** → Refactor and standardize to best practices
+8. **TEST-LOOP** → Green tests, check for regressions
+9. **DEPLOY-RELEASE** → Gated deployment with preflight checks
 
 ## Mode State Machine
 
@@ -27,8 +28,15 @@ SOLUTION ──[user: PLAN or auto]──> PLAN
     │                        │             │
     │                   DESIGN-FLOW    [API work?]
     │                        │             │
+    │                        ↓             │
+    │                   DESIGN-REVIEW      │
+    │                        │             │
     │                        ↓             ↓
     │                   BUILD-SCREEN   BUILD-API
+    │                        │             │
+    │                        ↓             │
+    │                   DESIGN-REVIEW      │
+    │                   (verify build)     │
     │                        │             │
     │                        └──────┬──────┘
     │                               ↓
@@ -40,43 +48,32 @@ SOLUTION ──[user: PLAN or auto]──> PLAN
     │                               ↓
     └──────[auto or user]───── DEPLOY-RELEASE
 
-Modes can run in parallel or sequence based on work type:
-- UI + API: DESIGN-FLOW → BUILD-SCREEN → BUILD-API → CLEAN-SWEEP
-- UI only: DESIGN-FLOW → BUILD-SCREEN → CLEAN-SWEEP
+Work type sequences:
+- UI + API: DESIGN-FLOW → DESIGN-REVIEW → BUILD-SCREEN → DESIGN-REVIEW → BUILD-API → CLEAN-SWEEP
+- UI only: DESIGN-FLOW → DESIGN-REVIEW → BUILD-SCREEN → DESIGN-REVIEW → CLEAN-SWEEP
 - API only: PLAN → BUILD-API → CLEAN-SWEEP
-- Mixed: Alternate between BUILD-SCREEN and BUILD-API as needed
+- Review only: DESIGN-REVIEW (standalone audit of existing UI)
 ```
 
 ## Mode Transitions
 
-### Starting State
-- Always start in **SOLUTION mode**
+**Starting state:** Always SOLUTION mode.
 
-### User-Triggered Transitions
-- User types mode name → Move to that mode
-- Examples: `SOLUTION`, `PLAN`, `DESIGN-FLOW`, `BUILD-SCREEN`, `BUILD-API`, `CLEAN-SWEEP`, `TEST-LOOP`, `DEPLOY-RELEASE`
+**User-triggered:** Type mode name to jump directly (e.g., `SOLUTION`, `PLAN`, `DESIGN-REVIEW`, `BUILD-SCREEN`).
 
-### Automatic Transitions (Suggested Flow)
-1. SOLUTION → User acknowledges → PLAN (or auto-suggest)
-2. PLAN → Approved → DESIGN-FLOW (for UI) or BUILD-API (for backend only) or both
-3. DESIGN-FLOW → Design mapped → BUILD-SCREEN
-4. BUILD-SCREEN → UI complete → BUILD-API (if backend needed) or CLEAN-SWEEP
-5. BUILD-API → API complete → CLEAN-SWEEP (auto)
-6. CLEAN-SWEEP → Cleaned → TEST-LOOP (auto)
-7. TEST-LOOP → Tests passing → DEPLOY-RELEASE (if ready) or SOLUTION (if more work)
-8. DEPLOY-RELEASE → Deployed → SOLUTION (for next work)
+**Automatic flow:**
+1. SOLUTION → PLAN (user acknowledges)
+2. PLAN → DESIGN-FLOW (UI) or BUILD-API (backend only)
+3. DESIGN-FLOW → DESIGN-REVIEW (evaluate design)
+4. DESIGN-REVIEW → BUILD-SCREEN (pass) or DESIGN-FLOW (critical findings)
+5. BUILD-SCREEN → DESIGN-REVIEW (verify build)
+6. DESIGN-REVIEW → BUILD-API (if needed) or CLEAN-SWEEP
+7. BUILD-API → CLEAN-SWEEP (auto)
+8. CLEAN-SWEEP → TEST-LOOP (auto)
+9. TEST-LOOP → DEPLOY-RELEASE (if ready) or SOLUTION
+10. DEPLOY-RELEASE → SOLUTION
 
-### Parallel/Sequential Work
-- **Full-stack feature:** DESIGN-FLOW → BUILD-SCREEN → BUILD-API → CLEAN-SWEEP
-- **UI only:** DESIGN-FLOW → BUILD-SCREEN → CLEAN-SWEEP
-- **API only:** PLAN → BUILD-API → CLEAN-SWEEP
-- **Incremental:** Can alternate BUILD-SCREEN ↔ BUILD-API as needed
-
-### Skipping Modes
-- Not all modes required for every task
-- Example: Bug fix might skip DESIGN-FLOW
-- Example: Refactor might start at CLEAN-SWEEP
-- User controls the flow explicitly
+**Skipping:** Not all modes required. Bug fix skips DESIGN-FLOW. Refactor starts at CLEAN-SWEEP. Design audit starts at DESIGN-REVIEW. User controls flow.
 
 ---
 
@@ -85,10 +82,8 @@ Modes can run in parallel or sequence based on work type:
 ### 1. SOLUTION Mode
 
 **Purpose:** Interpret & refine desired outcome using hermeneutic circle
-
 **Trigger:** User types `SOLUTION` or auto-return after deployment
-
-**Commands:** `/std.solution`
+**Skill:** `/std-solution`
 
 **Actions:**
 1. Apply hermeneutic circle to interpret user intent
@@ -98,26 +93,16 @@ Modes can run in parallel or sequence based on work type:
 5. Offer concise solution narrative with tradeoffs
 6. Output full solution in every response
 
-**Stay in mode until:** User acknowledges understanding or types `PLAN`
-
-**Output format:**
-```markdown
-# Mode: SOLUTION
-
-[Full solution framing]
-```
+**Stay until:** User acknowledges or types `PLAN`
 
 ---
 
 ### 2. PLAN Mode
 
 **Purpose:** Build goal tree backward using teleological planning
-
-**Trigger:** User types `PLAN` (after solution understood) or auto-suggest
-
-**Commands:** `/std.plan`
-
-**Subagents:** `std.planner` (for complex plans)
+**Trigger:** User types `PLAN` or auto-suggest
+**Skill:** `/std-plan`
+**Subagents:** `std-planner`
 
 **Actions:**
 1. Define target outcome and success criteria
@@ -126,27 +111,14 @@ Modes can run in parallel or sequence based on work type:
 4. Identify dependencies, risks, rollback strategy
 5. Output full plan in every response
 
-**Stay in mode until:** User approves plan or types next mode
-
-**Output format:**
-```markdown
-# Mode: PLAN
-
-[Full teleological plan with goal tree]
-```
+**Stay until:** User approves plan or types next mode
 
 ---
 
 ### 3. DESIGN-FLOW Mode
 
 **Purpose:** Map plan to screens/components/design tokens (UI work)
-
-**Trigger:** User types `DESIGN-FLOW` (after plan approved, for UI work)
-
-**Commands:** 
-- `/web.react.build-screen`
-- `/web.next.build-screen`
-- `/web.angular.template-audit`
+**Trigger:** User types `DESIGN-FLOW` (after plan approved)
 
 **Actions:**
 1. Identify screens/components needed
@@ -156,28 +128,38 @@ Modes can run in parallel or sequence based on work type:
 5. Outline data flow and state management
 6. Create UI structure plan
 
-**Stay in mode until:** Design mapped or user types `BUILD-SCREEN`
-
-**Output format:**
-```markdown
-# Mode: DESIGN-FLOW
-
-[UI structure and component mapping]
-```
+**Stay until:** Design mapped or user types `DESIGN-REVIEW` or `BUILD-SCREEN`
 
 ---
 
-### 4. BUILD-SCREEN Mode
+### 4. DESIGN-REVIEW Mode
+
+**Purpose:** Evaluate UI against usability heuristics and visual design principles
+**Trigger:** Auto after DESIGN-FLOW/BUILD-SCREEN, or user types `DESIGN-REVIEW`
+**Skill:** `/std-design-review`
+**Subagents:** `ux-heuristic-evaluator`, `ux-visual-design-critic`, `ux-platform-evaluator`, `ux-accessibility-auditor`
+
+**Actions:**
+1. Establish evaluation context (subject, platform, users, task)
+2. Evaluate against Nielsen's 10 usability heuristics (invoke `ux-heuristic-evaluator`)
+3. Evaluate against 11 visual design principles (invoke `ux-visual-design-critic`)
+4. Evaluate platform-specific compliance (invoke `ux-platform-evaluator`)
+5. Quick accessibility check (invoke `ux-accessibility-auditor`)
+6. Classify findings by severity (0-4 scale)
+7. Synthesize and prioritize recommendations
+8. Invoke `std-verifier` for consistency check
+
+**Stay until:** Evaluation complete, then:
+- After DESIGN-FLOW: → BUILD-SCREEN (no critical) or → DESIGN-FLOW (critical)
+- After BUILD-SCREEN: → BUILD-API (if needed) or → CLEAN-SWEEP
+- Standalone: → user-specified mode
+
+---
+
+### 5. BUILD-SCREEN Mode
 
 **Purpose:** Implement UI incrementally (frontend)
-
-**Trigger:** User types `BUILD-SCREEN` (after design or directly from plan)
-
-**Commands:**
-- `/web.react.build-screen`
-- `/web.next.build-screen`
-- `/web.angular.template-audit`
-- Frontend-specific build commands
+**Trigger:** User types `BUILD-SCREEN` (after design review or plan)
 
 **Actions:**
 1. Implement UI based on design/plan
@@ -186,29 +168,14 @@ Modes can run in parallel or sequence based on work type:
 4. Add frontend tests as building
 5. Show progress after each component
 
-**Stay in mode until:** UI complete, then → BUILD-API (if backend needed) or CLEAN-SWEEP
-
-**Output format:**
-```markdown
-# Mode: BUILD-SCREEN
-
-[UI implementation progress]
-```
+**Stay until:** UI complete, then → DESIGN-REVIEW (verify) or CLEAN-SWEEP
 
 ---
 
-### 5. BUILD-API Mode
+### 6. BUILD-API Mode
 
 **Purpose:** Implement API incrementally (backend)
-
-**Trigger:** User types `BUILD-API` (after plan or after BUILD-SCREEN)
-
-**Commands:**
-- `/api.fastify.add-route`
-- `/api.java.add-endpoint`
-- `/db.postgres.migration`
-- `/db.sqlserver.migration`
-- Backend-specific build commands
+**Trigger:** User types `BUILD-API` (after plan or BUILD-SCREEN)
 
 **Actions:**
 1. Implement API based on plan
@@ -217,361 +184,16 @@ Modes can run in parallel or sequence based on work type:
 4. Add API tests as building
 5. Show progress after each endpoint
 
-**Stay in mode until:** API complete, then auto → CLEAN-SWEEP
-
-**Output format:**
-```markdown
-# Mode: BUILD-API
-
-[API implementation progress]
-```
+**Stay until:** API complete, then auto → CLEAN-SWEEP
 
 ---
 
-### 6. CLEAN-SWEEP Mode
+### 7. CLEAN-SWEEP Mode
 
 **Purpose:** Refactor and standardize to best practices
-
-**Trigger:** Auto after BUILD-SCREEN/BUILD-API completes, or user types `CLEAN-SWEEP`
-
-**Commands:** `/std.clean-sweep`
-
-**Subagents:** `std.verifier`, stack-specific critics (e.g., `web.react-critic`, `api.fastify-debugger`)
-
-**Actions:**
-1. Review changes for correctness and consistency
-2. Remove dead code, TODOs, debug artifacts
-3. Fix lint and type errors
-4. Validate formatting, naming, structure
-5. Apply component/utility architecture standards (UI)
-6. Apply service layer standards (API)
-7. Ensure accessibility and performance patterns
-
-**Stay in mode until:** Clean, then auto → TEST-LOOP
-
-**Output format:**
-```markdown
-# Mode: CLEAN-SWEEP
-
-[Cleanup and refactoring summary]
-```
-
----
-
-### 7. TEST-LOOP Mode
-
-**Purpose:** Green tests, check for regressions
-
-**Trigger:** Auto after CLEAN-SWEEP, or user types `TEST-LOOP`
-
-**Commands:** 
-- `/std.test-loop`
-- `/api.fastify.test-loop`
-- `/api.java.test-loop`
-- Stack-specific test commands
-
-**Subagents:** `std.debugger` (for failures)
-
-**Actions:**
-1. Identify relevant test scope (unit, integration, e2e)
-2. Run tests and capture results
-3. If failures: analyze, fix, re-run (delegate to debugger if needed)
-4. Repeat until all tests passing
-5. Check for regressions
-6. Summarize test results
-
-**Stay in mode until:** All tests green, then → DEPLOY-RELEASE (if ready) or SOLUTION
-
-**Output format:**
-```markdown
-# Mode: TEST-LOOP
-
-[Test results and fixes]
-```
-
----
-
-### 8. DEPLOY-RELEASE Mode
-
-**Purpose:** Gated deployment with preflight checks
-
-**Trigger:** User types `DEPLOY-RELEASE` (after tests passing)
-
-**Commands:** 
-- `/std.deploy-release`
-- `/cloud.aws.preflight`, `/cloud.aws.deploy`
-- `/cloud.gcp.preflight`, `/cloud.gcp.deploy`
-
-**Subagents:** `cloud.aws-release-manager`, `cloud.gcp-release-manager`
-
-**Actions:**
-1. Run preflight checks (build, lint, test status)
-2. Verify environment configuration and secrets handling
-3. Confirm versioning and release notes
-4. Validate infrastructure plan (if applicable)
-5. Document rollout and rollback steps
-6. Execute deployment (if approved)
-
-**Stay in mode until:** Deployed or blocked, then → SOLUTION
-
-**Output format:**
-```markdown
-# Mode: DEPLOY-RELEASE
-
-[Deployment checklist and status]
-```
-
----
-
-## Mode Headers
-
-**MUST print mode header** at the beginning of each response:
-- `# Mode: SOLUTION`
-- `# Mode: PLAN`
-- `# Mode: DESIGN-FLOW`
-- `# Mode: BUILD-SCREEN`
-- `# Mode: BUILD-API`
-- `# Mode: CLEAN-SWEEP`
-- `# Mode: TEST-LOOP`
-- `# Mode: DEPLOY-RELEASE`
-
-## Full Output Requirements
-
-- **SOLUTION mode:** Always output the full solution in every response
-- **PLAN mode:** Always output the full updated plan in every response
-- **Other modes:** Show progress and current state
-
-## Workflow Examples
-
-### Example 1: Full-Stack Feature
-
-```
-SOLUTION → (understand feature)
-PLAN → (break into UI + API + DB tasks)
-DESIGN-FLOW → (map UI to components)
-BUILD-SCREEN → (implement UI)
-BUILD-API → (implement API)
-CLEAN-SWEEP → (refactor both)
-TEST-LOOP → (test both)
-DEPLOY-RELEASE → (deploy to staging)
-SOLUTION → (next feature)
-```
-
-### Example 2: Frontend-Only Feature
-
-```
-SOLUTION → (understand UI feature)
-PLAN → (break into UI tasks)
-DESIGN-FLOW → (map UI to components)
-BUILD-SCREEN → (implement UI)
-CLEAN-SWEEP → (refactor UI)
-TEST-LOOP → (test UI)
-SOLUTION → (next task)
-```
-
-### Example 3: Backend-Only Feature
-
-```
-SOLUTION → (understand API feature)
-PLAN → (break into API tasks)
-BUILD-API → (implement API)
-CLEAN-SWEEP → (refactor API)
-TEST-LOOP → (test API)
-DEPLOY-RELEASE → (deploy API)
-SOLUTION → (next task)
-```
-
-### Example 4: Bug Fix
-
-```
-SOLUTION → (understand bug)
-PLAN → (identify fix approach)
-BUILD-SCREEN or BUILD-API → (implement fix)
-CLEAN-SWEEP → (clean up)
-TEST-LOOP → (verify fix + regressions)
-SOLUTION → (next task)
-```
-
-## Explicit Control
-
-User can:
-- Jump to any mode by typing mode name
-- Skip modes not relevant to current task
-- Return to SOLUTION at any time
-- Prevent automatic transitions by specifying next mode
-- Work on UI and API in parallel or sequence
-
-## Mode State Machine
-
-```
-SOLUTION ──[user: PLAN or auto]──> PLAN ──[user: DESIGN-FLOW]──> DESIGN-FLOW
-    ↑                                                                    │
-    │                                                                    │
-    │                                                                    ↓
-    │                                                              BUILD-SCREEN
-    │                                                                    │
-    │                                                                    ↓
-    │                                                              CLEAN-SWEEP
-    │                                                                    │
-    │                                                                    ↓
-    │                                                               TEST-LOOP
-    │                                                                    │
-    │                                                                    ↓
-    └──────────────────────────[auto or user: SOLUTION]───────── DEPLOY-RELEASE
-
-User can jump to any mode by typing mode name (e.g., SOLUTION, PLAN, DESIGN-FLOW)
-```
-
-## Mode Transitions
-
-### Starting State
-- Always start in **SOLUTION mode**
-
-### User-Triggered Transitions
-- User types mode name → Move to that mode
-- Examples: `SOLUTION`, `PLAN`, `DESIGN-FLOW`, `BUILD-SCREEN`, `CLEAN-SWEEP`, `TEST-LOOP`, `DEPLOY-RELEASE`
-
-### Automatic Transitions (Suggested Flow)
-1. SOLUTION → User acknowledges → PLAN (or auto-suggest)
-2. PLAN → Approved → DESIGN-FLOW (for UI work) or BUILD-SCREEN (for other work)
-3. DESIGN-FLOW → Design mapped → BUILD-SCREEN
-4. BUILD-SCREEN → Implementation complete → CLEAN-SWEEP (auto)
-5. CLEAN-SWEEP → Cleaned → TEST-LOOP (auto)
-6. TEST-LOOP → Tests passing → DEPLOY-RELEASE (if ready) or SOLUTION (if more work)
-7. DEPLOY-RELEASE → Deployed → SOLUTION (for next work)
-
-### Skipping Modes
-- Not all modes required for every task
-- Example: Bug fix might skip DESIGN-FLOW
-- Example: Refactor might start at CLEAN-SWEEP
-- User controls the flow explicitly
-
----
-
-## Mode Definitions
-
-### 1. SOLUTION Mode
-
-**Purpose:** Interpret & refine desired outcome using hermeneutic circle
-
-**Trigger:** User types `SOLUTION` or auto-return after deployment
-
-**Commands:** `/std.solution`
-
-**Actions:**
-1. Apply hermeneutic circle to interpret user intent
-2. Restate problem in user's terms
-3. Identify stakeholders, constraints, success criteria
-4. List assumptions and unknowns
-5. Offer concise solution narrative with tradeoffs
-6. Output full solution in every response
-
-**Stay in mode until:** User acknowledges understanding or types `PLAN`
-
-**Output format:**
-```markdown
-# Mode: SOLUTION
-
-[Full solution framing]
-```
-
----
-
-### 2. PLAN Mode
-
-**Purpose:** Build goal tree backward using teleological planning
-
-**Trigger:** User types `PLAN` (after solution understood) or auto-suggest
-
-**Commands:** `/std.plan`
-
-**Subagents:** `std.planner` (for complex plans)
-
-**Actions:**
-1. Define target outcome and success criteria
-2. Decompose work into ordered, verifiable tasks (backward from goal)
-3. Add validation steps (tests, checks, reviews)
-4. Identify dependencies, risks, rollback strategy
-5. Output full plan in every response
-
-**Stay in mode until:** User approves plan or types next mode
-
-**Output format:**
-```markdown
-# Mode: PLAN
-
-[Full teleological plan with goal tree]
-```
-
----
-
-### 3. DESIGN-FLOW Mode
-
-**Purpose:** Map plan to screens/components/design tokens
-
-**Trigger:** User types `DESIGN-FLOW` (after plan approved, for UI work)
-
-**Commands:** 
-- `/web.react.build-screen`
-- `/web.next.build-screen`
-- `/web.angular.template-audit`
-
-**Actions:**
-1. Identify screens/components needed
-2. Map to design system tokens (colors, spacing, typography)
-3. Define component hierarchy
-4. Specify component classes and utilities
-5. Outline data flow and state management
-6. Create UI structure plan
-
-**Stay in mode until:** Design mapped or user types `BUILD-SCREEN`
-
-**Output format:**
-```markdown
-# Mode: DESIGN-FLOW
-
-[UI structure and component mapping]
-```
-
----
-
-### 4. BUILD-SCREEN Mode
-
-**Purpose:** Implement incrementally (UI/features)
-
-**Trigger:** User types `BUILD-SCREEN` (after design or directly from plan)
-
-**Commands:**
-- Stack-specific build commands (e.g., `/web.react.build-screen`, `/api.fastify.add-route`)
-- `/db.postgres.migration`, `/db.sqlserver.migration`
-
-**Actions:**
-1. Implement based on plan/design
-2. Build incrementally (one component/feature at a time)
-3. Apply stack-specific rules
-4. Add tests as building
-5. Show progress after each increment
-
-**Stay in mode until:** Implementation complete, then auto → CLEAN-SWEEP
-
-**Output format:**
-```markdown
-# Mode: BUILD-SCREEN
-
-[Implementation progress]
-```
-
----
-
-### 5. CLEAN-SWEEP Mode
-
-**Purpose:** Refactor and standardize to best practices
-
-**Trigger:** Auto after BUILD-SCREEN completes, or user types `CLEAN-SWEEP`
-
-**Commands:** `/std.clean-sweep`
-
-**Subagents:** `std.verifier`, stack-specific critics (e.g., `web.react-critic`)
+**Trigger:** Auto after BUILD-SCREEN/BUILD-API, or user types `CLEAN-SWEEP`
+**Skill:** `/std-clean-sweep`
+**Subagents:** `std-verifier`, stack-specific critics
 
 **Actions:**
 1. Review changes for correctness and consistency
@@ -581,26 +203,16 @@ User can jump to any mode by typing mode name (e.g., SOLUTION, PLAN, DESIGN-FLOW
 5. Apply component/utility architecture standards
 6. Ensure accessibility and performance patterns
 
-**Stay in mode until:** Clean, then auto → TEST-LOOP
-
-**Output format:**
-```markdown
-# Mode: CLEAN-SWEEP
-
-[Cleanup and refactoring summary]
-```
+**Stay until:** Clean, then auto → TEST-LOOP
 
 ---
 
-### 6. TEST-LOOP Mode
+### 8. TEST-LOOP Mode
 
 **Purpose:** Green tests, check for regressions
-
 **Trigger:** Auto after CLEAN-SWEEP, or user types `TEST-LOOP`
-
-**Commands:** `/std.test-loop`, stack-specific test commands (e.g., `/api.fastify.test-loop`)
-
-**Subagents:** `std.debugger` (for failures)
+**Skill:** `/std-test-loop`
+**Subagents:** `std-debugger` (for failures)
 
 **Actions:**
 1. Identify relevant test scope (unit, integration, e2e)
@@ -610,29 +222,16 @@ User can jump to any mode by typing mode name (e.g., SOLUTION, PLAN, DESIGN-FLOW
 5. Check for regressions
 6. Summarize test results
 
-**Stay in mode until:** All tests green, then → DEPLOY-RELEASE (if ready) or SOLUTION
-
-**Output format:**
-```markdown
-# Mode: TEST-LOOP
-
-[Test results and fixes]
-```
+**Stay until:** All tests green, then → DEPLOY-RELEASE or SOLUTION
 
 ---
 
-### 7. DEPLOY-RELEASE Mode
+### 9. DEPLOY-RELEASE Mode
 
 **Purpose:** Gated deployment with preflight checks
-
 **Trigger:** User types `DEPLOY-RELEASE` (after tests passing)
-
-**Commands:** 
-- `/std.deploy-release`
-- `/cloud.aws.preflight`, `/cloud.aws.deploy`
-- `/cloud.gcp.preflight`, `/cloud.gcp.deploy`
-
-**Subagents:** `cloud.aws-release-manager`, `cloud.gcp-release-manager`
+**Skill:** `/std-deploy-release`
+**Subagents:** `cloud-aws-release-manager`, `cloud-gcp-release-manager`
 
 **Actions:**
 1. Run preflight checks (build, lint, test status)
@@ -642,77 +241,33 @@ User can jump to any mode by typing mode name (e.g., SOLUTION, PLAN, DESIGN-FLOW
 5. Document rollout and rollback steps
 6. Execute deployment (if approved)
 
-**Stay in mode until:** Deployed or blocked, then → SOLUTION
-
-**Output format:**
-```markdown
-# Mode: DEPLOY-RELEASE
-
-[Deployment checklist and status]
-```
+**Stay until:** Deployed or blocked, then → SOLUTION
 
 ---
 
 ## Mode Headers
 
 **MUST print mode header** at the beginning of each response:
-- `# Mode: SOLUTION`
-- `# Mode: PLAN`
-- `# Mode: DESIGN-FLOW`
-- `# Mode: BUILD-SCREEN`
-- `# Mode: CLEAN-SWEEP`
-- `# Mode: TEST-LOOP`
-- `# Mode: DEPLOY-RELEASE`
+`# Mode: SOLUTION` | `PLAN` | `DESIGN-FLOW` | `DESIGN-REVIEW` | `BUILD-SCREEN` | `BUILD-API` | `CLEAN-SWEEP` | `TEST-LOOP` | `DEPLOY-RELEASE`
 
-## Full Output Requirements
+## Output Requirements
 
-- **SOLUTION mode:** Always output the full solution in every response
-- **PLAN mode:** Always output the full updated plan in every response
+- **SOLUTION:** Full solution in every response
+- **PLAN:** Full updated plan in every response
+- **DESIGN-REVIEW:** Evaluation scores, prioritized findings, recommendations
 - **Other modes:** Show progress and current state
 
 ## Workflow Examples
 
-### Example 1: Full-Stack Feature
-
 ```
-SOLUTION → (understand feature)
-PLAN → (break into UI + API + DB tasks)
-DESIGN-FLOW → (map UI to components)
-BUILD-SCREEN → (implement UI)
-CLEAN-SWEEP → (refactor UI)
-TEST-LOOP → (test UI)
-BUILD-SCREEN → (implement API)
-CLEAN-SWEEP → (refactor API)
-TEST-LOOP → (test API)
-DEPLOY-RELEASE → (deploy to staging)
-SOLUTION → (next feature)
-```
-
-### Example 2: Bug Fix
-
-```
-SOLUTION → (understand bug)
-PLAN → (identify fix approach)
-BUILD-SCREEN → (implement fix)
-CLEAN-SWEEP → (clean up)
-TEST-LOOP → (verify fix + regressions)
-SOLUTION → (next task)
-```
-
-### Example 3: UI Refactor
-
-```
-SOLUTION → (understand refactor goal)
-DESIGN-FLOW → (map to new component structure)
-CLEAN-SWEEP → (refactor to standards)
-TEST-LOOP → (verify no breakage)
-SOLUTION → (next task)
+Full-stack:    SOLUTION → PLAN → DESIGN-FLOW → DESIGN-REVIEW → BUILD-SCREEN → DESIGN-REVIEW → BUILD-API → CLEAN-SWEEP → TEST-LOOP → DEPLOY-RELEASE
+Frontend:      SOLUTION → PLAN → DESIGN-FLOW → DESIGN-REVIEW → BUILD-SCREEN → DESIGN-REVIEW → CLEAN-SWEEP → TEST-LOOP
+Backend:       SOLUTION → PLAN → BUILD-API → CLEAN-SWEEP → TEST-LOOP → DEPLOY-RELEASE
+Bug fix:       SOLUTION → PLAN → BUILD-SCREEN/BUILD-API → CLEAN-SWEEP → TEST-LOOP
+Design audit:  DESIGN-REVIEW → PLAN → BUILD-SCREEN → DESIGN-REVIEW → CLEAN-SWEEP → TEST-LOOP
+UI refactor:   SOLUTION → DESIGN-FLOW → DESIGN-REVIEW → CLEAN-SWEEP → TEST-LOOP
 ```
 
 ## Explicit Control
 
-User can:
-- Jump to any mode by typing mode name
-- Skip modes not relevant to current task
-- Return to SOLUTION at any time
-- Prevent automatic transitions by specifying next mode
+User can jump to any mode by name, skip irrelevant modes, return to SOLUTION at any time, and work on UI and API in parallel or sequence.

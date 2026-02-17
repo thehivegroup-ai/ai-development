@@ -248,11 +248,11 @@ export const useUserStore = defineStore('user', () => {
 ### Building a Feature
 
 ```
-1. /std.solution - Frame the feature
-2. /std.plan - Plan implementation
+1. /std-solution - Frame the feature
+2. /std-plan - Plan implementation
 3. /web.vue.build-component - Build components
-4. /std.clean-sweep - Review code
-5. /std.test-loop - Run tests
+4. /std-clean-sweep - Review code
+5. /std-test-loop - Run tests
 ```
 
 ### Code Review

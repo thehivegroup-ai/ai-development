@@ -130,9 +130,9 @@ Successfully transformed the AI Development system from functional to **fully pr
 ## Initiative 6: Agent Enhancements
 
 **Delivered:**
-- std.planner: 500+ lines (planning validation)
-- std.debugger: 400+ lines (systematic debugging)
-- std.verifier: 600+ lines (quality gates)
+- std-planner: 500+ lines (planning validation)
+- std-debugger: 400+ lines (systematic debugging)
+- std-verifier: 600+ lines (quality gates)
 - test.parity-critic: 550+ lines (visual validation)
 
 **Files:** 4 enhanced agents  
@@ -194,12 +194,12 @@ npm run test:visual
 
 **4. Systematic Planning & Validation**
 ```
-/std.solution → Frame problem
-Invoke std.verifier → Check consistency
-/std.plan → Create backward plan
-Invoke std.planner → Validate plan
+/std-solution → Frame problem
+Invoke std-verifier → Check consistency
+/std-plan → Create backward plan
+Invoke std-planner → Validate plan
 Build feature
-Invoke std.verifier → Quality gate
+Invoke std-verifier → Quality gate
 Deploy
 ```
 
@@ -672,13 +672,13 @@ npm run test:visual
 
 ### 4. Use Enhanced Agents
 ```
-/std.solution → Frame problem
-Invoke std.verifier → Validate framing
-/std.plan → Create plan
-Invoke std.planner → Validate plan
+/std-solution → Frame problem
+Invoke std-verifier → Validate framing
+/std-plan → Create plan
+Invoke std-planner → Validate plan
 Build → Implement
-Invoke std.verifier → Quality gate
-/std.deploy-release → Deploy
+Invoke std-verifier → Quality gate
+/std-deploy-release → Deploy
 ```
 
 ---

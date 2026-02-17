@@ -71,9 +71,9 @@ The server provides 6 main tools:
       "path": "modules/enterprise-standards",
       "provides": {
         "rules": ["00-std-foundation.mdc", "01-std-solution-hermeneutic.mdc", ...],
-        "commands": ["std.solution.md", "std.plan.md", ...],
+        "commands": ["std-solution.md", "std-plan.md", ...],
         "skills": ["hermeneutic-solution", "teleological-planning", ...],
-        "agents": ["std.planner.md", "std.verifier.md", ...]
+        "agents": ["std-planner.md", "std-verifier.md", ...]
       },
       "requires": [],
       "tags": ["enterprise", "core"]
@@ -357,7 +357,7 @@ Choose quality and governance controls:
     "added": [
       "rules/00-std-foundation.mdc",
       "rules/20-web-react-tailwind.mdc",
-      "commands/std.solution.md"
+      "commands/std-solution.md"
     ],
     "modified": [
       "rules/30-api-node-fastify.mdc"
@@ -450,15 +450,16 @@ my-project/
 │   │   ├── 20-web-react-tailwind.mdc
 │   │   └── ...
 │   ├── commands/
-│   │   ├── std.solution.md
 │   │   ├── web.react.build-screen.md
 │   │   └── ...
 │   ├── skills/
 │   │   ├── hermeneutic-solution/
 │   │   │   └── SKILL.md
+│   │   ├── std-solution/
+│   │   │   └── SKILL.md
 │   │   └── ...
 │   └── agents/
-│       ├── std.planner.md
+│       ├── std-planner.md
 │       └── ...
 ├── stack.profile.json
 └── cursor.lock.json

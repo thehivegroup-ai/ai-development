@@ -195,19 +195,19 @@ examples/react-fastify-postgres-aws/
 
 ```bash
 # 1. Frame the feature
-/std.solution
+/std-solution
 
 # 2. Plan implementation
-/std.plan
+/std-plan
 
 # 3. Build feature
 /web.react.build-screen
 
 # 4. Clean and review
-/std.clean-sweep
+/std-clean-sweep
 
 # 5. Run unit tests
-/std.test-loop
+/std-test-loop
 
 # 6. Run visual parity tests
 /test.parity.capture-all
@@ -217,7 +217,7 @@ examples/react-fastify-postgres-aws/
 /test.parity.fix-from-report
 
 # 8. Deploy
-/std.deploy-release
+/std-deploy-release
 ```
 
 ### Adding Visual Parity Module

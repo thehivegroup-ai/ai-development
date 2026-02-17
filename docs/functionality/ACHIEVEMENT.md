@@ -47,9 +47,9 @@ Successfully completed **ALL 7 planned initiatives** for the AI Development syst
 - **Impact:** Dependency tracking, version management
 
 ### ✅ Initiative 6: Agent Enhancements
-- std.planner (500+ lines)
-- std.debugger (400+ lines)
-- std.verifier (600+ lines)
+- std-planner (500+ lines)
+- std-debugger (400+ lines)
+- std-verifier (600+ lines)
 - test.parity-critic (550+ lines)
 - **Files:** 4 enhanced agents, 1,300+ lines
 - **Impact:** Systematic processes with examples
@@ -149,7 +149,7 @@ Successfully completed **ALL 7 planned initiatives** for the AI Development syst
 ### Quality Assurance
 - Visual regression testing
 - Code review agents
-- Quality gates (std.verifier)
+- Quality gates (std-verifier)
 - Test coverage patterns
 - Security best practices
 
@@ -296,9 +296,9 @@ install_environment({
 
 ### 4. Enhanced Agents
 ```
-Invoke std.planner → Validates plan with scoring
-Invoke std.debugger → 7-step systematic debugging
-Invoke std.verifier → 7-category quality checklist
+Invoke std-planner → Validates plan with scoring
+Invoke std-debugger → 7-step systematic debugging
+Invoke std-verifier → 7-category quality checklist
 Invoke test.parity-critic → Evidence-based validation
 ```
 
@@ -401,9 +401,9 @@ Invoke test.parity-critic → Evidence-based validation
 - JSON Schema
 
 ### Enhanced Agents (4 files)
-- std.planner (+287 lines)
-- std.debugger (+386 lines)
-- std.verifier (+474 lines)
+- std-planner (+287 lines)
+- std-debugger (+386 lines)
+- std-verifier (+474 lines)
 - test.parity-critic (+179 lines)
 
 **TOTAL: 140+ files**

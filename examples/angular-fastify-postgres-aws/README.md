@@ -84,11 +84,11 @@ cp -r ../ai-development/modules/stack-authorities/cloud/aws/cursor/* .cursor/
 ## Key Commands
 
 ### Workflow Commands
-- `/std.solution` - Frame the problem using hermeneutic circle
-- `/std.plan` - Create teleological execution plan
-- `/std.clean-sweep` - Code cleanup and review
-- `/std.test-loop` - Testing workflow
-- `/std.deploy-release` - Deployment preparation
+- `/std-solution` - Frame the problem using hermeneutic circle
+- `/std-plan` - Create teleological execution plan
+- `/std-clean-sweep` - Code cleanup and review
+- `/std-test-loop` - Testing workflow
+- `/std-deploy-release` - Deployment preparation
 
 ### Frontend Commands
 - `/web.angular.template-audit` - Audit Angular templates and forms
@@ -217,10 +217,10 @@ After installation, your `.cursor/` directory will contain:
 ### Feature: User Management with Forms
 
 ```
-1. /std.solution
+1. /std-solution
    - Frame: "Add user management with complex forms"
    
-2. /std.plan
+2. /std-plan
    - Plan: API endpoints, Angular forms, database schema
    
 3. /db.postgres.migration
@@ -242,10 +242,10 @@ After installation, your `.cursor/` directory will contain:
 7. /web.angular.template-audit
    - Audit forms and data integration
    
-8. /std.clean-sweep
+8. /std-clean-sweep
    - Review and clean code
    
-9. /std.test-loop
+9. /std-test-loop
    - Run tests with data-testid attributes
    
 10. /cloud.aws.deploy
@@ -351,7 +351,7 @@ All Angular patterns include `data-testid` attributes for E2E testing:
    - `.cursor/skills/angular-data-integration/SKILL.md`
    - `.cursor/skills/angular-tailwind-standards/SKILL.md`
 4. Type `/` to see available commands
-5. Start building with `/std.solution`
+5. Start building with `/std-solution`
 6. Use `/web.angular.template-audit` to verify patterns
 
 ## Angular MCP Integration

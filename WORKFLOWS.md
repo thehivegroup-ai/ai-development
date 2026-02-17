@@ -279,14 +279,14 @@ Agent presents result
 
 **Phase 1: Solution**
 ```
-/std.solution
+/std-solution
 ```
 - Define auth approach (JWT vs session, etc.)
 - Identify frontend + backend + database changes
 
 **Phase 2: Plan**
 ```
-/std.plan
+/std-plan
 ```
 - Break into tasks:
   1. Database schema (users table, sessions)
@@ -316,13 +316,13 @@ Frontend:
 
 **Phase 4: Verify**
 ```
-/std.clean-sweep
-/std.test-loop
+/std-clean-sweep
+/std-test-loop
 ```
 
 **Phase 5: Deploy**
 ```
-/std.deploy-release
+/std-deploy-release
 /cloud.aws.preflight
 ```
 
@@ -396,8 +396,8 @@ Commands can invoke other commands:
 
 1. Confirm requirements
 2. Implement screen
-3. Run `/std.clean-sweep`
-4. Run `/std.test-loop`
+3. Run `/std-clean-sweep`
+4. Run `/std-test-loop`
 ```
 
 ---
@@ -510,11 +510,6 @@ Result:
     50-cloud-aws.mdc
     90-ctrl-base.mdc
   commands/
-    std.solution.md
-    std.plan.md
-    std.clean-sweep.md
-    std.test-loop.md
-    std.deploy-release.md
     web.react.build-screen.md
     web.react.compare-screens.md
     api.fastify.add-route.md
@@ -522,6 +517,11 @@ Result:
     cloud.aws.preflight.md
     ctrl.base.check.md
   skills/
+    std-solution/
+    std-plan/
+    std-clean-sweep/
+    std-test-loop/
+    std-deploy-release/
     hermeneutic-solution/
     teleological-planning/
     engineering-hygiene/
@@ -532,9 +532,9 @@ Result:
     aws-infra-standards/
     project-basics/
   agents/
-    std.planner.md
-    std.verifier.md
-    std.debugger.md
+    std-planner.md
+    std-verifier.md
+    std-debugger.md
     web.react-critic.md
     api.fastify-debugger.md
     db.postgres-reviewer.md
@@ -841,7 +841,7 @@ Is it production-bound?
 
 #### Step 1: Solution
 ```
-/std.solution
+/std-solution
 ```
 
 **Agent Response:**
@@ -872,7 +872,7 @@ Is it production-bound?
 
 #### Step 2: Plan
 ```
-/std.plan
+/std-plan
 ```
 
 **Agent Response:**
@@ -923,7 +923,7 @@ Is it production-bound?
 
 #### Step 4: Clean
 ```
-/std.clean-sweep
+/std-clean-sweep
 ```
 
 Verifies:
@@ -936,7 +936,7 @@ Verifies:
 
 #### Step 5: Test
 ```
-/std.test-loop
+/std-test-loop
 ```
 
 Runs:
@@ -948,7 +948,7 @@ Runs:
 
 #### Step 6: Verify
 ```
-/std.verifier subagent
+/std-verifier subagent
 ```
 
 Independently checks:
@@ -961,10 +961,10 @@ Independently checks:
 ## Command Reference by Workflow
 
 ### Discovery & Solution
-- `/std.solution` – Frame the problem and solution
+- `/std-solution` – Frame the problem and solution
 
 ### Planning
-- `/std.plan` – Create execution plan
+- `/std-plan` – Create execution plan
 
 ### Implementation (Stack-Specific)
 - `/web.react.build-screen` – Build React UI
@@ -976,13 +976,13 @@ Independently checks:
 - `/db.sqlserver.migration` – Create SQL Server migration
 
 ### Quality & Testing
-- `/std.clean-sweep` – Clean and review changes
-- `/std.test-loop` – Run tests and fix failures
+- `/std-clean-sweep` – Clean and review changes
+- `/std-test-loop` – Run tests and fix failures
 - `/web.react.compare-screens` – Compare UI consistency
 - `/db.postgres.performance-check` – Check DB performance
 
 ### Deployment
-- `/std.deploy-release` – Prepare release
+- `/std-deploy-release` – Prepare release
 - `/cloud.aws.preflight` – AWS preflight checks
 - `/cloud.aws.deploy` – AWS deployment
 - `/cloud.gcp.preflight` – GCP preflight checks
@@ -997,9 +997,9 @@ Independently checks:
 ## Subagent Reference by Purpose
 
 ### General Purpose
-- `std.planner` – Converts intent to structured plan
-- `std.verifier` – Validates completed work
-- `std.debugger` – Root-cause analysis for failures
+- `std-planner` – Converts intent to structured plan
+- `std-verifier` – Validates completed work
+- `std-debugger` – Root-cause analysis for failures
 
 ### Stack-Specific
 - `web.react-critic` – UI consistency for React
@@ -1123,22 +1123,22 @@ Independently checks:
 **User:** "Login button isn't working"
 
 **Workflow:**
-1. Agent auto-invokes `std.debugger` subagent
+1. Agent auto-invokes `std-debugger` subagent
 2. Debugger reproduces issue and identifies root cause
 3. Agent fixes issue
-4. `/std.test-loop` verifies fix
-5. `/std.clean-sweep` ensures clean state
+4. `/std-test-loop` verifies fix
+5. `/std-clean-sweep` ensures clean state
 
 ### Scenario 2: New Feature
 
 **User:** "Add shopping cart"
 
 **Workflow:**
-1. `/std.solution` – Frame the feature
-2. `/std.plan` – Break into tasks
+1. `/std-solution` – Frame the feature
+2. `/std-plan` – Break into tasks
 3. Execute with stack commands
-4. `/std.verifier` validates completeness
-5. `/std.deploy-release` prepares for prod
+4. `/std-verifier` validates completeness
+5. `/std-deploy-release` prepares for prod
 
 ### Scenario 3: Refactor
 
@@ -1148,7 +1148,7 @@ Independently checks:
 1. `/web.react.compare-screens` – Analyze current state
 2. `/web.react.tailwind-refactor` – Refactor to standards
 3. `/web.react-critic` – Review consistency
-4. `/std.test-loop` – Verify no breakage
+4. `/std-test-loop` – Verify no breakage
 
 ### Scenario 4: Security Review
 

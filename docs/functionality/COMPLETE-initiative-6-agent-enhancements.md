@@ -19,9 +19,9 @@ All agents now include:
 
 ---
 
-## Agent 1: std.planner (Enhanced) ✅
+## Agent 1: std-planner (Enhanced) ✅
 
-**File:** `modules/enterprise-standards/cursor/agents/std.planner.md`
+**File:** `modules/enterprise-standards/cursor/agents/std-planner.md`
 
 **Enhancements:**
 - **Comprehensive validation output template** with 9 sections
@@ -45,9 +45,9 @@ All agents now include:
 
 ---
 
-## Agent 2: std.debugger (Enhanced) ✅
+## Agent 2: std-debugger (Enhanced) ✅
 
-**File:** `modules/enterprise-standards/cursor/agents/std.debugger.md`
+**File:** `modules/enterprise-standards/cursor/agents/std-debugger.md`
 
 **Enhancements:**
 - **7-step systematic debugging process**
@@ -77,9 +77,9 @@ All agents now include:
 
 ---
 
-## Agent 3: std.verifier (Enhanced) ✅
+## Agent 3: std-verifier (Enhanced) ✅
 
-**File:** `modules/enterprise-standards/cursor/agents/std.verifier.md`
+**File:** `modules/enterprise-standards/cursor/agents/std-verifier.md`
 
 **Enhancements:**
 - **7-category comprehensive checklist**
@@ -142,9 +142,9 @@ All agents now include:
 ## Total Impact
 
 ### Lines of Documentation Added
-- std.planner: +287 lines (213 → 500)
-- std.debugger: +386 lines (14 → 400)
-- std.verifier: +474 lines (126 → 600)
+- std-planner: +287 lines (213 → 500)
+- std-debugger: +386 lines (14 → 400)
+- std-verifier: +474 lines (126 → 600)
 - test.parity-critic: +179 lines (371 → 550)
 
 **Total:** +1,326 lines of agent guidance
@@ -173,32 +173,32 @@ Every agent knows when to:
 
 ### 6. Personality & Voice ✓
 Every agent has clear personality traits:
-- std.planner: Rigorous but constructive
-- std.debugger: Methodical and evidence-based
-- std.verifier: Thorough but pragmatic
+- std-planner: Rigorous but constructive
+- std-debugger: Methodical and evidence-based
+- std-verifier: Thorough but pragmatic
 - test.parity-critic: Meticulous and evidence-driven
 
 ---
 
 ## Integration with Workflows
 
-### std.solution → std.planner → std.verifier → Deploy
+### std-solution → std-planner → std-verifier → Deploy
 ```
-1. Frame problem (/std.solution)
-2. Create plan (/std.plan)
-3. Invoke std.planner to validate plan
+1. Frame problem (/std-solution)
+2. Create plan (/std-plan)
+3. Invoke std-planner to validate plan
 4. Build feature
-5. Invoke std.verifier for quality gate
-6. Deploy (/std.deploy-release)
+5. Invoke std-verifier for quality gate
+6. Deploy (/std-deploy-release)
 ```
 
 ### Bug Investigation Flow
 ```
 1. Bug reported
-2. Invoke std.debugger
+2. Invoke std-debugger
 3. Follow 7-step process
 4. Apply fix
-5. Invoke std.verifier
+5. Invoke std-verifier
 6. Deploy fix
 ```
 
@@ -218,17 +218,17 @@ Every agent has clear personality traits:
 
 ### Pattern 1: Feature Development
 ```
-std.planner (validate plan) →
+std-planner (validate plan) →
   Implementation →
-    std.verifier (quality gate) →
+    std-verifier (quality gate) →
       Deployment
 ```
 
 ### Pattern 2: Bug Investigation
 ```
-std.debugger (find root cause) →
+std-debugger (find root cause) →
   Fix →
-    std.verifier (confirm fix) →
+    std-verifier (confirm fix) →
       Deployment
 ```
 
@@ -244,7 +244,7 @@ Capture →
 ```
 Stack-specific critic (review code) →
   Refactor →
-    std.verifier (quality check) →
+    std-verifier (quality check) →
       Deploy
 ```
 
@@ -307,7 +307,7 @@ Stack-specific critic (review code) →
 
 ## Examples of Agent Output
 
-### std.planner Output
+### std-planner Output
 ```markdown
 ## Teleological Planning Validation
 
@@ -322,7 +322,7 @@ Stack-specific critic (review code) →
 [Detailed analysis with specific fixes required]
 ```
 
-### std.debugger Output
+### std-debugger Output
 ```markdown
 ## Root Cause Identified ✅
 
@@ -335,7 +335,7 @@ Stack-specific critic (review code) →
 [Verification steps]
 ```
 
-### std.verifier Output
+### std-verifier Output
 ```markdown
 # Feature Verification Report
 

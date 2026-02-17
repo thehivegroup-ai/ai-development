@@ -35,7 +35,7 @@ Solutions may not be proposed until:
 ## What This Rule Does NOT Do
 
 - Does NOT explain how to interpret (see `hermeneutic-solution` skill)
-- Does NOT provide interpretive method (use `/std.solution` command)
+- Does NOT provide interpretive method (use `/std-solution` command)
 - Does NOT test interpretation (subagents do this)
 
 This rule only **enforces that interpretation happens before action**.

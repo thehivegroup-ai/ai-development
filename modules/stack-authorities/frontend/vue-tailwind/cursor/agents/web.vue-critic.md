@@ -318,7 +318,7 @@ For each component, verify:
 
 ## When to Escalate
 
-Escalate to `/std.solution` if:
+Escalate to `/std-solution` if:
 - Component architecture is unclear
 - Major refactoring needed
 - Performance concerns

@@ -465,7 +465,7 @@ All evidence preserved in:
 **All viewports:** Pixel-perfect or under 1% threshold
 **No blockers:** Ready for deployment
 
-**Handoff:** Proceed to `/std.deploy-release`
+**Handoff:** Proceed to `/std-deploy-release`
 ```
 
 ### When Parity NOT ACHIEVED → Block with Specifics

@@ -135,16 +135,16 @@ list_modules()
           "06-std-workflow-modes.mdc"
         ],
         "commands": [
-          "std.clean-sweep.md",
-          "std.deploy-release.md",
-          "std.plan.md",
-          "std.solution.md",
-          "std.test-loop.md"
+          "std-clean-sweep.md",
+          "std-deploy-release.md",
+          "std-plan.md",
+          "std-solution.md",
+          "std-test-loop.md"
         ],
         "agents": [
-          "std.debugger.md",
-          "std.planner.md",
-          "std.verifier.md"
+          "std-debugger.md",
+          "std-planner.md",
+          "std-verifier.md"
         ],
         "skills": [
           "engineering-hygiene",

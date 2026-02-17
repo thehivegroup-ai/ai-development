@@ -84,11 +84,11 @@ cp -r ../ai-development/modules/stack-authorities/cloud/aws/cursor/* .cursor/
 ## Key Commands
 
 ### Workflow Commands
-- `/std.solution` - Frame the problem using hermeneutic circle
-- `/std.plan` - Create teleological (goal-driven) execution plan
-- `/std.clean-sweep` - Code cleanup and review
-- `/std.test-loop` - Testing workflow
-- `/std.deploy-release` - Deployment preparation
+- `/std-solution` - Frame the problem using hermeneutic circle
+- `/std-plan` - Create teleological (goal-driven) execution plan
+- `/std-clean-sweep` - Code cleanup and review
+- `/std-test-loop` - Testing workflow
+- `/std-deploy-release` - Deployment preparation
 
 ### Frontend Commands
 - `/web.react.build-screen` - Build React component with Tailwind
@@ -185,10 +185,10 @@ After installation, your `.cursor/` directory will contain:
 ### Feature Development
 
 ```
-1. /std.solution
+1. /std-solution
    - Frame: "Add user authentication with JWT"
    
-2. /std.plan
+2. /std-plan
    - Plan phases: API endpoints, React components, database schema
    
 3. /db.postgres.migration
@@ -200,10 +200,10 @@ After installation, your `.cursor/` directory will contain:
 5. /web.react.build-screen
    - Build Login and Register components
    
-6. /std.clean-sweep
+6. /std-clean-sweep
    - Review and clean code
    
-7. /std.test-loop
+7. /std-test-loop
    - Run tests and fix issues
    
 8. /cloud.aws.preflight
@@ -220,7 +220,7 @@ After installation, your `.cursor/` directory will contain:
 3. Type `/` to see available commands
 4. Review `.cursor/` directory structure
 5. Check `cursor.lock.json` for version tracking
-6. Start building with `/std.solution`
+6. Start building with `/std-solution`
 
 ## Support
 

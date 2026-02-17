@@ -1,10 +1,7 @@
 ---
 description: "Fastify API constraints."
 alwaysApply: false
-globs:
-  - "**/routes/**/*.ts"
-  - "**/api/**/*.ts"
-  - "**/services/**/*.ts"
+globs: **/routes/**/*.ts,**/api/**/*.ts,**/services/**/*.ts
 ---
 
 # API Node Fastify

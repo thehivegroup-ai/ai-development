@@ -157,18 +157,18 @@ Before execution:
 - [ ] Risks have mitigation strategies
 - [ ] Phase order is logical (foundation → final)
 - [ ] Rollback strategy defined
-- [ ] std.planner agent validated this plan
+- [ ] std-planner agent validated this plan
 
 ---
 
 ## Next Steps
 
-1. Validate this plan with `/std.plan`
-2. Invoke `std.planner` agent for validation
+1. Validate this plan with `/std-plan`
+2. Invoke `std-planner` agent for validation
 3. Address any gaps identified
 4. Once validated, begin Phase 1
 5. Verify each phase gate before proceeding
-6. After completion, invoke `std.verifier`
+6. After completion, invoke `std-verifier`
 
 ---
 

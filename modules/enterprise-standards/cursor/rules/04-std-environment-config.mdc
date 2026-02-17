@@ -1,11 +1,7 @@
 ---
 description: "Environment configuration and secrets management."
 alwaysApply: false
-globs:
-  - "**/.env*"
-  - "**/config/**"
-  - "**/*.config.js"
-  - "**/*.config.ts"
+globs: **/.env*,**/config/**,**/*.config.js,**/*.config.ts
 ---
 
 # Environment Configuration

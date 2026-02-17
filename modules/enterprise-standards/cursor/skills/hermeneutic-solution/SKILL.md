@@ -264,12 +264,12 @@ But: "Checkout abandonment increased 40% because API response times exceed user 
 
 **Use subagents to stress-test:**
 
-**Invoke `std.planner`:**
+**Invoke `std-planner`:**
 - "Can this interpretation be planned from?"
 - "What's missing for feasibility?"
 - "What ambiguity blocks execution?"
 
-**Invoke `std.verifier`:**
+**Invoke `std-verifier`:**
 - "Does this interpretation hold together?"
 - "Are there internal contradictions?"
 - "Does this explain the observed evidence?"
@@ -305,7 +305,7 @@ Is interpretation stable enough to plan from?
 
 **If YES:**
 - Document final interpretation
-- Move to `/std.plan`
+- Move to `/std-plan`
 
 **If NO:**
 - Gather more evidence
@@ -422,7 +422,7 @@ Every interpretation produces this document:
 - Interpretation feels good, skip straight to planning
 - Discover halfway through that interpretation was flawed
 
-**Fix:** Always invoke `std.planner` and `std.verifier` (Step 7).
+**Fix:** Always invoke `std-planner` and `std-verifier` (Step 7).
 
 ---
 
@@ -450,14 +450,14 @@ Every interpretation produces this document:
 - `01-std-solution-hermeneutic.mdc` requires interpretation before solutions
 
 **Commands trigger** the interpretive loop:
-- `/std.solution` initiates this skill
+- `/std-solution` initiates this skill
 
 **Subagents challenge** the interpretation:
-- `std.planner` tests feasibility
-- `std.verifier` tests consistency
+- `std-planner` tests feasibility
+- `std-verifier` tests consistency
 
 **Planning consumes** the interpretation:
-- `/std.plan` uses artifacts as input
+- `/std-plan` uses artifacts as input
 - Teleological planning builds backward from desired outcome
 
 ---

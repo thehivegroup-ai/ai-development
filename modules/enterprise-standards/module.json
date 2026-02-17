@@ -16,22 +16,26 @@
       "06-std-workflow-modes.mdc",
       "07-std-evidence-based-claims.mdc"
     ],
-    "commands": [
-      "std.clean-sweep.md",
-      "std.deploy-release.md",
-      "std.plan.md",
-      "std.solution.md",
-      "std.test-loop.md"
-    ],
     "skills": [
       "engineering-hygiene",
       "hermeneutic-solution",
-      "teleological-planning"
+      "heuristic-design-review",
+      "teleological-planning",
+      "std-solution",
+      "std-plan",
+      "std-clean-sweep",
+      "std-test-loop",
+      "std-deploy-release",
+      "std-design-review"
     ],
     "agents": [
-      "std.debugger.md",
-      "std.planner.md",
-      "std.verifier.md"
+      "std-debugger.md",
+      "std-planner.md",
+      "std-verifier.md",
+      "ux-heuristic-evaluator.md",
+      "ux-visual-design-critic.md",
+      "ux-platform-evaluator.md",
+      "ux-accessibility-auditor.md"
     ]
   },
   "requires": [],

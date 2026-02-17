@@ -233,7 +233,7 @@ EOF
 **Parity Status: ✅ ACHIEVED**
 
 ### Next Step
-Run tests (`/std.test-loop`) to verify no regressions, then proceed to DEPLOY-RELEASE.
+Run tests (`/std-test-loop`) to verify no regressions, then proceed to DEPLOY-RELEASE.
 ```
 
 ---

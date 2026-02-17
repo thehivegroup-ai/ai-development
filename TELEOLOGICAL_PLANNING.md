@@ -81,9 +81,9 @@ Commands are the **formal entry point into planning**.
 
 ### Implementation
 
-**File:** `modules/enterprise-standards/cursor/commands/std.plan.md`
+**File:** `modules/enterprise-standards/cursor/skills/std-plan/SKILL.md`
 
-**Command:** `/std.plan`
+**Command:** `/std-plan`
 
 ### What the Command Does
 
@@ -221,9 +221,9 @@ They represent **goal accountability**.
 
 ### Implementation
 
-#### std.planner
+#### std-planner
 
-**File:** `modules/enterprise-standards/cursor/agents/std.planner.md`
+**File:** `modules/enterprise-standards/cursor/agents/std-planner.md`
 
 **Role in PLAN mode:** Validates **outcome-task alignment**
 
@@ -243,9 +243,9 @@ They represent **goal accountability**.
 
 ---
 
-#### std.verifier
+#### std-verifier
 
-**File:** `modules/enterprise-standards/cursor/agents/std.verifier.md`
+**File:** `modules/enterprise-standards/cursor/agents/std-verifier.md`
 
 **Role in PLAN mode:** Validates **internal consistency**
 
@@ -288,7 +288,7 @@ They represent **goal accountability**.
    └─> Success criteria defined
 
 2. Command invoked
-   └─> /std.plan
+   └─> /std-plan
 
 3. Rules activate
    └─> End-state required
@@ -301,8 +301,8 @@ They represent **goal accountability**.
    └─> Produces plan artifact
 
 5. Subagents review
-   └─> std.planner validates outcome-task alignment
-   └─> std.verifier validates consistency
+   └─> std-planner validates outcome-task alignment
+   └─> std-verifier validates consistency
    └─> Identify gaps and risks
 
 6. Plan refined
@@ -506,7 +506,7 @@ Checkout API response time <1 second for 95th percentile under peak load.
 ### Step 1: Command Invoked
 
 ```
-/std.plan
+/std-plan
 ```
 
 ---
@@ -679,12 +679,12 @@ Phase 1: Profiling Capability Exists
 
 ---
 
-### Step 8: Challenge with std.planner
+### Step 8: Challenge with std-planner
 
 **Subagent review:**
 
 ```markdown
-## Teleological Planning Validation (std.planner)
+## Teleological Planning Validation (std-planner)
 
 ### Is This Plan Complete?
 Yes. Plan is comprehensive and properly derived backward.
