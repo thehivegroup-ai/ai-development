@@ -1,0 +1,36 @@
+{
+  "$schema": "../../../../../../schemas/module.schema.json",
+  "id": "authentication/keycloak-bff",
+  "type": "stack-authority",
+  "name": "Keycloak BFF Authentication",
+  "description": "Backend-for-Frontend authentication with Keycloak using OIDC, JWT verification, and role-based access control",
+  "version": "1.0.0",
+  "provides": {
+    "rules": [
+      "60-auth-keycloak-bff.mdc"
+    ],
+    "commands": [
+      "auth.keycloak.setup.md",
+      "auth.keycloak.add-protected-route.md"
+    ],
+    "skills": [
+      "keycloak-bff-auth"
+    ],
+    "agents": [
+      "auth.keycloak-reviewer.md"
+    ]
+  },
+  "requires": [""],
+  "compatibility": {
+    "cursor": ">=0.40.0",
+    "modules": {
+      "": "*",
+      "backend/node-fastify": "*",
+      "frontend/react-tailwind": "*",
+      "frontend/angular-tailwind": "*"
+    }
+  },
+  "tags": ["authentication", "keycloak", "oidc", "jwt", "rbac", "bff", "security"],
+  "author": "The Hive Group",
+  "license": "MIT"
+}

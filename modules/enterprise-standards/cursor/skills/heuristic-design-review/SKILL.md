@@ -366,6 +366,8 @@ Both dimensions must be evaluated. A usable interface with poor visual design fa
 - Who are the target users? (personas, experience level)
 - What is the primary user task on this screen?
 - What design system or standards apply?
+- Do `docs/design/` files exist? Read them as evaluation baseline.
+- Does `.cursor/rules/design-system.mdc` exist? If not, recommend creating one.
 
 **Output:**
 ```markdown

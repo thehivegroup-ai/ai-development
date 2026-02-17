@@ -1,0 +1,32 @@
+{
+  "$schema": "../../../../schemas/module.schema.json",
+  "id": "app-review",
+  "type": "project-control",
+  "name": "Application Review",
+  "description": "Structured discovery and documentation of an existing application's architecture, patterns, and conventions",
+  "version": "1.0.0",
+  "provides": {
+    "rules": [
+      "92-ctrl-app-review.mdc"
+    ],
+    "commands": [
+      "ctrl.app-review.discover.md"
+    ],
+    "skills": [
+      "app-review"
+    ],
+    "agents": [
+      "ctrl.app-reviewer.md"
+    ]
+  },
+  "requires": ["base"],
+  "compatibility": {
+    "cursor": ">=0.40.0",
+    "modules": {
+      "base": "*"
+    }
+  },
+  "tags": ["controls", "discovery", "documentation", "onboarding", "architecture", "review"],
+  "author": "The Hive Group",
+  "license": "MIT"
+}

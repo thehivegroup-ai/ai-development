@@ -34,6 +34,8 @@ Evaluate UI design quality systematically:
 
 **If no design documentation exists, read `docs/design/` first. If none exists, note this as a finding.**
 
+**If no `.cursor/rules/design-system.mdc` rule exists, recommend creating one** (see `05-std-documentation-organization` rule for template). This ensures design docs are loaded automatically every session.
+
 ---
 
 ## The Evaluation Loop

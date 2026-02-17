@@ -162,6 +162,8 @@ docs/design/
 
 ### When to Create Design Files
 
+**Create the project-level design rule first** (see "Project-Level Design Rule" below). This ensures the agent always knows where design docs live, every session.
+
 **Create `design-system.md` when:**
 - Starting a new project with UI
 - Adopting or defining a design system (Tailwind config, custom tokens)
@@ -468,6 +470,47 @@ Each decision records:
 - ✅ ALWAYS read `docs/design/` at session start for UI work
 - ✅ NEVER make design decisions that contradict documented patterns without updating docs
 - ✅ Treat design docs as the source of truth for visual decisions
+
+### Project-Level Design Rule
+
+When `docs/design/` files are created, **also scaffold a project-level rule** at `.cursor/rules/design-system.mdc` that points the agent to those files every session.
+
+**Why:** Design docs are only useful if the agent reads them. A short `alwaysApply: true` rule ensures the agent loads the design context at the start of every session automatically, without the user having to mention it.
+
+**Create `.cursor/rules/design-system.mdc` when:**
+- The first `docs/design/*.md` file is created
+- A design system, CSS framework config (e.g., `tailwind.config.ts`), or token set is established
+
+**Update `.cursor/rules/design-system.mdc` when:**
+- New design doc files are added to `docs/design/`
+- The CSS framework config file path changes
+- Design doc files are renamed or removed
+
+**Template:**
+
+```markdown
+---
+alwaysApply: true
+---
+These files outline the design of this project:
+
+docs/design/design-system.md
+docs/design/design-patterns.md
+docs/design/design-decisions.md
+docs/design/layout-conventions.md
+docs/design/interaction-patterns.md
+
+- Read them at session start for any UI work.
+- Use them when making design changes to ensure consistency.
+- Update them as design decisions are made (tokens, patterns, layout, interactions).
+- Ensure the CSS framework config (e.g., tailwind.config.ts) matches the design system.
+```
+
+**Rules for scaffolding:**
+- Only list files that actually exist (don't list files that haven't been created yet)
+- Add the CSS framework config line only if one exists in the project
+- Keep it short: the rule is a pointer, not a duplicate of the docs
+- The rule should reference `docs/design/` files, never inline design tokens directly
 
 ## Quality Checklist
 
