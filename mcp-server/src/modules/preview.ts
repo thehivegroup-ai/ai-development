@@ -20,6 +20,7 @@ export interface ChangesSummary {
     commands: number;
     skills: number;
     agents: number;
+    hooks: number;
     other: number;
   };
 }
@@ -36,17 +37,19 @@ export interface ModuleContribution {
     commands: string[];
     skills: string[];
     agents: string[];
+    hooks: string[];
   };
 }
 
 /**
  * Categorize file by type
  */
-function categorizeFile(path: string): 'rules' | 'commands' | 'skills' | 'agents' | 'other' {
+function categorizeFile(path: string): 'rules' | 'commands' | 'skills' | 'agents' | 'hooks' | 'other' {
   if (path.startsWith('rules/')) return 'rules';
   if (path.startsWith('commands/')) return 'commands';
   if (path.startsWith('skills/')) return 'skills';
   if (path.startsWith('agents/')) return 'agents';
+  if (path.startsWith('hooks/') || path === 'hooks.json') return 'hooks';
   return 'other';
 }
 
@@ -65,6 +68,7 @@ export function generateChangesSummary(plan: InstallationPlan): ChangesSummary {
       commands: 0,
       skills: 0,
       agents: 0,
+      hooks: 0,
       other: 0,
     },
   };
@@ -142,12 +146,14 @@ export function generateModuleContributions(modules: ModuleMetadata[]): ModuleCo
       module.provides.rules.length +
       module.provides.commands.length +
       module.provides.skills.length +
-      module.provides.agents.length,
+      module.provides.agents.length +
+      module.provides.hooks.length,
     types: {
       rules: module.provides.rules,
       commands: module.provides.commands,
       skills: module.provides.skills,
       agents: module.provides.agents,
+      hooks: module.provides.hooks,
     },
   }));
 }
@@ -181,6 +187,9 @@ export function generateRichPreview(
   sections.push(`- **Commands:** ${summary.byType.commands} files`);
   sections.push(`- **Skills:** ${summary.byType.skills} directories`);
   sections.push(`- **Agents:** ${summary.byType.agents} files`);
+  if (summary.byType.hooks > 0) {
+    sections.push(`- **Hooks:** ${summary.byType.hooks} files`);
+  }
   if (summary.byType.other > 0) {
     sections.push(`- **Other:** ${summary.byType.other} files`);
   }
@@ -203,6 +212,9 @@ export function generateRichPreview(
     }
     if (contrib.types.agents.length > 0) {
       sections.push(`- **Agents:** ${contrib.types.agents.join(', ')}`);
+    }
+    if (contrib.types.hooks.length > 0) {
+      sections.push(`- **Hooks:** ${contrib.types.hooks.join(', ')}`);
     }
     sections.push('');
   }

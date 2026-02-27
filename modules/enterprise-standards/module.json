@@ -36,6 +36,16 @@
       "ux-visual-design-critic.md",
       "ux-platform-evaluator.md",
       "ux-accessibility-auditor.md"
+    ],
+    "hooks": [
+      "hooks.json",
+      "hooks/git-guard.sh",
+      "hooks/secrets-scanner.sh",
+      "hooks/auto-format.sh",
+      "hooks/hygiene-watchdog.sh",
+      "hooks/session-init.sh",
+      "hooks/track-activity.sh",
+      "hooks/session-guard.sh"
     ]
   },
   "requires": [],

@@ -65,6 +65,13 @@
             "type": "string",
             "pattern": "\\.md$"
           }
+        },
+        "hooks": {
+          "type": "array",
+          "description": "Hook files (hooks.json config and hook scripts)",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },

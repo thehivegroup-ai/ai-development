@@ -1,6 +1,6 @@
 ---
 name: std-deploy-release
-description: Prepare a release-ready checklist with preflight checks and deployment handoff.
+description: Prepare a release-ready checklist with preflight checks and deployment handoff. Use when preparing for a release, running preflight checks, or creating a deployment handoff document.
 disable-model-invocation: true
 ---
 

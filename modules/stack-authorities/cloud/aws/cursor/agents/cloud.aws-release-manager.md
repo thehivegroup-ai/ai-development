@@ -1,6 +1,6 @@
 ---
 name: cloud.aws-release-manager
-description: Release readiness reviewer for AWS deployments.
+description: Release readiness reviewer for AWS deployments. Use when preparing AWS releases, validating CloudFormation/CDK templates, or reviewing deployment security and IAM configurations.
 model: fast
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: postgres-standards
-description: Postgres migration and performance practices.
+description: Postgres migration and performance practices. Use when designing PostgreSQL schemas, writing or reviewing migrations, optimizing queries, or auditing index strategies.
 ---
 
 # Postgres Standards

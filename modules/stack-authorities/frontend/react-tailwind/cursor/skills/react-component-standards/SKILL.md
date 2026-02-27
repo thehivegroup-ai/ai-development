@@ -1,6 +1,6 @@
 ---
 name: react-component-standards
-description: React component patterns for performance, state, and a11y.
+description: React component patterns for performance, state, and a11y. Use when creating or refactoring React components, optimizing render performance, managing component state, or ensuring accessibility compliance.
 ---
 
 # React Component Standards

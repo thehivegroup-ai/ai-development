@@ -1,6 +1,6 @@
 ---
 name: angular-data-integration
-description: Angular HttpClient patterns for API integration with Signals.
+description: Angular HttpClient patterns for API integration with Signals. Use when fetching data from REST APIs in Angular, managing async state with Signals, or implementing loading/error state patterns.
 ---
 
 # Angular Data Integration

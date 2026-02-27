@@ -1,3 +1,8 @@
+---
+name: fastapi-api-standards
+description: FastAPI REST API patterns with Pydantic, SQLAlchemy, and async/await. Use when building FastAPI endpoints, defining Pydantic schemas, setting up dependency injection, or structuring a Python API project.
+---
+
 # Skill: FastAPI API Standards
 
 **Technology:** Python + FastAPI + Pydantic + SQLAlchemy  

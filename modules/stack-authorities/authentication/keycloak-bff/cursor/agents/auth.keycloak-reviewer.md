@@ -1,6 +1,6 @@
 ---
 name: auth.keycloak-reviewer
-description: Reviews and debugs Keycloak BFF authentication implementations for correctness and security.
+description: Reviews and debugs Keycloak BFF authentication implementations for correctness and security. Use when reviewing or debugging Keycloak auth flows, OIDC integration, JWT verification, or RBAC middleware.
 model: fast
 ---
 

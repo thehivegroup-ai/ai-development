@@ -9,7 +9,8 @@
     "rules": [],
     "commands": [],
     "skills": [],
-    "agents": []
+    "agents": [],
+    "hooks": []
   },
   "requires": [],
   "compatibility": {

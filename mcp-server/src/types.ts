@@ -33,6 +33,7 @@ export interface ModuleProvides {
   commands: string[];
   skills: string[];
   agents: string[];
+  hooks: string[];
 }
 
 /**

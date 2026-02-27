@@ -105,6 +105,52 @@ export async function validateEnvironment(
     }
   }
 
+  // Validate hooks configuration
+  const hooksJson = join(cursorPath, 'hooks.json');
+  if (await pathExists(hooksJson)) {
+    try {
+      const content = await readFile(hooksJson, 'utf-8');
+      const config = JSON.parse(content);
+      
+      if (!config.version) {
+        warnings.push({
+          code: 'HOOKS_MISSING_VERSION',
+          message: 'hooks.json is missing version field',
+          path: '.cursor/hooks.json',
+          severity: 'warning',
+        });
+      }
+      
+      // Validate referenced hook scripts exist
+      if (config.hooks) {
+        for (const [event, hooks] of Object.entries(config.hooks)) {
+          if (Array.isArray(hooks)) {
+            for (const hook of hooks as Array<{ command?: string }>) {
+              if (hook.command && hook.command.startsWith('.cursor/hooks/')) {
+                const scriptPath = join(projectPath, hook.command);
+                if (!(await pathExists(scriptPath))) {
+                  issues.push({
+                    code: 'MISSING_HOOK_SCRIPT',
+                    message: `Hook script not found: ${hook.command} (referenced in ${event})`,
+                    path: hook.command,
+                    severity: 'error',
+                  });
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch {
+      issues.push({
+        code: 'INVALID_HOOKS_JSON',
+        message: 'hooks.json is not valid JSON',
+        path: '.cursor/hooks.json',
+        severity: 'error',
+      });
+    }
+  }
+
   // Check naming conventions
   const rulesDir = join(cursorPath, 'rules');
   if (await isDirectory(rulesDir)) {

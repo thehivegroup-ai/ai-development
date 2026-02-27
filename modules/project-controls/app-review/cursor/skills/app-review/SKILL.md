@@ -1,6 +1,6 @@
 ---
 name: app-review
-description: Structured discovery and documentation of an existing application's architecture, patterns, and conventions.
+description: Structured discovery and documentation of an existing application's architecture, patterns, and conventions. Use when onboarding to an unfamiliar project, first time working with a codebase, or when generating architecture documentation for a repository.
 ---
 
 # Application Review

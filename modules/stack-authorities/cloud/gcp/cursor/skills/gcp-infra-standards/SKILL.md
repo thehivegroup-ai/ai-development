@@ -1,6 +1,6 @@
 ---
 name: gcp-infra-standards
-description: GCP infrastructure and deployment practices.
+description: GCP infrastructure and deployment practices. Use when planning GCP infrastructure, writing Terraform for GCP, configuring IAM and service accounts, or reviewing deployment readiness.
 ---
 
 # GCP Infra Standards

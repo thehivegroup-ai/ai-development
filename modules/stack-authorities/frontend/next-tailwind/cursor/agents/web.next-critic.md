@@ -1,6 +1,6 @@
 ---
 name: web.next-critic
-description: Reviews Next.js route structure and component boundaries.
+description: Reviews Next.js route structure and component boundaries. Use when reviewing Next.js App Router layouts, server/client component boundaries, or data fetching patterns.
 model: fast
 ---
 

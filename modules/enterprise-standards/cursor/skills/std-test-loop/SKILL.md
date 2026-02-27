@@ -1,6 +1,6 @@
 ---
 name: std-test-loop
-description: Run tests, fix failures, and re-verify until all tests pass.
+description: Run tests, fix failures, and re-verify until all tests pass. Use when tests are failing and need systematic fixing, or when iterating through a test-fix-verify cycle.
 disable-model-invocation: true
 ---
 

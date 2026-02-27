@@ -1,3 +1,8 @@
+---
+name: azure-infra-standards
+description: Azure infrastructure patterns with Bicep templates, Managed Identities, and Key Vault. Use when provisioning Azure resources, writing Bicep templates, configuring identity and secrets management, or reviewing cloud infrastructure.
+---
+
 # Skill: Azure Infrastructure Standards
 
 **Technology:** Microsoft Azure + Bicep  

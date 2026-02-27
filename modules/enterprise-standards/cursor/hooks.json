@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": ".cursor/hooks/session-init.sh",
+        "timeout": 5
+      }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": ".cursor/hooks/git-guard.sh",
+        "matcher": "git"
+      }
+    ],
+    "afterFileEdit": [
+      {
+        "command": ".cursor/hooks/auto-format.sh",
+        "timeout": 10
+      },
+      {
+        "command": ".cursor/hooks/secrets-scanner.sh",
+        "timeout": 5
+      },
+      {
+        "command": ".cursor/hooks/hygiene-watchdog.sh",
+        "timeout": 5
+      }
+    ],
+    "afterShellExecution": [
+      {
+        "command": ".cursor/hooks/track-activity.sh",
+        "timeout": 5
+      }
+    ],
+    "stop": [
+      {
+        "command": ".cursor/hooks/session-guard.sh",
+        "timeout": 5
+      }
+    ]
+  }
+}

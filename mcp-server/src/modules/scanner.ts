@@ -83,7 +83,8 @@ async function scanCursorDirectory(cursorPath: string): Promise<ModuleProvides> 
     rules: [],
     commands: [],
     skills: [],
-    agents: []
+    agents: [],
+    hooks: []
   };
   
   // Scan rules/
@@ -123,6 +124,20 @@ async function scanCursorDirectory(cursorPath: string): Promise<ModuleProvides> 
   if (await directoryExists(agentsDir)) {
     const files = await getFiles(agentsDir);
     provides.agents = files.filter(f => f.endsWith('.md'));
+  }
+  
+  // Scan hooks/ and hooks.json
+  const hooksDir = join(cursorPath, 'hooks');
+  const hooksJson = join(cursorPath, 'hooks.json');
+  try {
+    await stat(hooksJson);
+    provides.hooks.push('hooks.json');
+  } catch {
+    // No hooks.json
+  }
+  if (await directoryExists(hooksDir)) {
+    const files = await getFiles(hooksDir);
+    provides.hooks.push(...files.map(f => `hooks/${f}`));
   }
   
   return provides;
@@ -165,7 +180,8 @@ async function scanModule(modulePath: string, repoRoot: string): Promise<ModuleM
     provides.rules.length === 0 &&
     provides.commands.length === 0 &&
     provides.skills.length === 0 &&
-    provides.agents.length === 0
+    provides.agents.length === 0 &&
+    provides.hooks.length === 0
   ) {
     return null;
   }

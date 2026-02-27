@@ -1,6 +1,6 @@
 ---
 name: ctrl.security-reviewer
-description: Security and compliance reviewer for regulated work.
+description: Security and compliance reviewer for regulated work. Use when working on regulated or sensitive systems, reviewing code that handles PII or financial data, or preparing for compliance audits.
 model: fast
 ---
 

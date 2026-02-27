@@ -1,6 +1,6 @@
 ---
 name: react-tailwind-conventions
-description: Tailwind component/utility conventions for React UIs.
+description: Tailwind component/utility conventions for React UIs. Use when building or refactoring React UI with Tailwind CSS, applying design token conventions, or structuring responsive layouts.
 ---
 
 # React Tailwind Conventions

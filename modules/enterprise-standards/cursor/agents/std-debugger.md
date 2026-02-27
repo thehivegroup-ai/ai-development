@@ -1,6 +1,6 @@
 ---
 name: std-debugger
-description: Root-cause analysis for errors and test failures using systematic debugging methodology.
+description: Root-cause analysis for errors and test failures using systematic debugging methodology. Use when encountering errors, investigating test failures, or when a bug resists straightforward fixes.
 model: inherit
 ---
 

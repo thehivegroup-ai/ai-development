@@ -1,6 +1,6 @@
 ---
 name: fastify-api-standards
-description: Fastify API structure, validation, and error handling.
+description: Fastify API structure, validation, and error handling. Use when creating or modifying Fastify routes, adding request validation with JSON Schema, implementing error handling, or structuring Fastify plugins.
 ---
 
 # Fastify API Standards

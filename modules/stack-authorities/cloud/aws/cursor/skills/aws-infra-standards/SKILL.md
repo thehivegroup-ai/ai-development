@@ -1,6 +1,6 @@
 ---
 name: aws-infra-standards
-description: AWS infrastructure and deployment practices.
+description: AWS infrastructure and deployment practices. Use when planning AWS infrastructure, writing CloudFormation or CDK templates, configuring IAM policies, or reviewing deployment readiness.
 ---
 
 # AWS Infra Standards

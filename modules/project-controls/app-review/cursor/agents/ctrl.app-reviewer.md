@@ -1,6 +1,6 @@
 ---
 name: ctrl.app-reviewer
-description: Performs structured discovery of an existing application's architecture, patterns, and conventions.
+description: Performs structured discovery of an existing application's architecture, patterns, and conventions. Use when onboarding to an unfamiliar codebase, before making changes to undocumented projects, or when generating architecture documentation.
 model: fast
 ---
 

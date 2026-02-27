@@ -1,6 +1,6 @@
 ---
 name: test.parity-critic
-description: Validates visual parity claims with evidence from automated comparison reports and challenges assumptions.
+description: Validates visual parity claims with evidence from automated comparison reports and challenges assumptions. Use when verifying visual consistency between production and local/staging environments, or when reviewing screenshot comparison results.
 model: fast
 ---
 

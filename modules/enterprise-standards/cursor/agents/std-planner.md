@@ -1,6 +1,6 @@
 ---
 name: std-planner
-description: Planning specialist that validates outcome-task alignment and challenges incomplete teleological plans.
+description: Planning specialist that validates outcome-task alignment and challenges incomplete teleological plans. Use when validating execution plans, checking that tasks align with desired outcomes, or before starting implementation of a complex feature.
 model: fast
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: std-clean-sweep
-description: Refactor and standardize changes to ensure clean, consistent output.
+description: Refactor and standardize changes to ensure clean, consistent output. Use after implementing changes to clean up code, before handoff or review, or when ensuring consistency across modified files.
 disable-model-invocation: true
 ---
 

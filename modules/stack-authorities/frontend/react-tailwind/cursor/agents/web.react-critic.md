@@ -1,6 +1,6 @@
 ---
 name: web.react-critic
-description: UI consistency reviewer for React + Tailwind.
+description: UI consistency reviewer for React + Tailwind. Use when reviewing React components for Tailwind conventions, accessibility compliance, or component/utility architecture consistency.
 model: fast
 ---
 

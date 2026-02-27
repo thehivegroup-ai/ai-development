@@ -1,6 +1,6 @@
 ---
 name: std-design-review
-description: Trigger a structured heuristic evaluation of UI against usability and visual design principles.
+description: Trigger a structured heuristic evaluation of UI against usability and visual design principles. Use when auditing screens for usability issues, before finalizing UI work, or when design quality needs formal review.
 disable-model-invocation: true
 ---
 

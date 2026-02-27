@@ -1,6 +1,6 @@
 ---
 name: cloud.gcp-release-manager
-description: Release readiness reviewer for GCP deployments.
+description: Release readiness reviewer for GCP deployments. Use when preparing GCP releases, validating Terraform/infrastructure plans, or reviewing deployment security and IAM configurations.
 model: fast
 ---
 

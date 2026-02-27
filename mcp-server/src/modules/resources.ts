@@ -38,7 +38,7 @@ export function getModuleUri(moduleId: string): string {
  */
 export function getContentUri(
   moduleId: string,
-  type: 'rules' | 'commands' | 'skills' | 'agents',
+  type: 'rules' | 'commands' | 'skills' | 'agents' | 'hooks',
   filename?: string
 ): string {
   const base = `ai-dev://modules/${moduleId}/${type}`;
@@ -50,7 +50,7 @@ export function getContentUri(
  */
 export function parseResourceUri(uri: string): {
   moduleId?: string;
-  type?: 'rules' | 'commands' | 'skills' | 'agents';
+  type?: 'rules' | 'commands' | 'skills' | 'agents' | 'hooks';
   filename?: string;
 } | null {
   if (!uri.startsWith('ai-dev://modules')) {
@@ -72,14 +72,14 @@ export function parseResourceUri(uri: string): {
   if (parts.length === 2) {
     return { 
       moduleId: parts[0], 
-      type: parts[1] as 'rules' | 'commands' | 'skills' | 'agents'
+      type: parts[1] as 'rules' | 'commands' | 'skills' | 'agents' | 'hooks'
     }; // List content type
   }
 
   if (parts.length === 3) {
     return {
       moduleId: parts[0],
-      type: parts[1] as 'rules' | 'commands' | 'skills' | 'agents',
+      type: parts[1] as 'rules' | 'commands' | 'skills' | 'agents' | 'hooks',
       filename: parts[2]
     }; // Read specific file
   }
@@ -141,6 +141,16 @@ export function listResources(modules: ModuleMetadata[]): ModuleResource[] {
         mimeType: 'text/markdown',
       });
     }
+
+    // Hooks resources
+    for (const hook of module.provides.hooks) {
+      resources.push({
+        uri: getContentUri(module.id, 'hooks', hook),
+        name: `${module.name} - ${hook}`,
+        description: `Hook: ${hook}`,
+        mimeType: hook.endsWith('.json') ? 'application/json' : 'text/x-shellscript',
+      });
+    }
   }
 
   return resources;
@@ -152,7 +162,7 @@ export function listResources(modules: ModuleMetadata[]): ModuleResource[] {
 export async function readResource(
   repoPath: string,
   module: ModuleMetadata,
-  type: 'rules' | 'commands' | 'skills' | 'agents',
+  type: 'rules' | 'commands' | 'skills' | 'agents' | 'hooks',
   filename?: string
 ): Promise<string> {
   const modulePath = join(repoPath, module.path);
@@ -187,6 +197,7 @@ export function generateModuleOverview(module: ModuleMetadata): string {
         commands: module.provides.commands.map(c => getContentUri(module.id, 'commands', c)),
         skills: module.provides.skills.map(s => getContentUri(module.id, 'skills', s)),
         agents: module.provides.agents.map(a => getContentUri(module.id, 'agents', a)),
+        hooks: module.provides.hooks.map(h => getContentUri(module.id, 'hooks', h)),
       },
     },
     null,

@@ -1,6 +1,6 @@
 ---
 name: project-basics
-description: Baseline project control checks for quality and docs.
+description: Baseline project control checks for quality and docs. Use when preparing to finalize work, before handoff, or when validating that tests, documentation, and quality checks meet baseline standards.
 ---
 
 # Project Basics

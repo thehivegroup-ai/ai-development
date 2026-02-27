@@ -1,6 +1,6 @@
 ---
 name: next-standards
-description: Next.js App Router conventions with Tailwind.
+description: Next.js App Router conventions with Tailwind. Use when building Next.js pages or layouts, refactoring server/client component boundaries, or applying App Router data fetching patterns.
 ---
 
 # Next Standards

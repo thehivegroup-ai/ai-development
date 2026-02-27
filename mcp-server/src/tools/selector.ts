@@ -95,6 +95,9 @@ export function formatModuleOption(module: ModuleMetadata): {
   if (module.provides.agents.length > 0) {
     provides.push(`${module.provides.agents.length} agent${module.provides.agents.length > 1 ? 's' : ''}`);
   }
+  if (module.provides.hooks.length > 0) {
+    provides.push(`${module.provides.hooks.length} hook${module.provides.hooks.length > 1 ? 's' : ''}`);
+  }
 
   return {
     id: module.id,
@@ -335,12 +338,16 @@ export function generateSelectionSummary(
   const totalCommands = allModules.reduce((sum, m) => sum + m.provides.commands.length, 0);
   const totalSkills = allModules.reduce((sum, m) => sum + m.provides.skills.length, 0);
   const totalAgents = allModules.reduce((sum, m) => sum + m.provides.agents.length, 0);
+  const totalHooks = allModules.reduce((sum, m) => sum + m.provides.hooks.length, 0);
 
   sections.push('\n## Total Provides\n');
   sections.push(`- **${totalRules}** rules\n`);
   sections.push(`- **${totalCommands}** commands\n`);
   sections.push(`- **${totalSkills}** skills\n`);
   sections.push(`- **${totalAgents}** agents\n`);
+  if (totalHooks > 0) {
+    sections.push(`- **${totalHooks}** hooks\n`);
+  }
 
   sections.push('\n---\n');
   sections.push('\nNext steps:\n');

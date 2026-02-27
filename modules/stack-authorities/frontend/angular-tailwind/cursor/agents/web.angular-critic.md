@@ -1,6 +1,6 @@
 ---
 name: web.angular-critic
-description: Reviews Angular templates for modern patterns and testability.
+description: Reviews Angular templates for modern patterns and testability. Use when reviewing Angular components for standalone patterns, modern template syntax, signal usage, or Tailwind integration.
 model: fast
 ---
 

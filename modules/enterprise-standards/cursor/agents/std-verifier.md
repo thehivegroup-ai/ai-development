@@ -1,6 +1,6 @@
 ---
 name: std-verifier
-description: Comprehensive quality checker that validates feature completeness, rule compliance, and test coverage.
+description: Comprehensive quality checker that validates feature completeness, rule compliance, and test coverage. Use when verifying a feature is complete, before declaring work production-ready, or when an independent quality review is needed.
 model: fast
 ---
 

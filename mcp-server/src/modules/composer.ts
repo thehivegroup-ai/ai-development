@@ -107,8 +107,14 @@ export async function composeModules(
       const existing = composed.files.get(filePath);
       
       if (existing) {
-        // File exists - check if content is identical
-        if (existing.content !== content) {
+        // Special merge for hooks.json — combine hook arrays across modules
+        if (filePath === 'hooks.json') {
+          const merged = mergeHooksJson(existing.content, content);
+          composed.files.set(filePath, {
+            content: merged,
+            sourceModule: module.id,
+          });
+        } else if (existing.content !== content) {
           // Different content = collision
           if (!collisions.find((c) => c.path === filePath)) {
             collisions.push({
@@ -116,12 +122,18 @@ export async function composeModules(
               modules: Array.from(fileModuleMap.get(filePath)!),
             });
           }
+          // Last wins for non-hooks files
+          composed.files.set(filePath, {
+            content,
+            sourceModule: module.id,
+          });
+        } else {
+          // Content is identical, just update source module (last wins)
+          composed.files.set(filePath, {
+            content,
+            sourceModule: module.id,
+          });
         }
-        // If content is identical, just update source module (last wins)
-        composed.files.set(filePath, {
-          content,
-          sourceModule: module.id,
-        });
       } else {
         // New file
         composed.files.set(filePath, {
@@ -133,6 +145,45 @@ export async function composeModules(
   }
   
   return { composed, collisions };
+}
+
+/**
+ * Merge two hooks.json configs by combining hook arrays per event type
+ */
+function mergeHooksJson(existingContent: string, newContent: string): string {
+  try {
+    const existing = JSON.parse(existingContent);
+    const incoming = JSON.parse(newContent);
+    
+    const merged = {
+      version: Math.max(existing.version || 1, incoming.version || 1),
+      hooks: { ...existing.hooks },
+    };
+    
+    // Merge each hook event array
+    if (incoming.hooks) {
+      for (const [event, hooks] of Object.entries(incoming.hooks)) {
+        if (!merged.hooks[event]) {
+          merged.hooks[event] = hooks;
+        } else if (Array.isArray(hooks)) {
+          // Append new hooks, avoiding duplicate commands
+          const existingCommands = new Set(
+            (merged.hooks[event] as Array<{ command?: string }>).map(h => h.command)
+          );
+          for (const hook of hooks as Array<{ command?: string }>) {
+            if (!existingCommands.has(hook.command)) {
+              (merged.hooks[event] as unknown[]).push(hook);
+            }
+          }
+        }
+      }
+    }
+    
+    return JSON.stringify(merged, null, 2) + '\n';
+  } catch {
+    // If either isn't valid JSON, last wins
+    return newContent;
+  }
 }
 
 /**

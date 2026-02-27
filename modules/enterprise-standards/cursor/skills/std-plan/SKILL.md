@@ -1,6 +1,6 @@
 ---
 name: std-plan
-description: Trigger teleological planning to derive execution plans backward from desired end-state.
+description: Trigger teleological planning to derive execution plans backward from desired end-state. Use when the user needs an execution plan, when defining the approach for a complex feature, or before starting multi-step implementation work.
 disable-model-invocation: true
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: db.sqlserver-reviewer
-description: Reviews SQL Server schema and migration safety.
+description: Reviews SQL Server schema and migration safety. Use when reviewing schema changes, writing migrations, auditing query performance, or validating index strategies in SQL Server.
 model: fast
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: ctrl.base-verifier
-description: Verifies base project control readiness.
+description: Verifies base project control readiness. Use when preparing work for handoff, before declaring a feature complete, or when validating that tests and documentation meet baseline standards.
 model: fast
 ---
 

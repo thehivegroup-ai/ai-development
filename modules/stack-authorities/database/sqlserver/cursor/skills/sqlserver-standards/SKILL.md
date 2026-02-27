@@ -1,6 +1,6 @@
 ---
 name: sqlserver-standards
-description: SQL Server migration and performance practices.
+description: SQL Server migration and performance practices. Use when designing SQL Server schemas, writing or reviewing migrations, optimizing queries, or auditing index strategies.
 ---
 
 # SQL Server Standards

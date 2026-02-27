@@ -1,6 +1,6 @@
 ---
 name: regulated-delivery
-description: Security and compliance guidance for regulated delivery.
+description: Security and compliance guidance for regulated delivery. Use when working on regulated or sensitive systems, preparing for compliance reviews, or when security controls and audit trails are required.
 ---
 
 # Regulated Delivery

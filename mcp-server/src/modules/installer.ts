@@ -4,7 +4,7 @@
  * Writes composed modules to disk
  */
 
-import { mkdir, writeFile, rm } from 'fs/promises';
+import { mkdir, writeFile, rm, chmod } from 'fs/promises';
 import { join, dirname } from 'path';
 import { ComposedModule, StackProfile, CursorLockfile, GitSource, ModuleSelection } from '../types.js';
 
@@ -39,6 +39,11 @@ export async function writeModules(
     const fullPath = join(cursorPath, filePath);
     await ensureDir(fullPath);
     await writeFile(fullPath, fileData.content, 'utf-8');
+    
+    // Make hook scripts executable
+    if (filePath.startsWith('hooks/') && filePath.endsWith('.sh')) {
+      await chmod(fullPath, 0o755);
+    }
   }
 }
 

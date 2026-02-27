@@ -1,6 +1,6 @@
 ---
 name: db.postgres-reviewer
-description: Reviews Postgres schema and migration safety.
+description: Reviews Postgres schema and migration safety. Use when reviewing schema changes, writing migrations, auditing query performance, or validating index strategies in PostgreSQL.
 model: fast
 ---
 

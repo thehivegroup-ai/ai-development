@@ -1,6 +1,6 @@
 ---
 name: angular-tailwind-standards
-description: Angular v21 patterns with Tailwind 4.x conventions.
+description: Angular v21 patterns with Tailwind 4.x conventions. Use when building or refactoring Angular components with Tailwind, applying standalone component patterns, or ensuring modern Angular template conventions.
 ---
 
 # Angular Tailwind Standards
