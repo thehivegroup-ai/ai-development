@@ -262,14 +262,18 @@ But: "Checkout abandonment increased 40% because API response times exceed user 
 
 ### Step 7: Test Interpretation (Challenge)
 
-**Use subagents to stress-test:**
+**Use subagents to stress-test ONLY in SOLUTION mode:**
+
+**When to challenge interpretation:**
+- ✅ During SOLUTION mode - Testing logical consistency of interpretation
+- ❌ During BUILD modes - Verification happens later in CLEAN-SWEEP
 
 **Invoke `std-planner`:**
 - "Can this interpretation be planned from?"
 - "What's missing for feasibility?"
 - "What ambiguity blocks execution?"
 
-**Invoke `std-verifier`:**
+**Invoke `std-verifier` (SOLUTION mode only):**
 - "Does this interpretation hold together?"
 - "Are there internal contradictions?"
 - "Does this explain the observed evidence?"
@@ -416,13 +420,13 @@ Every interpretation produces this document:
 
 ### 5. Skipping Challenges
 
-**Symptom:** Not testing interpretation with subagents
+**Symptom:** Not testing interpretation with subagents in SOLUTION mode
 
 **Example:**
 - Interpretation feels good, skip straight to planning
 - Discover halfway through that interpretation was flawed
 
-**Fix:** Always invoke `std-planner` and `std-verifier` (Step 7).
+**Fix:** During SOLUTION mode, invoke `std-planner` and `std-verifier` (Step 7). Do NOT invoke during BUILD modes.
 
 ---
 

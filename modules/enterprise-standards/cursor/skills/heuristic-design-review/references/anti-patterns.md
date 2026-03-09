@@ -386,6 +386,5 @@ Before finalizing an evaluation, ask:
 - [ ] Did I apply platform-specific criteria?
 - [ ] Is accessibility integrated (not deferred)?
 - [ ] Would the team find this evaluation actionable?
-- [ ] Did I invoke std-verifier to check consistency?
 
 If any checkbox is unchecked, revise the evaluation.

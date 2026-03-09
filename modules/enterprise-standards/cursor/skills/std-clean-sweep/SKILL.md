@@ -18,4 +18,4 @@ Use this after changes to ensure clean, consistent output.
 ## Guidance
 
 - Apply the `engineering-hygiene` skill.
-- Use the `std-verifier` subagent if independent review helps.
+- Use the `std-verifier` subagent ONLY as a final quality gate after cleanup is complete, not during the cleanup process.

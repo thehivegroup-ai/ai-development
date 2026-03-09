@@ -293,13 +293,15 @@ Users can't find products easily.
 - Assumptions not tested
 
 **Good:**
-[Invoke std-verifier to challenge interpretation]
+[In SOLUTION mode only: Invoke std-verifier to challenge interpretation]
 
 **Verifier asks:**
 - Does desired outcome match problem statement?
 - Do success criteria actually measure outcome?
 - Are constraints compatible with approach?
 - What evidence supports root cause?
+
+**Note:** Verification of interpretation happens ONLY in SOLUTION mode. During BUILD modes, verification happens later in CLEAN-SWEEP.
 
 ---
 
@@ -309,7 +311,7 @@ Users can't find products easily.
 2. **Make outcomes observable and measurable**
 3. **Question assumptions - don't accept first interpretation**
 4. **Iterate through hermeneutic circle**
-5. **Invoke std-planner and std-verifier agents**
+5. **Invoke std-planner and std-verifier agents (SOLUTION mode only)**
 6. **Derive solutions backward from outcome**
 7. **Define non-goals explicitly**
 8. **Document constraints**

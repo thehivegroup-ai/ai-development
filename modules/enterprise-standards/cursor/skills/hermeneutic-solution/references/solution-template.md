@@ -89,7 +89,7 @@ Before proceeding to planning:
 - [ ] Constraints documented
 - [ ] Success metrics specified
 - [ ] Stakeholders validated understanding
-- [ ] std-verifier invoked for consistency check
+- [ ] (SOLUTION mode only) std-verifier invoked for consistency check
 - [ ] Ready for backward planning
 
 ---
@@ -98,7 +98,7 @@ Before proceeding to planning:
 
 1. Review this framing with team/stakeholders
 2. Invoke `/std-solution` to validate via hermeneutic circle
-3. Invoke `std-verifier` agent to check consistency
+3. (SOLUTION mode only) Invoke `std-verifier` agent to check interpretation consistency
 4. Once validated, proceed to `/std-plan` for backward planning
 
 ---

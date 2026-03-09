@@ -130,12 +130,14 @@ Turn understanding into explicit artifacts:
 
 ### Step 7: Challenge the Interpretation
 
-**Invoke subagents to test interpretation:**
+**Invoke subagents to test interpretation (SOLUTION mode only):**
 
 - `std-planner` → Can this be planned? What's missing?
 - `std-verifier` → Does this interpretation hold together? Contradictions?
 
 **Revise interpretation based on feedback.**
+
+**Note:** This challenge step is ONLY for SOLUTION mode. During BUILD modes, skip verification until CLEAN-SWEEP phase.
 
 ---
 
@@ -187,7 +189,7 @@ Every interpretation MUST produce:
 ## Guidance
 
 - **Apply the `hermeneutic-solution` skill** for detailed interpretive method
-- **Challenge with subagents** (`std-planner`, `std-verifier`)
+- **Challenge with subagents (SOLUTION mode only)** (`std-planner`, `std-verifier`)
 - **Revise freely** – Understanding evolves, that's normal
 - **No solutions yet** – Interpretation first, planning second
 

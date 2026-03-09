@@ -220,8 +220,7 @@ Before concluding evaluation:
 - [ ] Severity ratings are consistent and justified
 - [ ] Every finding includes a specific recommendation
 - [ ] Positive findings documented
-- [ ] Subagents invoked for consistency check (std-verifier)
-- [ ] Remediation feasibility assessed (std-planner)
+- [ ] Remediation feasibility assessed
 
 ---
 

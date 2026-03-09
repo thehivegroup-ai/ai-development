@@ -1,0 +1,6 @@
+[submodule ".cursor/skills/agent-skills"]
+	path = .cursor/skills/agent-skills
+	url = https://github.com/callstackincubator/agent-skills.git
+[submodule "modules/stack-authorities/frontend/react-native/upstream"]
+	path = modules/stack-authorities/frontend/react-native/upstream
+	url = https://github.com/callstackincubator/agent-skills.git

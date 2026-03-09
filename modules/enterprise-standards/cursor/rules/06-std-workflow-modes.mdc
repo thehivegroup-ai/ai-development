@@ -147,7 +147,6 @@ Work type sequences:
 5. Quick accessibility check (invoke `ux-accessibility-auditor`)
 6. Classify findings by severity (0-4 scale)
 7. Synthesize and prioritize recommendations
-8. Invoke `std-verifier` for consistency check
 
 **Stay until:** Evaluation complete, then:
 - After DESIGN-FLOW: → BUILD-SCREEN (no critical) or → DESIGN-FLOW (critical)
@@ -193,7 +192,7 @@ Work type sequences:
 **Purpose:** Refactor and standardize to best practices
 **Trigger:** Auto after BUILD-SCREEN/BUILD-API, or user types `CLEAN-SWEEP`
 **Skill:** `/std-clean-sweep`
-**Subagents:** `std-verifier`, stack-specific critics
+**Subagents:** `std-verifier` (only for quality gate after cleanup), stack-specific critics
 
 **Actions:**
 1. Review changes for correctness and consistency
@@ -202,6 +201,7 @@ Work type sequences:
 4. Validate formatting, naming, structure
 5. Apply component/utility architecture standards
 6. Ensure accessibility and performance patterns
+7. **AFTER cleanup complete:** Optionally invoke `std-verifier` for quality gate
 
 **Stay until:** Clean, then auto → TEST-LOOP
 

@@ -100,10 +100,11 @@ Check platform-specific compliance and critical accessibility criteria.
 
 ### Step 6: Synthesize
 
-**Invoke `std-verifier` and `std-planner`:**
-- Verify evaluation consistency
+**Produce actionable summary:**
+- Prioritize findings by severity and impact
+- Group related findings together
+- Identify quick wins vs. long-term improvements
 - Assess remediation feasibility
-- Produce actionable summary
 
 ---
 
@@ -148,7 +149,7 @@ Every design review MUST produce:
 - **Apply the `heuristic-design-review` skill** for detailed evaluation method
 - **Read `docs/design/` files** before evaluating to understand documented conventions
 - **Update `docs/design/design-decisions.md`** with significant findings
-- **Challenge with subagents** (`ux-heuristic-evaluator`, `ux-visual-design-critic`, `std-verifier`)
+- **Challenge with UX subagents** (`ux-heuristic-evaluator`, `ux-visual-design-critic`)
 - **Every finding needs evidence** - No opinions, only observations against criteria
 - **Include positive findings** - Acknowledge what works well
 
