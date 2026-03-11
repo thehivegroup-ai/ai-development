@@ -1,6 +1,7 @@
 ---
 description: "Java API constraints."
 alwaysApply: false
+globs: "**/src/main/java/**/*.java,**/src/test/java/**/*.java,**/pom.xml,**/build.gradle"
 ---
 
 # API Java

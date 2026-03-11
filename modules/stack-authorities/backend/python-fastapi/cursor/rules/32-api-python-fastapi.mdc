@@ -1,3 +1,9 @@
+---
+description: "Python FastAPI backend standards."
+alwaysApply: false
+globs: "**/*.py,**/routes/**/*.py,**/api/**/*.py,**/services/**/*.py,**/models/**/*.py,**/schemas/**/*.py"
+---
+
 # 32: API - Python + FastAPI
 
 **Authority Type:** Backend Framework Stack  

@@ -1,6 +1,7 @@
 ---
 description: "React Native development standards and performance optimization patterns."
 alwaysApply: false
+globs: "**/*.tsx,**/*.jsx,**/ios/**/*.{m,mm,h,swift},**/android/**/*.{java,kt,xml},**/*.native.*,**/app.json,**/metro.config.js"
 ---
 
 # React Native Development Standards

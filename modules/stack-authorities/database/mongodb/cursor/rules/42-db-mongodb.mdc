@@ -1,3 +1,9 @@
+---
+description: "MongoDB schema and query constraints."
+alwaysApply: false
+globs: "**/models/**/*.{ts,js,py},**/schemas/**/*.{ts,js,py},**/db/**/*.{ts,js,py},**/repositories/**/*.{ts,js,py}"
+---
+
 # 42: Database - MongoDB
 
 **Authority Type:** Database Stack  

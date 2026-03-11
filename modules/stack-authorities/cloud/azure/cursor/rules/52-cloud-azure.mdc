@@ -1,3 +1,9 @@
+---
+description: "Azure infrastructure constraints."
+alwaysApply: false
+globs: "**/infra/**/*.bicep,**/terraform/**/*.tf,**/azure-pipelines.yml,**/azuredeploy.json,**/arm-templates/**/*.json"
+---
+
 # 52: Cloud - Microsoft Azure
 
 **Authority Type:** Cloud Infrastructure Stack  

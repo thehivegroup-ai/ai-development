@@ -1,3 +1,9 @@
+---
+description: "Vue.js + Tailwind constraints."
+alwaysApply: false
+globs: "**/*.vue,**/*.ts,**/components/**/*.{vue,ts},**/views/**/*.vue,**/composables/**/*.ts"
+---
+
 # 21: Web - Vue.js + Tailwind CSS
 
 **Authority Type:** Frontend Framework Stack  

@@ -1,6 +1,7 @@
 ---
 description: "Next.js + Tailwind constraints."
 alwaysApply: false
+globs: "**/*.tsx,**/*.jsx,**/app/**/*.{ts,tsx},**/pages/**/*.{ts,tsx},**/components/**/*.{ts,tsx}"
 ---
 
 # Web Next Tailwind

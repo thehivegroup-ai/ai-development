@@ -1,6 +1,7 @@
 ---
 description: "Postgres schema and migration constraints."
 alwaysApply: false
+globs: "**/migrations/**/*.sql,**/queries/**/*.sql,**/db/**/*.{ts,js,py},**/models/**/*.{ts,js,py},**/repositories/**/*.{ts,js,py}"
 ---
 
 # DB Postgres
