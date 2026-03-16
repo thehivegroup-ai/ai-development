@@ -1,0 +1,522 @@
+---
+description: "Documentation organization standards for all projects."
+alwaysApply: true
+---
+
+# Standard Documentation Organization
+
+## Directory Structure
+
+**Required structure for all projects:**
+
+```
+project-root/
+├── README.md                      # Public-facing: what, build, test, run
+├── docs/                          # Long-term stable documentation
+│   ├── README.md                 # Documentation index
+│   ├── requirements/             # Requirements and specifications
+│   ├── architecture/             # System architecture and design
+│   ├── design/                   # Design system, patterns, and tokens
+│   └── completed/                # Completed work documentation
+├── memory-bank/                   # Active work (internal team)
+│   ├── current/                  # Current phase work in progress
+│   └── planning/                 # Upcoming work plans
+└── .temp/                        # Temporary files (gitignored)
+```
+
+## Core Principles
+
+1. **Separation of Concerns:** Stable documentation (`docs/`) separate from active work (`memory-bank/`)
+2. **Single Source of Truth:** Each piece of information lives in one place
+3. **Clear Lifecycle:** Planning → Current → Completed
+4. **Minimal Root:** Root directory only contains essential public-facing files
+
+## Root Directory Rules
+
+**Allowed in root:**
+- `README.md`, `LICENSE`, `CONTRIBUTING.md`
+- Configuration files (`.gitignore`, `.env.example`, etc.)
+
+**❌ NEVER create in root:**
+- Documentation files (use `docs/` or `memory-bank/`)
+- Temporary scripts (use `.temp/`)
+- Build artifacts
+
+## File Headers
+
+**Every documentation file MUST include:**
+
+```markdown
+# Document Title
+
+**Last Updated:** YYYY-MM-DD  
+**Status:** Draft | Active | Completed | Deprecated  
+**Owner:** [Team/Person]
+```
+
+## Documentation Lifecycle
+
+### 1. Planning Phase
+
+```
+Create: memory-bank/planning/PHASEX_PLAN.md
+Include: Goals, timeline, deliverables, acceptance criteria, todo list
+Status: Planning
+```
+
+### 2. Implementation Phase
+
+**CRITICAL: Move file using terminal command:**
+
+```bash
+# ✅ CORRECT
+mv memory-bank/planning/PHASEX_PLAN.md memory-bank/current/PHASEX_PLAN.md
+
+# ❌ WRONG: Never read+create+delete (loses git history)
+```
+
+Then update:
+- Change status to "Active"
+- Update "Last Updated" date
+- Mark first task as `[~]` in-progress
+
+### 3. Completion Phase
+
+```bash
+# ✅ CORRECT
+mv memory-bank/current/PHASEX_PLAN.md docs/completed/PHASEX_PLAN.md
+```
+
+Update status to "Completed" in header.
+
+## Todo List Management
+
+**CRITICAL: Todo lists MUST be maintained in plan documents, NOT in-memory tools.**
+
+**Requirements:**
+1. Every plan document MUST include a Todo List section
+2. Update the document when tasks complete
+3. Never rely solely on AI in-memory todo lists
+4. Use clear status: `[ ]` not started, `[~]` in progress, `[x]` completed
+
+**Format:**
+
+```markdown
+## Todo List
+
+- [x] **Task 1:** Complete X
+  - Status: Completed
+  - Files: `src/x.ts`
+- [~] **Task 2:** Build Y
+  - Status: In Progress
+  - Next: Fix validation
+- [ ] **Task 3:** Add Z
+  - Status: Not Started
+```
+
+**AI Assistant Behavior:**
+- ✅ Update todo list in plan document
+- ❌ NEVER duplicate in `manage_todo_list` tool when plan exists
+- ✅ Use `manage_todo_list` ONLY for ad-hoc tasks without a plan document
+
+## File Moving
+
+**MUST use terminal commands for moving files:**
+
+```bash
+# ✅ CORRECT: Preserves git history
+mv source.md destination.md
+
+# ❌ WRONG: Creates new file in git
+# Read file → Create file → Delete file
+```
+
+**Rationale:** Terminal `mv` preserves file history in version control.
+
+## Temporary Files
+
+**Use `.temp/` for:**
+- Temporary test scripts
+- Experimental code
+- One-off debugging scripts
+- Scratch files
+
+**Must be gitignored.**
+
+## Design Documentation
+
+### Purpose
+
+Design documentation creates a **persistent design memory** across sessions. Without it, each session starts from zero on design decisions, leading to visual inconsistency, contradictory patterns, and wasted effort re-deriving decisions.
+
+### Design Directory Structure
+
+```
+docs/design/
+├── design-system.md              # Tokens, colors, spacing, typography
+├── design-patterns.md            # Component patterns and conventions
+├── design-decisions.md           # Decision log with rationale
+├── layout-conventions.md         # Grid, breakpoints, page structure
+└── interaction-patterns.md       # Animations, transitions, gestures
+```
+
+### When to Create Design Files
+
+**Create the project-level design rule first** (see "Project-Level Design Rule" below). This ensures the agent always knows where design docs live, every session.
+
+**Create `design-system.md` when:**
+- Starting a new project with UI
+- Adopting or defining a design system (Tailwind config, custom tokens)
+- After DESIGN-FLOW mode produces token decisions
+
+**Create `design-patterns.md` when:**
+- First component patterns are established
+- After BUILD-SCREEN mode produces reusable patterns
+- When component library conventions crystallize
+
+**Create `design-decisions.md` when:**
+- Any non-trivial design choice is made (and should persist)
+- After DESIGN-REVIEW mode produces findings
+- When tradeoffs are debated and resolved
+
+**Create `layout-conventions.md` when:**
+- Page structure patterns are established
+- Grid system, breakpoints, or container widths are decided
+- After responsive behavior is defined
+
+**Create `interaction-patterns.md` when:**
+- Animations, transitions, or micro-interactions are defined
+- Gesture patterns are established (mobile)
+- Loading, error, and empty state behaviors are standardized
+
+### When to Update Design Files
+
+**MUST update after:**
+- DESIGN-FLOW mode produces new design decisions
+- DESIGN-REVIEW mode identifies systemic issues or pattern changes
+- BUILD-SCREEN mode introduces new component patterns
+- CLEAN-SWEEP mode standardizes design patterns
+- Any session where design tokens, patterns, or conventions change
+
+**Update triggers:**
+- New component type created → update `design-patterns.md`
+- Color, spacing, or typography changed → update `design-system.md`
+- Layout or breakpoint decision made → update `layout-conventions.md`
+- Animation or transition added → update `interaction-patterns.md`
+- Design tradeoff resolved → update `design-decisions.md`
+
+### File Templates
+
+#### `design-system.md`
+
+```markdown
+# Design System
+
+**Last Updated:** YYYY-MM-DD
+**Status:** Active
+**Owner:** [Team]
+
+## Color Palette
+
+### Brand Colors
+- **Primary:** [hex/token] - [usage: CTAs, primary actions]
+- **Secondary:** [hex/token] - [usage: secondary actions, accents]
+- **Neutral:** [range] - [usage: text, backgrounds, borders]
+
+### Semantic Colors
+- **Success:** [hex/token]
+- **Warning:** [hex/token]
+- **Error:** [hex/token]
+- **Info:** [hex/token]
+
+### Dark Mode (if applicable)
+- [Dark mode color mapping]
+
+## Typography
+
+### Type Scale
+| Name | Size | Weight | Line Height | Usage |
+|------|------|--------|-------------|-------|
+| Display | 36px | 700 | 1.2 | Hero headings |
+| H1 | 30px | 700 | 1.3 | Page titles |
+| H2 | 24px | 600 | 1.3 | Section headings |
+| H3 | 20px | 600 | 1.4 | Subsection headings |
+| Body | 16px | 400 | 1.5 | Paragraph text |
+| Small | 14px | 400 | 1.5 | Captions, help text |
+| Tiny | 12px | 400 | 1.4 | Labels, badges |
+
+### Font Families
+- **Primary:** [font-family] - [headings/body/both]
+- **Monospace:** [font-family] - [code blocks]
+
+## Spacing Scale
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| xs | 4px | Tight: icon-to-label |
+| sm | 8px | Compact: related elements |
+| md | 12px | Default: within groups |
+| lg | 16px | Comfortable: between groups |
+| xl | 24px | Spacious: between sections |
+| 2xl | 32px | Open: major content blocks |
+| 3xl | 48px | Generous: page-level |
+
+## Border Radius
+- **Small:** [value] - [inputs, badges]
+- **Medium:** [value] - [cards, buttons]
+- **Large:** [value] - [modals, sheets]
+- **Full:** 9999px - [avatars, pills]
+
+## Shadows / Elevation
+- **Level 1:** [value] - [cards, dropdowns]
+- **Level 2:** [value] - [modals, popovers]
+- **Level 3:** [value] - [toasts, sticky elements]
+
+## Breakpoints
+| Name | Value | Target |
+|------|-------|--------|
+| sm | 640px | Mobile landscape |
+| md | 768px | Tablet |
+| lg | 1024px | Desktop |
+| xl | 1280px | Wide desktop |
+| 2xl | 1536px | Ultra-wide |
+```
+
+#### `design-patterns.md`
+
+```markdown
+# Design Patterns
+
+**Last Updated:** YYYY-MM-DD
+**Status:** Active
+**Owner:** [Team]
+
+## Component Patterns
+
+### Buttons
+- **Primary:** [when to use, styling convention]
+- **Secondary:** [when to use, styling convention]
+- **Destructive:** [when to use, confirmation requirements]
+- **Ghost/Link:** [when to use]
+
+### Forms
+- **Layout:** [vertical/horizontal, label placement]
+- **Validation:** [inline, on-blur, on-submit]
+- **Error display:** [position, styling]
+- **Required fields:** [indicator convention]
+
+### Cards
+- **Structure:** [header, body, footer pattern]
+- **Variants:** [interactive, static, expandable]
+- **Grid behavior:** [responsive columns]
+
+### Navigation
+- **Primary nav:** [pattern: top bar, sidebar, tabs]
+- **Breadcrumbs:** [when to show]
+- **Mobile nav:** [pattern: bottom tabs, hamburger, drawer]
+
+### Data Display
+- **Tables:** [sortable, pagination, empty states]
+- **Lists:** [item structure, actions, loading]
+- **Empty states:** [messaging, CTAs]
+
+## State Patterns
+
+### Loading States
+- **Skeleton screens:** [when to use]
+- **Spinners:** [when to use, placement]
+- **Progress bars:** [when to use]
+
+### Error States
+- **Inline errors:** [form fields]
+- **Toast notifications:** [system errors]
+- **Error pages:** [404, 500, network]
+
+### Empty States
+- **Convention:** [illustration + message + CTA]
+- **Messaging tone:** [helpful, not apologetic]
+```
+
+#### `design-decisions.md`
+
+```markdown
+# Design Decisions Log
+
+**Last Updated:** YYYY-MM-DD
+**Status:** Active
+
+## Decision Format
+
+Each decision records:
+- **Date:** When decided
+- **Decision:** What was decided
+- **Context:** Why this came up
+- **Options considered:** Alternatives evaluated
+- **Rationale:** Why this option was chosen
+- **Tradeoffs:** What we accepted
+- **Affects:** What files/components are impacted
+
+## Decisions
+
+### [YYYY-MM-DD] Decision Title
+**Decision:** [What was decided]
+**Context:** [Why this came up]
+**Options:**
+1. [Option A] - [pros/cons]
+2. [Option B] - [pros/cons]
+**Rationale:** [Why chosen option was selected]
+**Tradeoffs:** [What we accepted]
+**Affects:** [Components, files, patterns impacted]
+```
+
+#### `layout-conventions.md`
+
+```markdown
+# Layout Conventions
+
+**Last Updated:** YYYY-MM-DD
+**Status:** Active
+**Owner:** [Team]
+
+## Grid System
+- **Type:** [CSS Grid / Flexbox / Framework grid]
+- **Columns:** [12-column, etc.]
+- **Gutter:** [spacing between columns]
+- **Max width:** [container max-width]
+- **Horizontal padding:** [page-level horizontal padding]
+
+## Page Structure
+- **Header:** [height, sticky/static, contents]
+- **Main content:** [max-width, centering]
+- **Sidebar:** [width, collapsible, breakpoint]
+- **Footer:** [contents, sticky/static]
+
+## Responsive Behavior
+| Breakpoint | Layout Change |
+|------------|--------------|
+| < 640px | Single column, stacked nav |
+| 640-768px | [behavior] |
+| 768-1024px | [behavior] |
+| > 1024px | Full layout with sidebar |
+
+## Reading Patterns
+- **Content pages:** F-pattern (headings left-aligned)
+- **Landing pages:** Z-pattern (CTA placement)
+- **Dashboards:** Grid-based scanning
+```
+
+#### `interaction-patterns.md`
+
+```markdown
+# Interaction Patterns
+
+**Last Updated:** YYYY-MM-DD
+**Status:** Active
+**Owner:** [Team]
+
+## Transitions
+- **Page transitions:** [type, duration, easing]
+- **Component mount/unmount:** [fade, slide, scale]
+- **Standard duration:** [150ms micro, 300ms standard, 500ms emphasis]
+- **Easing function:** [ease-out for enter, ease-in for exit]
+
+## Micro-interactions
+- **Button hover:** [scale, color shift, shadow]
+- **Button press:** [scale down, color darken]
+- **Input focus:** [border color, shadow, label animation]
+- **Toggle:** [slide animation, color transition]
+
+## Feedback Patterns
+- **Success:** [toast position, auto-dismiss duration, color]
+- **Error:** [inline placement, persistence, color]
+- **Loading:** [skeleton → content, spinner placement]
+- **Confirmation:** [modal for destructive, inline for safe]
+
+## Gesture Patterns (Mobile)
+- **Swipe:** [direction → action mapping]
+- **Long press:** [context menu trigger]
+- **Pull to refresh:** [indicator style]
+- **Pinch/zoom:** [where supported]
+
+## Motion Principles
+- **Respect prefers-reduced-motion:** Always
+- **Purpose:** Guide attention, show relationships, provide feedback
+- **Never:** Decorative-only animation, blocking animation, disorienting motion
+```
+
+### AI Assistant Behavior for Design Docs
+
+**During DESIGN-FLOW mode:**
+- ✅ Read `docs/design/` files before making design decisions
+- ✅ Reference existing tokens and patterns
+- ✅ Update design files when new decisions are made
+
+**During BUILD-SCREEN mode:**
+- ✅ Read `docs/design/` files before implementing UI
+- ✅ Use documented tokens, patterns, and conventions
+- ✅ Update `design-patterns.md` when new component patterns emerge
+
+**During DESIGN-REVIEW mode:**
+- ✅ Read `docs/design/` files as evaluation baseline
+- ✅ Check implementation against documented system
+- ✅ Update `design-decisions.md` with review findings
+
+**During CLEAN-SWEEP mode:**
+- ✅ Verify UI code matches documented design system
+- ✅ Flag deviations from documented patterns
+- ✅ Update design docs if patterns were intentionally changed
+
+**Cross-session consistency:**
+- ✅ ALWAYS read `docs/design/` at session start for UI work
+- ✅ NEVER make design decisions that contradict documented patterns without updating docs
+- ✅ Treat design docs as the source of truth for visual decisions
+
+### Project-Level Design Rule
+
+When `docs/design/` files are created, **also scaffold a project-level rule** at `.cursor/rules/design-system.mdc` that points the agent to those files every session.
+
+**Why:** Design docs are only useful if the agent reads them. A short `alwaysApply: true` rule ensures the agent loads the design context at the start of every session automatically, without the user having to mention it.
+
+**Create `.cursor/rules/design-system.mdc` when:**
+- The first `docs/design/*.md` file is created
+- A design system, CSS framework config (e.g., `tailwind.config.ts`), or token set is established
+
+**Update `.cursor/rules/design-system.mdc` when:**
+- New design doc files are added to `docs/design/`
+- The CSS framework config file path changes
+- Design doc files are renamed or removed
+
+**Template:**
+
+```markdown
+---
+alwaysApply: true
+---
+These files outline the design of this project:
+
+docs/design/design-system.md
+docs/design/design-patterns.md
+docs/design/design-decisions.md
+docs/design/layout-conventions.md
+docs/design/interaction-patterns.md
+
+- Read them at session start for any UI work.
+- Use them when making design changes to ensure consistency.
+- Update them as design decisions are made (tokens, patterns, layout, interactions).
+- Ensure the CSS framework config (e.g., tailwind.config.ts) matches the design system.
+```
+
+**Rules for scaffolding:**
+- Only list files that actually exist (don't list files that haven't been created yet)
+- Add the CSS framework config line only if one exists in the project
+- Keep it short: the rule is a pointer, not a duplicate of the docs
+- The rule should reference `docs/design/` files, never inline design tokens directly
+
+## Quality Checklist
+
+- [ ] Header includes date, status, owner
+- [ ] Markdown is properly formatted
+- [ ] Document is in correct directory
+- [ ] Follows naming conventions
+- [ ] File moved with terminal command (if applicable)
+- [ ] Design docs updated if UI decisions changed

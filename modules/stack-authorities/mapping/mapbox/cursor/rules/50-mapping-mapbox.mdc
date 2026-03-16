@@ -1,0 +1,498 @@
+---
+description: "Mapbox Studio and map implementation constraints."
+alwaysApply: false
+globs: "**/styles/**/*.{json,ts,js},**/maps/**/*.{ts,js,tsx,jsx},**/tilesets/**/*.{json,geojson},**/datasets/**/*.{json,geojson}"
+---
+
+# 50: Mapping - Mapbox
+
+**Authority Type:** Mapping Stack  
+**Technology:** Mapbox Studio + GL JS + Mobile SDKs  
+**Module ID:** `mapping/mapbox`
+
+---
+
+## Purpose
+
+Enforce Mapbox Studio workflows, tileset management, style specification adherence, and integration patterns for web and mobile map implementations.
+
+---
+
+## Core Principles
+
+### 1. Dataset → Tileset → Style Workflow
+Always follow the proper data flow: create/edit datasets, export to tilesets, add tilesets to styles.
+
+### 2. Style Specification Compliance
+All styles must conform to the Mapbox Style Specification (JSON format).
+
+### 3. Source Limits
+Maximum 15 unique sources per style. Use source compositing and filtering to stay within limits.
+
+### 4. Component-First Styling
+Use components for consistent multi-layer styling. Only eject when fine-grained control is required.
+
+---
+
+## Mapbox Studio Patterns
+
+### Dataset Editor
+
+```typescript
+// Datasets are editable GeoJSON collections
+// - Create/edit points, lines, polygons
+// - Add/edit feature properties
+// - Search places and save to dataset
+// - Export to tileset for use in styles
+```
+
+**Dataset Restrictions:**
+- 5 MB per upload
+- Editor displays up to 20 MB datasets
+- Larger datasets accessible via Datasets API
+
+### Tileset Management
+
+```typescript
+// Vector Tilesets: GeoJSON, CSV, Shapefile, KML, GPX, MBTiles
+// Raster Tilesets: GeoTIFF
+// - Max 20 uploads/month, 300 MB per upload (Studio free tier)
+// - Tilesets are immutable (replace to update)
+// - Use tileset ID format: username.identifier
+```
+
+### Style Editor
+
+```json
+{
+  "version": 8,
+  "name": "Custom Style",
+  "sources": {
+    "composite": {
+      "type": "vector",
+      "url": "mapbox://mapbox.mapbox-streets-v8"
+    }
+  },
+  "layers": [
+    {
+      "id": "background",
+      "type": "background",
+      "paint": { "background-color": "#f0f0f0" }
+    }
+  ]
+}
+```
+
+**Style Principles:**
+- Draft mode: changes visible only in editor
+- Publish: updates production (15 min propagation)
+- Source limit: 15 unique sources per style
+- Component updates: opt-in, preview before applying
+
+---
+
+## Layer Types & Use Cases
+
+### Fill Layer
+Polygons with solid color or pattern fills.
+
+```typescript
+{
+  "type": "fill",
+  "paint": {
+    "fill-color": "#3bb2d0",
+    "fill-opacity": 0.8
+  }
+}
+```
+
+### Line Layer
+Styled linestrings for roads, boundaries, contours.
+
+```typescript
+{
+  "type": "line",
+  "paint": {
+    "line-color": "#000",
+    "line-width": 2
+  }
+}
+```
+
+### Symbol Layer
+Text labels and icon markers.
+
+```typescript
+{
+  "type": "symbol",
+  "layout": {
+    "text-field": ["get", "name"],
+    "text-font": ["Open Sans Regular"],
+    "icon-image": "marker-15"
+  }
+}
+```
+
+### Circle Layer
+Scaled or interactive point data visualization.
+
+```typescript
+{
+  "type": "circle",
+  "paint": {
+    "circle-radius": 5,
+    "circle-color": "#ff0000"
+  }
+}
+```
+
+### Fill-Extrusion Layer
+3D polygon extrusion (buildings, terrain features).
+
+```typescript
+{
+  "type": "fill-extrusion",
+  "paint": {
+    "fill-extrusion-height": ["get", "height"],
+    "fill-extrusion-color": "#aaa"
+  }
+}
+```
+
+### Heatmap Layer
+Density visualization for point clusters.
+
+```typescript
+{
+  "type": "heatmap",
+  "paint": {
+    "heatmap-weight": 1,
+    "heatmap-radius": 30
+  }
+}
+```
+
+---
+
+## Data-Driven Styling & Expressions
+
+### Expressions Overview
+Expressions define formulas for computing property values using operators. Full reference: https://docs.mapbox.com/style-spec/reference/expressions/
+
+**Expression Categories:**
+- **Lookup:** `get`, `has`, `in`, `at`, `length`
+- **Decision:** `match`, `case`, `coalesce`
+- **Math:** `+`, `-`, `*`, `/`, `%`, `^`, `sqrt`, `log10`, `abs`, `round`, `ceil`, `floor`, `min`, `max`
+- **String:** `concat`, `downcase`, `upcase`, `slice`
+- **Type:** `to-string`, `to-number`, `to-boolean`, `to-color`, `typeof`
+- **Interpolation:** `interpolate`, `step`
+- **Zoom:** `zoom`
+- **Feature:** `feature-state`, `geometry-type`, `id`, `properties`
+
+### Style Across Zoom Range
+Linear, exponential, cubic-bezier, or step interpolation.
+
+```json
+{
+  "circle-radius": [
+    "interpolate",
+    ["linear"],
+    ["zoom"],
+    10, 2,
+    15, 5,
+    20, 10
+  ]
+}
+```
+
+**Legacy syntax (still supported):**
+```json
+{
+  "circle-radius": {
+    "stops": [[10, 2], [15, 5], [20, 10]]
+  }
+}
+```
+
+### Style Across Data Range
+Interpolate based on numeric property values.
+
+```json
+{
+  "fill-color": [
+    "interpolate",
+    ["linear"],
+    ["get", "population"],
+    0, "#fff",
+    100000, "#ff0",
+    1000000, "#f00"
+  ]
+}
+```
+
+### Style With Data Conditions
+Conditional logic based on property values.
+
+```json
+{
+  "fill-color": [
+    "match",
+    ["get", "class"],
+    "park", "#0f0",
+    "hospital", "#f0f",
+    "school", "#ff0",
+    "#ccc"
+  ]
+}
+```
+
+### Complex Expression Patterns
+
+**Combine zoom and data:**
+```json
+{
+  "circle-radius": [
+    "interpolate",
+    ["exponential", 1.5],
+    ["zoom"],
+    10, ["*", ["get", "value"], 0.1],
+    15, ["*", ["get", "value"], 0.5],
+    20, ["*", ["get", "value"], 1.0]
+  ]
+}
+```
+
+**Conditional with fallback:**
+```json
+{
+  "text-field": [
+    "coalesce",
+    ["get", "name_en"],
+    ["get", "name"],
+    "Unknown"
+  ]
+}
+```
+
+**Case-based logic:**
+```json
+{
+  "circle-color": [
+    "case",
+    [">", ["get", "temperature"], 30], "#f00",
+    [">", ["get", "temperature"], 20], "#ff0",
+    [">", ["get", "temperature"], 10], "#0f0",
+    "#00f"
+  ]
+}
+```
+
+---
+
+## Advanced Style Features
+
+### Imports
+Compose styles from other styles (imported styles become base layers).
+
+```json
+{
+  "version": 8,
+  "imports": [
+    {
+      "id": "basemap",
+      "url": "mapbox://styles/mapbox/standard",
+      "config": {
+        "showPointOfInterestLabels": false,
+        "showTransitLabels": false
+      }
+    }
+  ],
+  "layers": [
+    {
+      "id": "custom-layer",
+      "type": "circle",
+      "source": "custom-data"
+    }
+  ]
+}
+```
+
+### Schema (Configuration Properties)
+Define configurable properties for styles using `schema`.
+
+```json
+{
+  "schema": {
+    "showLabels": {
+      "type": "boolean",
+      "default": true,
+      "metadata": {
+        "description": "Toggle label visibility"
+      }
+    },
+    "primaryColor": {
+      "type": "color",
+      "default": "#3bb2d0"
+    }
+  }
+}
+```
+
+### Slots
+Placeholder layers for custom layer insertion in imported styles.
+
+```json
+{
+  "layers": [
+    {
+      "id": "custom-markers",
+      "type": "symbol",
+      "slot": "middle",
+      "source": "markers"
+    }
+  ]
+}
+```
+
+**Standard slots:** `bottom`, `middle`, `top`
+
+### Appearances
+Conditional visual styling sets for layers.
+
+```json
+{
+  "id": "buildings",
+  "type": "fill-extrusion",
+  "appearances": [
+    {
+      "id": "night-mode",
+      "condition": ["==", ["config", "theme"], "dark"],
+      "paint": {
+        "fill-extrusion-color": "#333"
+      }
+    }
+  ]
+}
+```
+
+### Weather Effects
+
+**Fog:**
+```json
+{
+  "fog": {
+    "range": [0.5, 10],
+    "color": "#ffffff",
+    "horizon-blend": 0.1,
+    "star-intensity": 0.15
+  }
+}
+```
+
+**Rain:**
+```json
+{
+  "rain": {
+    "intensity": 0.8,
+    "opacity": 0.6
+  }
+}
+```
+
+**Snow:**
+```json
+{
+  "snow": {
+    "intensity": 0.7,
+    "vignette": 0.5
+  }
+}
+```
+
+---
+
+## Integration Patterns
+
+### Mapbox GL JS (Web)
+
+```typescript
+import mapboxgl from 'mapbox-gl';
+
+mapboxgl.accessToken = 'YOUR_ACCESS_TOKEN';
+
+const map = new mapboxgl.Map({
+  container: 'map',
+  style: 'mapbox://styles/username/style-id',
+  center: [-74.5, 40],
+  zoom: 9
+});
+```
+
+### Mapbox Maps SDK (Mobile)
+
+```swift
+// iOS
+import MapboxMaps
+
+let mapView = MapView(frame: view.bounds)
+mapView.mapboxMap.styleURI = StyleURI(rawValue: "mapbox://styles/username/style-id")
+```
+
+```kotlin
+// Android
+import com.mapbox.maps.MapView
+
+val mapView = MapView(this)
+mapView.getMapboxMap().loadStyleUri("mapbox://styles/username/style-id")
+```
+
+---
+
+## Performance Considerations
+
+### Tileset Optimization
+- Use vector tiles for scalable, styleable data
+- Raster tiles for imagery or pre-rendered layers
+- Simplify geometries at low zoom levels
+- Monitor tile size graph in tileset explorer
+
+### Style Optimization
+- Minimize source count (15 limit)
+- Use filters to create multiple layers from one source
+- Composite sources when possible
+- Limit symbol density at high zoom levels
+
+### Runtime Optimization
+- Load styles asynchronously
+- Use clustering for dense point data
+- Debounce user interactions
+- Implement viewport-based data loading
+
+---
+
+## Attribution & Print Policy
+
+**Web/Mobile Attribution:** Required for all Mapbox maps.
+
+**Print Maps:** Require appropriate Mapbox attribution. See Mapbox print policy before exporting images.
+
+---
+
+## Success Metrics
+
+- ✅ Datasets exported to tilesets before styling
+- ✅ Styles conform to Mapbox Style Specification v8
+- ✅ Source count ≤ 15 per style
+- ✅ Component-based styling used where possible
+- ✅ Expressions used instead of legacy function syntax
+- ✅ Imports configured with schema properties when available
+- ✅ Proper attribution included in all maps
+- ✅ Print policy followed for exported images
+
+---
+
+## References
+
+- **Mapbox Style Specification:** https://docs.mapbox.com/style-spec/reference/
+- **Expressions Reference:** https://docs.mapbox.com/style-spec/reference/expressions/
+- **Mapbox Studio Manual:** https://docs.mapbox.com/studio-manual/

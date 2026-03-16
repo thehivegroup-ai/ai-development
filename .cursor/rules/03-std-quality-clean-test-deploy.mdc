@@ -1,0 +1,38 @@
+---
+description: "Quality gates for clean, test, and deploy phases."
+alwaysApply: false
+---
+
+# Standard Quality Clean Test Deploy
+
+## Testing Requirements
+
+- **All tests MUST pass (100% pass rate)** – Failing tests are noise that obscure real issues.
+- **NEVER skip fixing failing tests** – Always fix before proceeding.
+- **Run tests and report results** – Do not claim pass without evidence.
+- **Use proper test frameworks** – Create `*.test.ts` files, not ad-hoc scripts.
+
+## Clean Requirements
+
+- **Fix introduced lint and type errors** – No new warnings or errors.
+- **Remove temporary artifacts** – Delete `.temp/` files, debug code, unused imports.
+- **No commented-out code** – Delete it; git preserves history.
+- **Consistent formatting** – Follow project conventions.
+
+## Code Review
+
+**AI agents MUST perform code review before completion:**
+
+Review for:
+- Type safety (no `any`, proper interfaces)
+- Security (input validation, no secrets)
+- Performance (no N+1, proper memoization)
+- Accessibility (ARIA, semantic HTML, keyboard)
+- Error handling (try/catch, user-facing messages)
+- Testing (coverage, edge cases)
+
+## Documentation
+
+- Document notable risks, tradeoffs, or deferred work
+- Update user-facing docs for behavior changes
+- Add comments for non-obvious logic (explain "why", not "what")

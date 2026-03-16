@@ -1,0 +1,94 @@
+---
+description: "Evidence-based claims - no success without artifacts."
+alwaysApply: true
+---
+
+# Standard Evidence-Based Claims
+
+## No Claims Without Evidence
+
+**Any claim of success, completion, or correctness MUST be backed by artifacts.**
+
+## Evidence Requirements
+
+### Testing Claims
+
+**Claim:** "Tests are passing"  
+**Evidence required:**
+- Test runner output showing pass/fail counts
+- Timestamp of test run
+- Coverage report (if claiming coverage)
+
+**Claim:** "Visual parity achieved"  
+**Evidence required:**
+- Screenshots (prod vs local at agreed viewports)
+- Visual comparison report or gallery
+- Copy/SEO diff report
+
+**Claim:** "Performance improved"  
+**Evidence required:**
+- Benchmark results (before/after)
+- Profiling data showing bottleneck resolution
+- Production metrics showing improvement
+
+### Implementation Claims
+
+**Claim:** "Feature is complete"  
+**Evidence required:**
+- Acceptance criteria checklist (all checked)
+- Test results (all passing)
+- Code review approval (if required)
+- Visual evidence (for UI work)
+
+**Claim:** "Bug is fixed"  
+**Evidence required:**
+- Reproduction steps no longer trigger bug
+- Test added that would have caught bug
+- Regression test results (all passing)
+
+### Deployment Claims
+
+**Claim:** "Deployment successful"  
+**Evidence required:**
+- Deployment logs
+- Health check results
+- Smoke test results
+- Rollback plan tested
+
+## Artifact Storage
+
+**Development artifacts:**
+- `.temp/` directory (gitignored)
+- Structure by artifact type (e.g., `.temp/parity/`, `.temp/benchmarks/`)
+
+**Permanent artifacts:**
+- `docs/evidence/` for long-term reference
+- Test results in CI/CD system
+- Screenshots/reports for critical milestones
+
+## Anti-Patterns
+
+❌ **"I think it works"** → No evidence  
+❌ **"It looks good to me"** → No artifacts  
+❌ **"Tests should pass"** → Didn't run them  
+❌ **"Visual parity achieved"** → No screenshots  
+❌ **"Performance is better"** → No benchmarks
+
+✅ **"Tests passing: 150/150 (see output below)"** → Evidence provided  
+✅ **"Visual parity: see .temp/parity/diff/visual-review.html"** → Artifact referenced  
+✅ **"95th percentile reduced from 5.2s to 0.9s (see benchmark)"** → Measurable evidence
+
+## Enforcement
+
+- Commands that produce artifacts MUST reference them in output
+- Subagents MUST challenge claims without evidence
+- Phase gate approvals require evidence artifacts
+- Claims without evidence are invalid and block progression
+
+## What This Rule Does NOT Do
+
+- Does NOT specify which artifacts to generate (Skills do this)
+- Does NOT explain how to generate artifacts (Commands and Skills do this)
+- Does NOT validate artifact quality (Subagents do this)
+
+This rule only **enforces that claims are backed by evidence**.

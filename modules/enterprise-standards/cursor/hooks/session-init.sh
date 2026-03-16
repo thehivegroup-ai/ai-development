@@ -1,9 +1,9 @@
 #!/bin/bash
 # ==============================================================================
 # Hook:     sessionStart
-# Enhances: All modules — injects stack profile and installed module context
-# Purpose:  Ensure every session starts with full awareness of the project's
-#           stack configuration, installed rules, and available commands.
+# Enhances: All modules — injects non-duplicate project context
+# Purpose:  Provide stack profile and available commands (not auto-loaded by Cursor).
+#           Cursor already provides: workspace path, git status, open files, rules.
 # ==============================================================================
 
 input=$(cat)
@@ -22,25 +22,13 @@ fi
 
 context=""
 
-# Load stack profile if present
+# Load stack profile if present (NOT auto-provided by Cursor)
 if [ -f "$workspace/stack.profile.json" ]; then
   profile=$(cat "$workspace/stack.profile.json" 2>/dev/null)
   context+="## Active Stack Profile\n\`\`\`json\n$profile\n\`\`\`\n\n"
 fi
 
-# List installed rules
-if [ -d "$workspace/.cursor/rules" ]; then
-  rules=$(ls "$workspace/.cursor/rules/"*.mdc 2>/dev/null | xargs -I{} basename {} .mdc | sort)
-  if [ -n "$rules" ]; then
-    context+="## Installed Rules\n"
-    while IFS= read -r rule; do
-      context+="- $rule\n"
-    done <<< "$rules"
-    context+="\n"
-  fi
-fi
-
-# List available commands
+# List available commands (NOT auto-discovered by Cursor)
 if [ -d "$workspace/.cursor/commands" ]; then
   cmds=$(ls "$workspace/.cursor/commands/"*.md 2>/dev/null | xargs -I{} basename {} .md | sort)
   if [ -n "$cmds" ]; then
@@ -54,7 +42,7 @@ fi
 
 # Output context using jq for proper JSON escaping
 if [ -n "$context" ]; then
-  header="# Project Context (auto-injected by session-init hook)\n\n"
+  header="# Project Context\n\n"
   echo -e "${header}${context}" | jq -Rs '{ additional_context: . }'
 else
   echo '{}'

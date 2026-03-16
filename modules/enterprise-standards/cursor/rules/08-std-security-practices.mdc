@@ -1,0 +1,496 @@
+---
+description: "Security constraints for PHI, PII, and general security practices."
+alwaysApply: true
+---
+
+# Standard Security Practices
+
+## Core Security Constraints
+
+- **Zero secrets in code** – Secrets, API keys, tokens, passwords MUST use environment variables or secure credential management
+- **Zero PHI/PII in logs** – Protected health information and personally identifiable information MUST NOT appear in logs, error messages, debug output, or examples
+- **Zero PHI/PII in source** – PHI/PII MUST NOT appear in code, comments, test fixtures, or documentation
+- **Explicit data classification** – All data types MUST be classified (Public, Internal, PII, PHI, Secret)
+- **Security review before production** – Any code handling PHI/PII or authentication MUST undergo security review
+
+---
+
+## Data Classification
+
+All data MUST be classified into one of these categories:
+
+### Public
+- **Definition:** Information intended for public consumption
+- **Examples:** Marketing content, public documentation, product descriptions
+- **Controls:** None required
+- **Storage:** No restrictions
+
+### Internal
+- **Definition:** Business information not for public release
+- **Examples:** Internal processes, roadmaps, business metrics
+- **Controls:** Access control (authenticated users only)
+- **Storage:** No encryption required, access logs recommended
+
+### PII (Personally Identifiable Information)
+- **Definition:** Information that identifies or can identify an individual
+- **Examples:** Name, email, phone, address, IP address, device ID, user preferences
+- **Controls:** 
+  - Encryption at rest
+  - Encryption in transit (TLS 1.3+)
+  - Access control with audit logging
+  - Retention policy enforcement
+  - User deletion capability (GDPR right to erasure)
+- **Storage:** Encrypted database fields, secure object storage
+- **Regulations:** GDPR, CCPA, PIPEDA
+
+### PHI (Protected Health Information)
+- **Definition:** Health information that can be linked to an individual
+- **Examples:** Medical records, diagnoses, prescriptions, insurance info, biometric data, genetic data
+- **Controls:**
+  - All PII controls PLUS:
+  - HIPAA-compliant infrastructure
+  - BAA (Business Associate Agreement) required
+  - Role-based access control (RBAC)
+  - Comprehensive audit logging (who, what, when, from where)
+  - Data minimization (collect only what's necessary)
+  - De-identification when possible
+- **Storage:** HIPAA-compliant database, encrypted backups, secure retention
+- **Regulations:** HIPAA, HITECH
+
+### Secret
+- **Definition:** Credentials and keys that grant system access
+- **Examples:** API keys, passwords, tokens, certificates, encryption keys
+- **Controls:**
+  - NEVER in source code
+  - Environment variables or secure credential store (Vault, AWS Secrets Manager, Azure Key Vault)
+  - Rotation policy
+  - Access restricted to services that need them
+  - Audit logging for access
+- **Storage:** Secure credential management system only
+
+---
+
+## PHI/PII Handling Requirements
+
+### Prohibited Practices
+
+❌ **NEVER do this:**
+```typescript
+// ❌ PHI in log messages
+logger.info(`Processing prescription for patient John Doe (SSN: 123-45-6789)`);
+
+// ❌ PII in error messages
+throw new Error(`Failed to charge card ending in 4242 for user@example.com`);
+
+// ❌ PHI in test fixtures
+const testPatient = {
+  name: "Jane Smith",
+  ssn: "987-65-4321",
+  diagnosis: "Type 2 Diabetes"
+};
+
+// ❌ PII in comments
+// TODO: Fix billing for john.doe@example.com (user_id: 12345)
+
+// ❌ Secrets in code
+const API_KEY = "sk-proj-abc123...";
+```
+
+### Required Practices
+
+✅ **Always do this:**
+```typescript
+// ✅ Use IDs, not names/PHI
+logger.info(`Processing prescription for patient_id: ${patientId}`);
+
+// ✅ Redact sensitive data in errors
+throw new Error(`Payment failed for user_id: ${userId} (card: ****${last4})`);
+
+// ✅ Use synthetic data in tests
+const testPatient = {
+  patient_id: "test-patient-001",
+  age: 45,
+  // No real PHI
+};
+
+// ✅ Use IDs in comments
+// TODO: Fix billing logic for user_id: 12345
+
+// ✅ Secrets from environment
+const API_KEY = process.env.OPENAI_API_KEY;
+if (!API_KEY) throw new Error("OPENAI_API_KEY not configured");
+```
+
+### Logging PHI/PII Safely
+
+**Rules:**
+1. Log identifiers (UUIDs, numeric IDs), never names or PHI/PII
+2. Redact sensitive fields before logging objects
+3. Use structured logging with redaction libraries
+4. Never log full request/response bodies without sanitization
+
+**Example:**
+```typescript
+// ✅ Safe logging with redaction
+import { redactPII } from './utils/redaction';
+
+const safeLog = redactPII(userData, ['email', 'phone', 'ssn', 'address']);
+logger.info('User data updated', { user_id: userData.id, changes: safeLog });
+```
+
+### Audit Logging Requirements
+
+When PHI/PII is accessed, MUST log:
+- **Who:** User ID or service account
+- **What:** Action performed (read, write, delete)
+- **When:** ISO 8601 timestamp
+- **Where:** IP address, service name
+- **Why:** Request context (if available)
+
+**DO NOT log the actual PHI/PII data in audit logs.**
+
+---
+
+## Authentication & Authorization
+
+### Authentication Requirements
+
+**MUST:**
+- Use industry-standard protocols (OAuth 2.0, OpenID Connect, SAML)
+- Implement token expiration (access tokens: 15-60 min, refresh tokens: hours/days)
+- Store tokens securely (httpOnly cookies or secure storage)
+- Implement token refresh before expiration
+- Use strong password requirements (or better: SSO/passwordless)
+
+**MUST NOT:**
+- Store passwords in plain text
+- Use weak hashing (MD5, SHA1)
+- Implement custom crypto (use vetted libraries)
+- Send tokens in URL parameters
+
+### Authorization Requirements
+
+**Principle of Least Privilege:**
+- Users/services get minimum permissions needed
+- Default deny (explicit allow required)
+- Separate read and write permissions
+- Role-based access control (RBAC) for PHI/PII
+
+**Example:**
+```typescript
+// ✅ Explicit permission checks
+async function getPrescription(prescriptionId: string, userId: string) {
+  const prescription = await db.prescriptions.findById(prescriptionId);
+  
+  // Check: user has permission to view this prescription
+  if (!canAccess(userId, prescription.patient_id, 'prescriptions:read')) {
+    throw new ForbiddenError('Insufficient permissions');
+  }
+  
+  return prescription;
+}
+```
+
+---
+
+## Encryption Requirements
+
+### Data at Rest
+
+**MUST encrypt:**
+- PII fields in databases
+- PHI fields in databases
+- Backups containing PII/PHI
+- File storage containing PII/PHI
+
+**Standards:**
+- AES-256-GCM or better
+- Key management via KMS (AWS KMS, Azure Key Vault, Google Cloud KMS)
+- Key rotation policy (annually or per-compliance)
+
+### Data in Transit
+
+**MUST:**
+- Use TLS 1.3 (or TLS 1.2 minimum)
+- Enforce HTTPS for all API endpoints
+- Validate certificates
+- Use secure WebSocket (wss://) for real-time connections
+
+**MUST NOT:**
+- Send PII/PHI over unencrypted connections
+- Accept self-signed certificates in production
+- Disable certificate validation
+
+---
+
+## Input Validation & Injection Prevention
+
+### SQL Injection Prevention
+
+**MUST:**
+- Use parameterized queries (prepared statements)
+- Use ORM with proper escaping
+- Validate input types and ranges
+
+**MUST NOT:**
+- Build SQL queries with string concatenation
+- Trust user input without validation
+
+**Example:**
+```typescript
+// ✅ Parameterized query
+const users = await db.query(
+  'SELECT * FROM users WHERE email = $1',
+  [email]
+);
+
+// ❌ SQL injection vulnerability
+const users = await db.query(
+  `SELECT * FROM users WHERE email = '${email}'`
+);
+```
+
+### XSS Prevention
+
+**MUST:**
+- Escape user input before rendering in HTML
+- Use framework protections (React auto-escapes, Angular sanitizes)
+- Set Content-Security-Policy headers
+- Validate input types
+
+**MUST NOT:**
+- Use `dangerouslySetInnerHTML` without sanitization
+- Trust user-provided HTML
+
+### API Input Validation
+
+**MUST:**
+- Validate all input (type, format, range, length)
+- Reject invalid input with clear error messages
+- Use schema validation (Zod, Joi, JSON Schema)
+- Rate limit to prevent abuse
+
+---
+
+## Security Review Gates
+
+### When Security Review is Required
+
+**MUST review before production:**
+- New API endpoints handling PII/PHI
+- Authentication or authorization changes
+- Database schema changes for PII/PHI tables
+- File upload features
+- Payment processing
+- Third-party integrations with data access
+
+### Security Review Artifacts Required
+
+**MUST produce:**
+1. **Threat Model** (`docs/security/threat-model.md`)
+   - System architecture diagram
+   - Trust boundaries
+   - Identified threats (STRIDE methodology)
+   - Mitigations for each threat
+
+2. **Data Flow Diagram** (`docs/security/data-flow.md`)
+   - Show PII/PHI data paths
+   - Identify encryption points (at rest, in transit)
+   - Show authentication/authorization checks
+
+3. **Security Checklist** (`docs/security/security-checklist.md`)
+   - OWASP Top 10 review
+   - Authentication/authorization validation
+   - Input validation review
+   - Encryption verification
+   - Audit logging confirmation
+
+**Review Process:**
+1. Developer creates artifacts
+2. Security reviewer validates (or security-critic agent in SOLUTION mode)
+3. Issues addressed
+4. Approval documented
+5. Deployment allowed
+
+---
+
+## Dependency Security
+
+**MUST:**
+- Run dependency vulnerability scans (npm audit, Snyk, Dependabot)
+- Update dependencies with known vulnerabilities
+- Review security advisories for critical dependencies
+- Pin dependency versions (no `^` or `~` in production)
+
+**MUST NOT:**
+- Ignore high/critical vulnerability warnings
+- Use unmaintained dependencies for security-critical code
+
+---
+
+## Error Handling & Information Disclosure
+
+### Error Messages
+
+**MUST:**
+- Return generic error messages to users
+- Log detailed errors server-side
+- Use error tracking (Sentry, Rollbar)
+
+**MUST NOT:**
+- Expose stack traces to users
+- Include PII/PHI in error messages
+- Reveal database structure or internal paths
+- Show detailed validation errors that leak system info
+
+**Example:**
+```typescript
+// ✅ Safe error handling
+try {
+  await processPayment(userId, cardToken);
+} catch (error) {
+  // Log details server-side (no PII)
+  logger.error('Payment processing failed', { 
+    user_id: userId, 
+    error: error.message 
+  });
+  
+  // Return generic message to user
+  throw new Error('Payment processing failed. Please try again.');
+}
+
+// ❌ Information disclosure
+throw new Error(`Payment failed: ${error.stack} for user ${userEmail}`);
+```
+
+---
+
+## Retention & Deletion
+
+### Data Retention Requirements
+
+**MUST:**
+- Define retention periods for each data classification
+- Automatically delete data after retention period
+- Document retention policy
+
+**Example retention policy:**
+- **PHI:** 7 years (or per-regulation)
+- **PII:** Until user deletes account + 30 days
+- **Audit logs:** 1 year minimum (2-7 years for regulated industries)
+- **Session data:** 24 hours after logout
+
+### User Data Deletion
+
+**MUST:**
+- Provide user data deletion capability (GDPR right to erasure)
+- Delete all associated data (not just user record)
+- Delete from backups (or mark for deletion on restore)
+- Confirm deletion to user
+
+**Example:**
+```typescript
+async function deleteUserData(userId: string) {
+  // Delete user data across all systems
+  await db.users.delete(userId);
+  await db.userPreferences.delete({ user_id: userId });
+  await db.userActivity.delete({ user_id: userId });
+  await cache.delete(`user:${userId}`);
+  await auditLog('user_deletion', { user_id: userId });
+}
+```
+
+---
+
+## Common Vulnerability Prevention (OWASP Top 10)
+
+### 1. Broken Access Control
+✅ Validate permissions on every request  
+✅ Default deny  
+✅ Disable directory listing  
+❌ Never trust client-side permission checks
+
+### 2. Cryptographic Failures
+✅ Encrypt PII/PHI at rest and in transit  
+✅ Use TLS 1.3  
+✅ Use strong algorithms (AES-256, RSA-4096)  
+❌ Never implement custom crypto
+
+### 3. Injection
+✅ Use parameterized queries  
+✅ Validate and sanitize input  
+✅ Use ORM frameworks  
+❌ Never build queries with string concatenation
+
+### 4. Insecure Design
+✅ Threat modeling before build  
+✅ Security requirements in planning  
+✅ Defense in depth  
+❌ Never skip security review for PHI/PII features
+
+### 5. Security Misconfiguration
+✅ Disable unnecessary features  
+✅ Remove default accounts  
+✅ Security headers configured  
+❌ Never expose debug endpoints in production
+
+### 6. Vulnerable Components
+✅ Keep dependencies updated  
+✅ Scan for vulnerabilities  
+✅ Review security advisories  
+❌ Never ignore critical vulnerabilities
+
+### 7. Identification & Authentication Failures
+✅ Multi-factor authentication  
+✅ Strong password policy  
+✅ Session timeout  
+❌ Never store passwords in plain text
+
+### 8. Software & Data Integrity Failures
+✅ Code signing  
+✅ Dependency integrity checks  
+✅ CI/CD pipeline security  
+❌ Never trust unsigned code
+
+### 9. Security Logging & Monitoring Failures
+✅ Log security events  
+✅ Monitor for anomalies  
+✅ Alert on suspicious activity  
+❌ Never log PHI/PII in audit logs
+
+### 10. Server-Side Request Forgery (SSRF)
+✅ Validate URLs  
+✅ Allowlist external services  
+✅ Network segmentation  
+❌ Never trust user-provided URLs without validation
+
+---
+
+## Hook Integration
+
+Security hooks are automatically triggered:
+
+- **`afterFileEdit`**: `phi-pii-scanner.sh` checks for PHI/PII in code
+- **`afterFileEdit`**: `secrets-scanner.sh` checks for hardcoded secrets
+- **`beforeCommit`**: `security-audit.sh` runs security checklist
+
+These hooks provide immediate feedback to prevent security issues.
+
+---
+
+## Enforcement
+
+- **Rules:** This document establishes security constraints (always enforced)
+- **Hooks:** Automated scanning catches common issues during development
+- **Skills:** `security-review` skill provides deep analysis for PHI/PII features
+- **Agents:** `security-critic` agent challenges security aspects of solutions
+
+---
+
+## What This Rule Does NOT Do
+
+- Does NOT explain how to implement security features (Skills do this)
+- Does NOT specify which security tools to use (Project-specific)
+- Does NOT validate implementation quality (Agents do this)
+
+This rule only **establishes security constraints that MUST be followed**.

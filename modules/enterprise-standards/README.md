@@ -21,6 +21,7 @@ work across all projects.
 - `05-std-documentation-organization.mdc` – Documentation structure (docs/, memory-bank/, lifecycle)
 - `06-std-workflow-modes.mdc` – 9-mode workflow: SOLUTION → PLAN → DESIGN-FLOW → DESIGN-REVIEW → BUILD-SCREEN → BUILD-API → CLEAN-SWEEP → TEST-LOOP → DEPLOY-RELEASE
 - `07-std-evidence-based-claims.mdc` – Evidence requirements for success claims
+- `08-std-security-practices.mdc` – Security constraints for PHI, PII, secrets, OWASP, HIPAA, GDPR
 
 ### Skills (invocable via `/skill-name`)
 
@@ -37,6 +38,7 @@ work across all projects.
 - `teleological-planning/` – How to create outcome-driven plans
 - `heuristic-design-review/` – How to evaluate UI design quality using heuristics
 - `engineering-hygiene/` – How to ensure quality before handoff
+- `security-review/` – How to perform deep security analysis for PHI/PII features (STRIDE threat modeling, data flow mapping, compliance checklists)
 
 ### Agents
 
@@ -47,3 +49,19 @@ work across all projects.
 - `ux-visual-design-critic.md` – Visual design principles evaluator
 - `ux-platform-evaluator.md` – Platform compliance checker
 - `ux-accessibility-auditor.md` – Accessibility auditor
+- `security-critic.md` – Adversarial security reviewer (challenges auth, encryption, compliance)
+
+### Hooks
+
+- `phi-pii-scanner.sh` – Real-time detection of PHI/PII patterns in code (afterFileEdit)
+- `security-audit.sh` – Pre-commit comprehensive security checklist (manual invocation)
+- `secrets-scanner.sh` – Detects hardcoded secrets (afterFileEdit)
+- `hygiene-watchdog.sh` – Detects debug artifacts and incomplete code (afterFileEdit)
+- `git-guard.sh` – Prevents AI from performing git operations (beforeShellExecution)
+
+### Documentation
+
+See `docs/security/` for comprehensive security standards documentation:
+- **README.md** – Security standards overview and usage guide
+- **QUICK-START.md** – 5-minute quick start guide with examples
+- **IMPLEMENTATION.md** – Implementation details and file structure

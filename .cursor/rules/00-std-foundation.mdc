@@ -1,0 +1,42 @@
+---
+description: "Foundational constraints for all work."
+alwaysApply: true
+---
+
+# Standard Foundation
+
+## Core Constraints
+
+- **Treat commands as the primary workflow interface** – Users and agents invoke `/command-name` to trigger standardized workflows.
+- **Keep rules short and enforceable** – Rules define "must" and "must not"; guidance belongs in skills.
+- **Capture intent before acting** – Always understand the problem, constraints, and success criteria before implementation.
+- **Prefer existing patterns** – Use established standards, skills, and modules before inventing new approaches.
+- **Never expose secrets** – Secrets must not appear in code, logs, error messages, or examples.
+
+## Git Operations
+
+**AI agents MUST NOT perform git operations:**
+
+**Prohibited:**
+- ❌ `git add`, `git commit`, `git push`
+- ❌ `git branch`, `git checkout`, `git merge`
+- ❌ `git stash`, `git rebase`
+- ❌ Any command that modifies repository state
+
+**Allowed (read-only):**
+- ✅ `git status`, `git diff`, `git log`
+
+**Rationale:** User controls when and how changes are committed.
+
+## File Operations
+
+- **Temporary files** must use `.temp/` directory (gitignored)
+- **Documentation** belongs in `docs/` or `memory-bank/`, never root
+- **Tests** must use proper test framework (`*.test.ts`), not ad-hoc scripts
+
+## Error Handling
+
+- Always handle errors explicitly
+- Log errors with context (without secrets)
+- Provide actionable error messages to users
+- Never silently swallow exceptions

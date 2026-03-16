@@ -14,7 +14,8 @@
       "04-std-environment-config.mdc",
       "05-std-documentation-organization.mdc",
       "06-std-workflow-modes.mdc",
-      "07-std-evidence-based-claims.mdc"
+      "07-std-evidence-based-claims.mdc",
+      "08-std-security-practices.mdc"
     ],
     "skills": [
       "engineering-hygiene",
@@ -26,7 +27,8 @@
       "std-clean-sweep",
       "std-test-loop",
       "std-deploy-release",
-      "std-design-review"
+      "std-design-review",
+      "security-review"
     ],
     "agents": [
       "std-debugger.md",
@@ -35,12 +37,15 @@
       "ux-heuristic-evaluator.md",
       "ux-visual-design-critic.md",
       "ux-platform-evaluator.md",
-      "ux-accessibility-auditor.md"
+      "ux-accessibility-auditor.md",
+      "security-critic.md"
     ],
     "hooks": [
       "hooks.json",
       "hooks/git-guard.sh",
       "hooks/secrets-scanner.sh",
+      "hooks/phi-pii-scanner.sh",
+      "hooks/security-audit.sh",
       "hooks/auto-format.sh",
       "hooks/hygiene-watchdog.sh",
       "hooks/session-init.sh",

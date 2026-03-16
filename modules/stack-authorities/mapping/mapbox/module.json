@@ -1,0 +1,25 @@
+{
+  "$schema": "../../../../schemas/module.schema.json",
+  "id": "mapping/mapbox",
+  "type": "stack-authority",
+  "name": "Mapbox Mapping Platform",
+  "description": "Mapbox Studio workflows, tileset management, and style editor patterns for web and mobile maps",
+  "version": "1.0.0",
+  "provides": {
+    "rules": ["cursor/rules/50-mapping-mapbox.mdc"],
+    "commands": [
+      "cursor/commands/mapbox.style.create.md",
+      "cursor/commands/mapbox.tileset.manage.md",
+      "cursor/commands/mapbox.dataset.edit.md",
+      "cursor/commands/mapbox.runtime.patterns.md"
+    ],
+    "skills": ["cursor/skills/mapbox-standards"],
+    "agents": ["cursor/agents/mapbox.style-reviewer.md"]
+  },
+  "requires": [""],
+  "compatibility": {
+    "platforms": ["web", "mobile", "ios", "android"],
+    "excludes": []
+  },
+  "tags": ["mapping", "mapbox", "gis", "tiles", "maps", "geospatial", "location"]
+}

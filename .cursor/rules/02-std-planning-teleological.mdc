@@ -1,0 +1,42 @@
+---
+description: "Constraints for teleological (outcome-driven) planning."
+alwaysApply: false
+---
+
+# Standard Planning Teleological
+
+## Outcome-Driven Planning Required
+
+**Every initiative must define the end-state before planning tasks:**
+
+1. **Concrete end-state** (observable, falsifiable)
+2. **Acceptance criteria** (how we verify the telos is achieved)
+3. **Non-goals** (what success is NOT)
+4. **Task-to-outcome mapping** (every task contributes to telos)
+5. **Phase gates** (verifiable progress checkpoints)
+6. **Validation steps** (tests, checks, reviews)
+
+## Teleological Discipline
+
+- **Plans must be derived backward from the end-state** – Not task-first thinking
+- **Tasks without clear contribution to end-state are invalid** – No busywork
+- **Execution may not begin without approved plan** – Prevents activity without direction
+- **Plans are falsifiable** – Must be possible to prove plan fails to achieve telos
+
+## Backward Planning
+
+Plans must demonstrate:
+1. End-state is clearly defined
+2. Acceptance criteria are observable
+3. Tasks are derived backward from end-state
+4. Dependencies are identified
+5. Validation checkpoints are included
+6. Risks and rollback strategies are documented
+
+## What This Rule Does NOT Do
+
+- Does NOT explain how to plan backward (see `teleological-planning` skill)
+- Does NOT provide planning method (use `/std-plan` command)
+- Does NOT validate outcome-task alignment (subagents do this)
+
+This rule only **enforces that planning is outcome-driven, not task-driven**.
