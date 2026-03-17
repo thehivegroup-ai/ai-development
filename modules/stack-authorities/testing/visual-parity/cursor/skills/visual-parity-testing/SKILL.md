@@ -1,6 +1,14 @@
 ---
 name: visual-parity-testing
-description: Complete methodology for evidence-driven visual parity testing between production and local environments. Use when validating visual consistency between production and local/staging, running visual regression comparisons, or setting up evidence-based parity workflows.
+version: 1.0.0
+description: >
+  Complete methodology for evidence-driven visual parity testing between production and local 
+  environments. Use when validating visual consistency between production and local/staging, 
+  running visual regression comparisons, or setting up evidence-based parity workflows.
+  
+  Trigger when user mentions: visual parity, screenshot comparison, production vs local, 
+  visual regression, does it match production, verify design matches, compare environments, 
+  capture screenshots, visual testing, or uploads production screenshots asking to match them.
 ---
 
 # Visual Parity Testing

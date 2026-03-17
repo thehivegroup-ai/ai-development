@@ -1,6 +1,13 @@
 ---
 name: postgres-standards
-description: Postgres migration and performance practices. Use when designing PostgreSQL schemas, writing or reviewing migrations, optimizing queries, or auditing index strategies.
+version: 1.0.0
+description: >
+  Postgres migration and performance practices. Use when designing PostgreSQL schemas, writing 
+  or reviewing migrations, optimizing queries, or auditing index strategies.
+  
+  Trigger when user mentions: Postgres migration, database schema, create table, add index, 
+  query optimization, N+1 queries, slow query, migration rollback, foreign keys, or asks about 
+  PostgreSQL best practices or performance tuning.
 ---
 
 # Postgres Standards

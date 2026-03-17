@@ -1,6 +1,15 @@
 ---
 name: hermeneutic-solution
-description: Frame a solution by interpreting intent using Heidegger's hermeneutic circle operationalized for software development. Use when the request is ambiguous, the scope is unclear, multiple solution paths exist, or before proposing a solution to a complex problem.
+version: 1.0.0
+description: >
+  Frame a solution by interpreting intent using Heidegger's hermeneutic circle operationalized 
+  for software development. Use when the request is ambiguous, the scope is unclear, multiple 
+  solution paths exist, or before proposing a solution to a complex problem.
+  
+  Trigger when user mentions: requirements unclear, what should we build, multiple approaches, 
+  scope not clear, stakeholders disagree, problem keeps changing, clarify requirements, 
+  understand the problem, or asks questions like "what's the real issue here" or "why do we 
+  need this" before starting implementation.
 ---
 
 # Hermeneutic Solution

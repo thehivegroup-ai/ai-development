@@ -1,6 +1,14 @@
 ---
 name: mongodb-standards
-description: MongoDB schema design patterns for embedding, referencing, and indexing. Use when designing MongoDB collections, choosing between embedding and referencing, creating indexes, or optimizing query performance.
+version: 1.0.0
+description: >
+  MongoDB schema design patterns for embedding, referencing, and indexing. Use when designing MongoDB 
+  collections, choosing between embedding and referencing, creating indexes, or optimizing query 
+  performance.
+  
+  Trigger when user mentions: MongoDB schema, embed vs reference, document structure, MongoDB index, 
+  query optimization, aggregation pipeline, one-to-many relationship, or asks about MongoDB best 
+  practices or schema design.
 ---
 
 # Skill: MongoDB Data Modeling

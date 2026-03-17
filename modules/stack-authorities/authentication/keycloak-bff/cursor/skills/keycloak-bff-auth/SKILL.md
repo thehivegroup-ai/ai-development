@@ -1,6 +1,13 @@
 ---
 name: keycloak-bff-auth
-description: Keycloak BFF authentication — OIDC integration, JWT verification, RBAC middleware, and frontend token management. Use when implementing Keycloak authentication, adding protected routes, configuring RBAC middleware, or debugging JWT and token issues.
+version: 1.0.0
+description: >
+  Keycloak BFF authentication — OIDC integration, JWT verification, RBAC middleware, and frontend token 
+  management. Use when implementing Keycloak authentication, adding protected routes, configuring RBAC 
+  middleware, or debugging JWT and token issues.
+  
+  Trigger when user mentions: Keycloak, OIDC, JWT token, authentication middleware, RBAC, protected route, 
+  role-based access, token refresh, or asks about Keycloak integration or authentication setup.
 ---
 
 # Keycloak BFF Authentication

@@ -1,6 +1,14 @@
 ---
 name: react-component-standards
-description: React component patterns for performance, state, and a11y. Use when creating or refactoring React components, optimizing render performance, managing component state, or ensuring accessibility compliance.
+version: 1.0.0
+description: >
+  React component patterns for performance, state, and a11y. Use when creating or refactoring 
+  React components, optimizing render performance, managing component state, or ensuring 
+  accessibility compliance.
+  
+  Trigger when user mentions: create React component, optimize React performance, fix re-renders, 
+  add memoization, create context provider, custom hooks, form component, accessibility issues, 
+  or asks about React.memo, useCallback, useMemo, or component best practices.
 ---
 
 # React Component Standards

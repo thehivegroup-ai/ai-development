@@ -1,6 +1,13 @@
 ---
 name: vue-component-standards
-description: Vue 3 component patterns with Composition API, TypeScript, and Tailwind CSS. Use when building or refactoring Vue 3 components, migrating from Options API, creating composables, or integrating Pinia state management.
+version: 1.0.0
+description: >
+  Vue 3 component patterns with Composition API, TypeScript, and Tailwind CSS. Use when building or 
+  refactoring Vue 3 components, migrating from Options API, creating composables, or integrating Pinia 
+  state management.
+  
+  Trigger when user mentions: Vue component, Composition API, composable, ref, reactive, computed, watch, 
+  Pinia store, Vue with Tailwind, or asks about Vue 3 best practices or Composition API patterns.
 ---
 
 # Skill: Vue.js Component Standards

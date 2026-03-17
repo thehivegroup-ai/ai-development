@@ -1,6 +1,15 @@
 ---
 name: heuristic-design-review
-description: Evaluate UI design quality using Nielsen's heuristics and core visual design principles, operationalized as a repeatable review system for web and mobile. Use when evaluating UI usability, reviewing screen designs, or when a design feels off and needs structured critique.
+version: 1.0.0
+description: >
+  Evaluate UI design quality using Nielsen's heuristics and core visual design principles, 
+  operationalized as a repeatable review system for web and mobile. Use when evaluating UI 
+  usability, reviewing screen designs, or when a design feels off and needs structured critique.
+  
+  Trigger when user mentions: design review, UI evaluation, usability issues, design critique, 
+  heuristic evaluation, Nielsen's heuristics, check design quality, accessibility review, 
+  design feels wrong, user experience problems, or asks "is this design good" or "what's wrong 
+  with this UI."
 ---
 
 # Heuristic Design Review

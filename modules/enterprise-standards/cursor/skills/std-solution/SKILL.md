@@ -1,6 +1,14 @@
 ---
 name: std-solution
-description: Trigger the hermeneutic circle to interpret the problem before proposing solutions. Use when the problem statement is ambiguous, requirements need clarification, or before proposing a solution to ensure the real intent is understood.
+version: 1.0.0
+description: >
+  Trigger the hermeneutic circle to interpret the problem before proposing solutions. Use when 
+  the problem statement is ambiguous, requirements need clarification, or before proposing a 
+  solution to ensure the real intent is understood.
+  
+  Trigger when user mentions: unclear requirements, ambiguous request, multiple approaches, 
+  what's the real problem, clarify scope, stakeholder disagreement, or asks to understand 
+  intent before building.
 disable-model-invocation: true
 ---
 

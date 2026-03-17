@@ -1,6 +1,13 @@
 ---
 name: mapbox-standards
-description: Mapbox Studio workflows for dataset creation, tileset management, style editing, and map integration. Use when working with Mapbox Studio, creating custom map styles, managing geographic data, or integrating maps in web/mobile applications.
+version: 1.0.0
+description: >
+  Mapbox Studio workflows for dataset creation, tileset management, style editing, and map integration. 
+  Use when working with Mapbox Studio, creating custom map styles, managing geographic data, or integrating 
+  maps in web/mobile applications.
+  
+  Trigger when user mentions: Mapbox, map style, dataset, tileset, GeoJSON, custom map, map markers, 
+  geographic data, Mapbox GL JS, or asks about map styling or Mapbox integration.
 ---
 
 # Skill: Mapbox Studio Standards

@@ -1,6 +1,15 @@
 ---
 name: teleological-planning
-description: Build outcome-driven plans by working backward from the desired end-state (telos). Use when creating execution plans from a defined outcome, decomposing complex goals into phased tasks, or when planning needs to be outcome-driven rather than activity-driven.
+version: 1.0.0
+description: >
+  Build outcome-driven plans by working backward from the desired end-state (telos). Use when 
+  creating execution plans from a defined outcome, decomposing complex goals into phased tasks, 
+  or when planning needs to be outcome-driven rather than activity-driven.
+  
+  Trigger when user mentions: create a plan, how do we achieve this, what steps are needed, 
+  break this down, plan the implementation, work backward from goal, define phases, or asks 
+  to structure work into milestones, deliverables, or asks "how do we get there" after 
+  defining success criteria.
 ---
 
 # Teleological Planning

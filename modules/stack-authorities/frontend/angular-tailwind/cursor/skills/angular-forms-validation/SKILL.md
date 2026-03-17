@@ -1,6 +1,14 @@
 ---
 name: angular-forms-validation
-description: Angular reactive forms with validation and multi-step patterns. Use when building forms in Angular, implementing multi-step wizards, adding real-time validation, or creating complex form layouts with reactive patterns.
+version: 1.0.0
+description: >
+  Angular reactive forms with validation and multi-step patterns. Use when building forms in Angular, 
+  implementing multi-step wizards, adding real-time validation, or creating complex form layouts with 
+  reactive patterns.
+  
+  Trigger when user mentions: Angular form, reactive form, form validation, FormGroup, FormControl, 
+  custom validator, multi-step form, form wizard, real-time validation, or asks about Angular forms 
+  best practices.
 ---
 
 # Angular Forms Validation

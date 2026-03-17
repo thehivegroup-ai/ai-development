@@ -1,6 +1,14 @@
 ---
 name: playwright-capture
-description: Technical guide for using Playwright to capture rendered screenshots and HTML at multiple viewports. Use when capturing screenshots for visual parity testing, setting up multi-viewport screenshot automation, or comparing rendered output between environments.
+version: 1.0.0
+description: >
+  Technical guide for using Playwright to capture rendered screenshots and HTML at multiple viewports. 
+  Use when capturing screenshots for visual parity testing, setting up multi-viewport screenshot 
+  automation, or comparing rendered output between environments.
+  
+  Trigger when user mentions: Playwright screenshot, capture screenshot, multi-viewport testing, 
+  screenshot automation, browser testing, visual regression, or asks about capturing screenshots 
+  or setting up Playwright.
 ---
 
 # Playwright Capture

@@ -1,6 +1,12 @@
 ---
 name: sqlserver-standards
-description: SQL Server migration and performance practices. Use when designing SQL Server schemas, writing or reviewing migrations, optimizing queries, or auditing index strategies.
+version: 1.0.0
+description: >
+  SQL Server migration and performance practices. Use when designing SQL Server schemas, writing or 
+  reviewing migrations, optimizing queries, or auditing index strategies.
+  
+  Trigger when user mentions: SQL Server migration, T-SQL, database schema, create table, add index, 
+  query optimization, execution plan, stored procedure, or asks about SQL Server best practices.
 ---
 
 # SQL Server Standards

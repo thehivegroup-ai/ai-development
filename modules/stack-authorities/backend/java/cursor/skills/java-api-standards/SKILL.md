@@ -1,6 +1,12 @@
 ---
 name: java-api-standards
-description: Java API design, validation, and testing patterns. Use when building or refactoring Java API layers, designing REST endpoints, implementing validation, or writing API tests.
+version: 1.0.0
+description: >
+  Java API design, validation, and testing patterns. Use when building or refactoring Java API layers, 
+  designing REST endpoints, implementing validation, or writing API tests.
+  
+  Trigger when user mentions: Java API, Spring Boot, REST controller, request validation, Bean Validation, 
+  service layer, DTO, exception handling, or asks about Java REST API best practices.
 ---
 
 # Java API Standards

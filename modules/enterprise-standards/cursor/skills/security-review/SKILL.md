@@ -1,6 +1,13 @@
 ---
 name: security-review
-description: Deep security analysis for solutions involving PHI, PII, authentication, or sensitive data. Produces threat models, data flow diagrams, and compliance checklists.
+version: 1.0.0
+description: >
+  Deep security analysis for solutions involving PHI, PII, authentication, or sensitive data. 
+  Produces threat models, data flow diagrams, and compliance checklists.
+  
+  Trigger when user mentions: security review, PHI, PII, sensitive data, authentication, 
+  authorization, HIPAA, GDPR, compliance, threat model, security vulnerabilities, data protection, 
+  encryption, access control, or asks about securing user data, handling passwords, or API security.
 ---
 
 # Security Review
