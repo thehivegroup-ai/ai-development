@@ -1,0 +1,36 @@
+{
+  "$schema": "../../../../schemas/module.schema.json",
+  "id": "frontend/untitledui",
+  "type": "stack-authority",
+  "name": "Untitled UI React",
+  "description": "Untitled UI component library with React, TypeScript, Tailwind CSS v4.1, and React Aria Components",
+  "version": "1.0.0",
+  "provides": {
+    "rules": [
+      "25-web-untitledui-react.mdc"
+    ],
+    "commands": [
+      "web.untitledui.add-component.md",
+      "web.untitledui.build-form.md",
+      "web.untitledui.customize-theme.md"
+    ],
+    "skills": [
+      "untitledui-docs"
+    ],
+    "agents": [
+      "web.untitledui-critic.md"
+    ]
+  },
+  "requires": [""],
+  "compatibility": {
+    "cursor": ">=0.40.0",
+    "modules": {
+      "": "*",
+      "frontend/react-tailwind": "*",
+      "frontend/next-tailwind": "*"
+    }
+  },
+  "tags": ["frontend", "react", "untitledui", "tailwind", "typescript", "component-library", "react-aria", "ui-components"],
+  "author": "The Hive Group",
+  "license": "MIT"
+}
