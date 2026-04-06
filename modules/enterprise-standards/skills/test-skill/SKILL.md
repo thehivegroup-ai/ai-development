@@ -1,10 +1,10 @@
 ---
 name: test-skill
-version: 0.0.1
+version: 0.0.2
 description: >
-  Temporary skill created to exercise push_module_updates (MCP). Safe to delete after testing.
+  Temporary skill for MCP push_module_updates retest. Safe to delete after testing.
 ---
 
-# Test skill
+# Test skill (run 2)
 
-This file exists only to verify copying from `.cursor/skills/test-skill/` into the ai-development clone via `ai-development.sync-manifest.json`.
+Verifies copy from `.cursor/skills/test-skill/` into the ai-development clone via `ai-development.sync-manifest.json`.
