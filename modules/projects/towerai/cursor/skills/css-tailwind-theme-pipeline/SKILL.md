@@ -13,7 +13,7 @@ description: >
 
 # CSS / Tailwind / Theme Pipeline (TowerAI Web)
 
-Use this skill for **global styling architecture** in `apps/web`. For component-level Tailwind patterns, see `react-tailwind-conventions`; for Untitled UI MCP/CLI discovery, see `untitledui-docs`.
+Use this skill for **global styling architecture** in `apps/web`. For component-level Tailwind patterns and Untitled UI MCP/CLI discovery, use the **`react-tailwind-conventions`** and **`untitledui-docs`** skills from the **`react-tailwind`** and **`untitledui`** stack modules (not duplicated in this project module).
 
 ## Goals
 
@@ -84,8 +84,7 @@ rg "@import 'tailwindcss'" apps/web/src --glob '*.css'
 
 Expect **one** `@import 'tailwindcss'` in `apps/web` (only `src/styles.css`).
 
-## Related rules
+## Related
 
-- `.cursor/rules/26-design-system.mdc` — semantic classes, `cx`, Rubik
-- `.cursor/rules/27-css-tailwind-theme-pipeline.mdc` — short enforceable checklist
-- `.cursor/rules/28-monorepo-packages.mdc` — skill **monorepo-packages** (`@towerai/*`, `workspace:*`, `exports`)
+- **Design system / docs:** use your repo’s `docs/design/` and any project rule you maintain locally—**do not** expect numbered `NN-*.mdc` files from this module (those belong in enterprise/stack overlays, not under `modules/projects/`).
+- **Monorepo:** skill **monorepo-packages** in this module (`@towerai/*`, `workspace:*`, `exports`).

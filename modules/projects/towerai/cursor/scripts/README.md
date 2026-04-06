@@ -6,7 +6,7 @@ Scripts that can be invoked manually for additional checks.
 
 ## `check-css-theme-pipeline.sh`
 
-**Purpose:** Enforce **rule 27** — single Tailwind global entry and no `@towerai/ui/styles` in `apps/web`.
+**Purpose:** Enforce the **css-tailwind-theme-pipeline** skill — single Tailwind global entry and no `@towerai/ui/styles` in `apps/web`.
 
 **Usage:**
 
@@ -21,7 +21,7 @@ bash .cursor/scripts/check-css-theme-pipeline.sh
 1. No `import '@towerai/ui/styles'` (or `from '@towerai/ui/styles'`) under `apps/web/src`.
 2. No `@import 'tailwindcss'` in any `apps/web/src/**/*.css` except `apps/web/src/styles.css`.
 
-**Cursor:** The same rules are surfaced on edit via `.cursor/hooks/css-theme-pipeline.sh` (`afterFileEdit` in `hooks.json`).
+**Cursor:** The same checks are surfaced on edit via `.cursor/hooks/css-theme-pipeline.sh` (`afterFileEdit` in `hooks.json`).
 
 ---
 

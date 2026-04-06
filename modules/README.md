@@ -62,7 +62,7 @@ Cross-cutting controls:
 ### `projects/`
 **Named project overlays** — rules, skills, hooks, agents, and commands that apply to a specific application or product (for example TowerAI). These modules use category `named-project`, are discovered like other modules (via `module.json`), and install with **`projects` in the MCP selection**, merged **after** stack modules so they can extend or override shared behavior.
 
-Example: `projects/towerai/` holds TowerAI monorepo conventions (`@towerai/*`), CSS pipeline, Okta, and Express API rules.
+Example: `projects/towerai/` holds TowerAI-specific skills and hooks (e.g. CSS pipeline, monorepo packages); numbered rules and `std-*` skills come from enterprise/stack modules, not from `projects/`.
 
 ---
 

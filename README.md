@@ -108,7 +108,10 @@ ai-development/
 │       ├── base/                      # Baseline quality controls
 │       └── regulated/                 # Compliance controls
 │
-├── mcp-server/                        # MCP server (8 tools, production ready)
+├── shared-context/                    # Per-initiative docs + memory-bank (not root docs/)
+│   └── <project-name>/docs|memory-bank/
+│
+├── mcp-server/                        # MCP server (stdio tools)
 │   ├── src/                           # TypeScript source (2,000+ lines)
 │   │   ├── tools/                     # Tool implementations
 │   │   └── modules/                   # Core functionality

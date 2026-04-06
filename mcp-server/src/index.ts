@@ -37,6 +37,7 @@ import {
 } from './modules/installer.js';
 import { writeInstalledEnvironment } from './modules/syncManifest.js';
 import { pushModuleUpdates, pullLatestAndRefreshProject } from './modules/repoSync.js';
+import { listSharedContextDetail, pushSharedContext } from './modules/sharedContext.js';
 import { validateEnvironment } from './modules/validator.js';
 import {
   categorizeModules,
@@ -480,7 +481,7 @@ function createServer() {
       {
         name: 'push_module_updates',
         description:
-          'Copy changes from project .cursor/ into the local ai-development clone using ai-development.sync-manifest.json, then git commit and push (uses your existing git credentials).',
+          'Copy changes from project .cursor/ into the local ai-development clone using ai-development.sync-manifest.json, then git commit and push. Optional onlyPaths limits to specific files (rules, skills, hooks, agents, commands). skillsTargetModuleId targets project module skills and refreshes module.json.',
         inputSchema: {
           type: 'object',
           properties: {
@@ -497,6 +498,17 @@ function createServer() {
               enum: ['skills', 'all'],
               description: 'skills = only under .cursor/skills/; all = every file in the sync manifest',
               default: 'skills',
+            },
+            skillsTargetModuleId: {
+              type: 'string',
+              description:
+                'When scope is skills: copy every file under .cursor/skills/ to modules/<this module>/cursor/skills/ (e.g. projects/towerai), then update that module\'s module.json provides.skills to match on-disk skill folders (so installers discover them). Ignores manifest destinations for skills. Omit to use sync-manifest paths.',
+            },
+            onlyPaths: {
+              type: 'array',
+              items: { type: 'string' },
+              description:
+                'Optional. Paths relative to .cursor/ to push only (e.g. ["skills/my-skill/SKILL.md"], ["rules/20-web.mdc"], ["hooks.json"], ["commands/foo.md"]). Prefix match: "skills/foo" pushes everything under that folder. Use scope "all" with onlyPaths to push a single rule, hook, agent, or command.',
             },
             dryRun: {
               type: 'boolean',
@@ -535,6 +547,66 @@ function createServer() {
             },
           },
           required: ['projectPath'],
+        },
+      },
+      {
+        name: 'list_shared_context',
+        description:
+          'List initiatives under shared-context/<project-name>/ (docs + memory-bank) in a local ai-development clone. Separate from root docs/ and memory-bank/ (repo docs) and from modules/.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            localRepoPath: {
+              type: 'string',
+              description:
+                'Absolute path to ai-development clone root. Defaults to LOCAL_MODULES_REPO / AI_DEVELOPMENT_REPO.',
+            },
+          },
+        },
+      },
+      {
+        name: 'push_shared_context',
+        description:
+          'Copy local docs and/or memory-bank trees into shared-context/<projectName>/ in the ai-development clone, then optionally git commit and push. Use to publish initiative docs from another folder or machine; sources may be outside the clone.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            aiDevelopmentRepo: {
+              type: 'string',
+              description:
+                'Absolute path to ai-development clone. Defaults to AI_DEVELOPMENT_REPO or LOCAL_MODULES_REPO.',
+            },
+            projectName: {
+              type: 'string',
+              description:
+                'Initiative key (e.g. towerai). Creates shared-context/<projectName>/docs and/or memory-bank/.',
+            },
+            docsSourcePath: {
+              type: 'string',
+              description:
+                'Absolute path to a directory whose contents are copied into shared-context/<projectName>/docs/',
+            },
+            memoryBankSourcePath: {
+              type: 'string',
+              description:
+                'Absolute path to a directory copied into shared-context/<projectName>/memory-bank/',
+            },
+            commitMessage: {
+              type: 'string',
+              description: 'Git commit message (required when not dry-run and pushGit is true)',
+            },
+            dryRun: {
+              type: 'boolean',
+              description: 'If true, only report planned copies (no filesystem writes, no git)',
+              default: false,
+            },
+            pushGit: {
+              type: 'boolean',
+              description: 'If true (default), git add / commit / push in the clone after copy',
+              default: true,
+            },
+          },
+          required: ['projectName'],
         },
       },
       {
@@ -1528,6 +1600,9 @@ function createServer() {
           );
         }
 
+        const skillsTargetModuleId = (args?.skillsTargetModuleId as string | undefined)?.trim();
+        const onlyPaths = args?.onlyPaths as string[] | undefined;
+
         const result = await pushModuleUpdates({
           projectPath,
           aiDevelopmentRepo,
@@ -1535,6 +1610,8 @@ function createServer() {
           scope,
           dryRun,
           updateProjectLockfile,
+          ...(skillsTargetModuleId ? { skillsTargetModuleId } : {}),
+          ...(onlyPaths && onlyPaths.length > 0 ? { onlyPaths } : {}),
         });
 
         return {
@@ -1571,6 +1648,92 @@ function createServer() {
         const result = await pullLatestAndRefreshProject({
           projectPath,
           aiDevelopmentRepo,
+        });
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return {
+          content: [{ type: 'text', text: `Error: ${errorMessage}` }],
+          isError: true,
+        };
+      }
+    }
+
+    if (name === 'list_shared_context') {
+      const localRepoPath = effectiveLocalRepoPath(args?.localRepoPath as string | undefined);
+      try {
+        if (!localRepoPath) {
+          throw new Error(
+            'localRepoPath is required, or set LOCAL_MODULES_REPO / AI_DEVELOPMENT_REPO to your ai-development clone path'
+          );
+        }
+        const projects = await listSharedContextDetail(localRepoPath);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(
+                {
+                  repoRoot: localRepoPath,
+                  sharedContextRoot: 'shared-context/',
+                  projects,
+                },
+                null,
+                2
+              ),
+            },
+          ],
+        };
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return {
+          content: [{ type: 'text', text: `Error: ${errorMessage}` }],
+          isError: true,
+        };
+      }
+    }
+
+    if (name === 'push_shared_context') {
+      const aiDevelopmentRepo = effectiveAiDevelopmentRepo(args?.aiDevelopmentRepo as string | undefined);
+      const projectName = (args?.projectName as string)?.trim();
+      const docsSourcePath = args?.docsSourcePath as string | undefined;
+      const memoryBankSourcePath = args?.memoryBankSourcePath as string | undefined;
+      const commitMessage = (args?.commitMessage as string)?.trim();
+      const dryRun = (args?.dryRun as boolean) || false;
+      const pushGit = (args?.pushGit as boolean) ?? true;
+
+      try {
+        if (!aiDevelopmentRepo) {
+          throw new Error(
+            'aiDevelopmentRepo is required, or set AI_DEVELOPMENT_REPO (or LOCAL_MODULES_REPO) to your ai-development clone path'
+          );
+        }
+        if (!projectName) {
+          throw new Error('projectName is required');
+        }
+        if (!dryRun && pushGit && !commitMessage) {
+          throw new Error('commitMessage is required when dryRun is false and pushGit is true');
+        }
+        if (!docsSourcePath?.trim() && !memoryBankSourcePath?.trim()) {
+          throw new Error('At least one of docsSourcePath or memoryBankSourcePath is required');
+        }
+
+        const result = await pushSharedContext({
+          aiDevelopmentRepo,
+          projectName,
+          docsSourcePath: docsSourcePath?.trim(),
+          memoryBankSourcePath: memoryBankSourcePath?.trim(),
+          commitMessage: commitMessage || 'chore(shared-context): sync',
+          dryRun,
+          pushGit,
         });
 
         return {

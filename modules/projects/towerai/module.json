@@ -5,7 +5,7 @@
   ],
   "type": "named-project",
   "name": "TowerAI (Welltower)",
-  "description": "Project-specific Cursor rules, skills, hooks, and scripts for the TowerAI monorepo (pnpm workspaces, @towerai/* packages, Okta, Express API, Untitled UI theme pipeline). Install as a project overlay after your stack modules.",
+  "description": "Project-specific Cursor skills, hooks, and scripts for the TowerAI monorepo (pnpm workspaces, @towerai/* packages, Untitled UI theme pipeline). Install as a project overlay after enterprise and stack modules (numbered rules and std-* skills belong there, not here).",
   "version": "1.0.0",
   "provides": {
     "hooks": [
@@ -14,36 +14,15 @@
     ],
     "skills": [
       "skills/css-tailwind-theme-pipeline",
-      "skills/engineering-hygiene",
-      "skills/hermeneutic-solution",
-      "skills/heuristic-design-review",
       "skills/monorepo-packages",
-      "skills/project-basics",
-      "skills/react-component-standards",
-      "skills/react-tailwind-conventions",
-      "skills/security-review",
-      "skills/std-clean-sweep",
-      "skills/std-deploy-release",
-      "skills/std-design-review",
-      "skills/std-plan",
-      "skills/std-solution",
-      "skills/std-test-loop",
-      "skills/teleological-planning",
       "skills/test-skill",
-      "skills/towerai-auth-notes",
-      "skills/untitledui-docs"
+      "skills/towerai-auth-notes"
     ],
     "instructions": "README.md"
   },
   "platforms": {
     "cursor": {
-      "rules": [
-        "rules/26-design-system.mdc",
-        "rules/27-css-tailwind-theme-pipeline.mdc",
-        "rules/28-monorepo-packages.mdc",
-        "rules/30-api-node-express.mdc",
-        "rules/60-auth-okta-oidc.mdc"
-      ],
+      "rules": [],
       "installPath": ".cursor/",
       "priority": "90-99"
     }

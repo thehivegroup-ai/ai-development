@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-# Manual / CI: full-repo check for CSS theme pipeline (rule 27).
+# Manual / CI: full-repo check for CSS theme pipeline (skill css-tailwind-theme-pipeline).
 # Usage: from repo root: bash .cursor/scripts/check-css-theme-pipeline.sh
 # ==============================================================================
 

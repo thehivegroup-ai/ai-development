@@ -69,6 +69,5 @@ The **app** owns Tailwind compilation. `apps/web/src/styles.css` includes `@sour
 
 ## Related
 
-- `.cursor/rules/28-monorepo-packages.mdc` — short enforceable checklist
-- `.cursor/rules/27-css-tailwind-theme-pipeline.mdc` — global CSS and `@towerai/ui/styles`
-- `packages/ui/components.json` — Untitled CLI aliases (`styles` → `@towerai/ui/styles`); app must not double-import (see **untitledui-docs** skill)
+- **Global CSS / `@towerai/ui/styles`:** skill **css-tailwind-theme-pipeline** in this module
+- `packages/ui/components.json` — Untitled CLI aliases (`styles` → `@towerai/ui/styles`); app must not double-import (see **untitledui-docs** from the **untitledui** stack module)

@@ -69,14 +69,23 @@ Authentication for `git push` / `git pull` is whatever you already use in that r
 1. Clone **ai-development** on your machine and configure **`LOCAL_MODULES_REPO`** / **`AI_DEVELOPMENT_REPO`** to that path (often identical).
 2. In another project (your app), run **`install_environment`** with `localRepoPath` pointing at your clone (or rely on env). This writes `.cursor/`, `stack.profile.json`, `cursor.lock.json`, and **`ai-development.sync-manifest.json`** (maps each installed file back to `modules/.../cursor/...` in the clone).
 3. Edit files under **`.cursor/skills/`** (or other installed paths) in the app project.
-4. Run **`push_module_updates`** with `projectPath` = app root, a **`commitMessage`**, and usually **`scope`: `"skills"`**. The tool copies changed files into the clone, then **`git add` / `git commit` / `git push`** there.
+4. Run **`push_module_updates`** with `projectPath` = app root, a **`commitMessage`**, and usually **`scope`: `"skills"`**. To publish **only** specific paths (one skill, one rule, `hooks.json`, etc.), pass **`onlyPaths`** relative to `.cursor/` (e.g. `["skills/my-skill/SKILL.md"]`, `["rules/20-web.mdc"]`). Use **`scope`: `"all"`** when pushing a single rule, hook, agent, or command. The tool copies into the clone, then **`git add` / `git commit` / `git push`** there.
 5. Other machines: set **`AI_DEVELOPMENT_REPO`** to their clone, run **`sync_latest_environment`** on their app project (`git pull --ff-only` in the clone, then refresh `.cursor/` from that tree).
+
+### Initiative docs (`shared-context/`)
+
+Per-initiative **`docs/`** and **`memory-bank/`** live under **`shared-context/<project-name>/`** (not root `docs/`, which documents this repo).
+
+| Tool | Purpose |
+|------|--------|
+| `list_shared_context` | List initiatives under `shared-context/` in the clone (`hasDocs` / `hasMemoryBank`) |
+| `push_shared_context` | Copy **`docsSourcePath`** and/or **`memoryBankSourcePath`** into `shared-context/<projectName>/`; optional **git commit + push** |
 
 ### Contributing workflow tools
 
 | Tool | Purpose |
 |------|--------|
-| `push_module_updates` | Copy `.cursor/` edits into the clone per sync manifest; **git commit + push** (uses your credentials) |
+| `push_module_updates` | Copy `.cursor/` edits into the clone per sync manifest; **git commit + push**. Optional **`onlyPaths`** (relative to `.cursor/`) limits to specific skills, rules, hooks, agents, or commands. For **skills** only, set **`skillsTargetModuleId`** (e.g. `projects/towerai`) to write `.cursor/skills/` into that module’s `cursor/skills/` and refresh **`module.json` → `provides.skills`**. |
 | `sync_latest_environment` | **`git pull --ff-only`** in the clone; refresh this project’s `.cursor/` |
 | `contribution_workflow` | Copy-paste git command outlines (manual alternative); optional `localClonePath`, `forkRemoteUrl`, `branchName` |
 | `validate_module_sources` | Check `module.json` and layout under `modules/` in a clone |
