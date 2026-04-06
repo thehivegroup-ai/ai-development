@@ -1,25 +1,46 @@
 {
-  "$schema": "../../../../schemas/module.schema.json",
-  "id": "mapping/mapbox",
-  "type": "stack-authority",
-  "name": "Mapbox Mapping Platform",
-  "description": "Mapbox Studio workflows, tileset management, and style editor patterns for web and mobile maps",
-  "version": "1.0.0",
+  "id": "mapbox",
+  "category": "stack-authority",
+  "name": "Mapbox",
+  "description": "Mapbox mapping platform: Studio standards, GL integration, styles, search, token security, MCP/devkit patterns, and visualization",
+  "version": "1.1.0",
   "provides": {
-    "rules": ["cursor/rules/50-mapping-mapbox.mdc"],
-    "commands": [
-      "cursor/commands/mapbox.style.create.md",
-      "cursor/commands/mapbox.tileset.manage.md",
-      "cursor/commands/mapbox.dataset.edit.md",
-      "cursor/commands/mapbox.runtime.patterns.md"
+    "agents": [
+      "agents/mapbox.style-reviewer.md"
     ],
-    "skills": ["cursor/skills/mapbox-standards"],
-    "agents": ["cursor/agents/mapbox.style-reviewer.md"]
+    "skills": [
+      "skills/mapbox-standards",
+      "skills/mapbox-data-visualization-patterns",
+      "skills/mapbox-mcp-devkit-patterns",
+      "skills/mapbox-search-integration",
+      "skills/mapbox-search-patterns",
+      "skills/mapbox-style-patterns",
+      "skills/mapbox-style-quality",
+      "skills/mapbox-token-security",
+      "skills/mapbox-web-integration-patterns",
+      "skills/mapbox-web-performance-patterns"
+    ],
+    "instructions": "instructions.md"
   },
-  "requires": [""],
-  "compatibility": {
-    "platforms": ["web", "mobile", "ios", "android"],
-    "excludes": []
+  "platforms": {
+    "cursor": {
+      "rules": [
+        "rules/50-mapping-mapbox.mdc"
+      ],
+      "installPath": ".cursor/",
+      "priority": "20-49"
+    },
+    "claude": {
+      "installPath": ".claude/",
+      "applyTo": "**"
+    },
+    "vscode": {
+      "installPath": ".github/",
+      "applyTo": "**"
+    }
   },
-  "tags": ["mapping", "mapbox", "gis", "tiles", "maps", "geospatial", "location"]
+  "tags": [
+    "stack-authority"
+  ],
+  "dependencies": []
 }

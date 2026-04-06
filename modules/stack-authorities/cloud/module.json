@@ -1,0 +1,29 @@
+{
+  "id": "cloud",
+  "category": "stack-authority",
+  "name": "Cloud",
+  "description": "Parent module for cloud platform authorities (AWS, Azure, GCP)",
+  "version": "1.0.0",
+  "provides": {
+    "instructions": "instructions.md"
+  },
+  "platforms": {
+    "cursor": {
+      "rules": [],
+      "installPath": ".cursor/",
+      "priority": "20-49"
+    },
+    "claude": {
+      "installPath": ".claude/",
+      "applyTo": "**"
+    },
+    "vscode": {
+      "installPath": ".github/",
+      "applyTo": "**"
+    }
+  },
+  "tags": [
+    "stack-authority"
+  ],
+  "dependencies": []
+}

@@ -10,7 +10,7 @@ Created comprehensive security standards module for handling PHI, PII, and gener
 
 ### 1. ✅ Rule: `08-std-security-practices.mdc`
 
-**Location:** `modules/enterprise-standards/cursor/rules/08-std-security-practices.mdc`
+**Location:** `modules/enterprise-standards/rules/08-std-security-practices.mdc`
 
 **Type:** Always-applied rule (alwaysApply: true)
 
@@ -34,7 +34,7 @@ Created comprehensive security standards module for handling PHI, PII, and gener
 
 ### 2. ✅ Hook: `phi-pii-scanner.sh`
 
-**Location:** `modules/enterprise-standards/cursor/hooks/phi-pii-scanner.sh`
+**Location:** `modules/enterprise-standards/hooks.d/phi-pii-scanner.sh`
 
 **Type:** afterFileEdit hook
 
@@ -57,9 +57,9 @@ Created comprehensive security standards module for handling PHI, PII, and gener
 
 ### 3. ✅ Hook: `security-audit.sh`
 
-**Location:** `modules/enterprise-standards/cursor/hooks/security-audit.sh`
+**Location:** `modules/enterprise-standards/.githooks/pre-commit-security-audit.sh`
 
-**Type:** Manual invocation or beforeCommit (proposed)
+**Type:** Git pre-commit hook (not a Cursor hook)
 
 **Purpose:** Comprehensive pre-commit security checklist
 
@@ -84,7 +84,7 @@ Created comprehensive security standards module for handling PHI, PII, and gener
 
 ### 4. ✅ Skill: `security-review`
 
-**Location:** `modules/enterprise-standards/cursor/skills/security-review/SKILL.md`
+**Location:** `modules/enterprise-standards/skills/security-review/SKILL.md`
 
 **Type:** Skill (manual invocation)
 
@@ -115,7 +115,7 @@ Created comprehensive security standards module for handling PHI, PII, and gener
 
 ### 5. ✅ Agent: `security-critic`
 
-**Location:** `modules/enterprise-standards/cursor/agents/security-critic.md`
+**Location:** `modules/enterprise-standards/agents/security-critic.md`
 
 **Type:** Subagent (invoked during security reviews)
 

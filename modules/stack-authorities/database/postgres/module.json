@@ -1,40 +1,39 @@
 {
-  "$schema": "../../../../../schemas/module.schema.json",
-  "id": "database/postgres",
-  "type": "stack-authority",
-  "name": "PostgreSQL",
-  "description": "PostgreSQL patterns with migration discipline and query optimization",
+  "id": "postgres",
+  "category": "stack-authority",
+  "name": "Postgres",
+  "description": "PostgreSQL database standards including schema design, query optimization, migration patterns, and performance tuning",
   "version": "1.0.0",
   "provides": {
-    "rules": [
-      "40-db-postgres.mdc"
-    ],
-    "commands": [
-      "db.postgres.migration.md",
-      "db.postgres.performance-check.md"
+    "agents": [
+      "agents/db.postgres-reviewer.md"
     ],
     "skills": [
-      "postgres-standards"
+      "skills/postgres-standards"
     ],
-    "agents": [
-      "db.postgres-reviewer.md"
-    ]
+    "instructions": "instructions.md"
   },
-  "requires": [""],
-  "compatibility": {
-    "cursor": ">=0.40.0",
-    "modules": {
-      "": "*",
-      "frontend/react-tailwind": "*",
-      "frontend/next-tailwind": "*",
-      "frontend/angular-tailwind": "*",
-      "backend/node-fastify": "*",
-      "backend/java": "*",
-      "cloud/aws": "*",
-      "cloud/gcp": "*"
+  "platforms": {
+    "cursor": {
+      "rules": [
+        "rules/40-db-postgres.mdc"
+      ],
+      "installPath": ".cursor/",
+      "priority": "20-49"
+    },
+    "claude": {
+      "installPath": ".claude/",
+      "applyTo": "**"
+    },
+    "vscode": {
+      "installPath": ".github/",
+      "applyTo": "**"
     }
   },
-  "tags": ["database", "postgres", "postgresql", "sql", "migration", "performance"],
-  "author": "The Hive Group",
-  "license": "MIT"
+  "tags": [
+    "stack-authority",
+    "database",
+    "sql"
+  ],
+  "dependencies": []
 }

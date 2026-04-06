@@ -15,7 +15,11 @@ import {
   ListResourcesRequestSchema,
   ReadResourceRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
-import { fetchRepository } from './git/fetcher.js';
+import {
+  resolveModuleSource,
+  getGitContributionStatus,
+} from './git/sourceResolver.js';
+import { validateModuleSources } from './modules/moduleSourceValidation.js';
 import { scanModules, findModule } from './modules/scanner.js';
 import { ModuleMetadata } from './types.js';
 import {
@@ -24,15 +28,15 @@ import {
   readResource,
   generateModuleOverview,
 } from './modules/resources.js';
-import { composeModules, resolveSelection } from './modules/composer.js';
+import { composeModules, resolveSelection, normalizeSelectionIds } from './modules/composer.js';
 import { diffEnvironment } from './modules/diff.js';
 import {
-  writeModules,
   writeStackProfile,
-  writeLockfile,
   readLockfile,
   readStackProfile,
 } from './modules/installer.js';
+import { writeInstalledEnvironment } from './modules/syncManifest.js';
+import { pushModuleUpdates, pullLatestAndRefreshProject } from './modules/repoSync.js';
 import { validateEnvironment } from './modules/validator.js';
 import {
   categorizeModules,
@@ -40,6 +44,7 @@ import {
   validateSelection,
   generateSelectionSummary,
   suggestStackCombinations,
+  findModuleByIdOrAlias,
 } from './tools/selector.js';
 import {
   resolveDependencies,
@@ -66,11 +71,36 @@ import {
   generateCompactSummary,
   generateInstallationReport,
 } from './modules/preview.js';
+import { buildContributionWorkflowPayload } from './tools/contributionWorkflow.js';
 
 // Default configuration
 const DEFAULT_REPO_URL = process.env.DEFAULT_REPO_URL || 
   'https://github.com/thehivegroup-ai/ai-development.git';
 const DEFAULT_REF = process.env.DEFAULT_REF || 'main';
+
+/**
+ * When set, MCP reads modules from this ai-development clone (for editing / contribution)
+ * instead of the read-only remote cache. Per-tool `localRepoPath` overrides this.
+ */
+function effectiveLocalRepoPath(explicit?: string | null): string | undefined {
+  const trimmed = explicit?.trim();
+  if (trimmed) return trimmed;
+  const fromEnv = process.env.LOCAL_MODULES_REPO?.trim();
+  if (fromEnv) return fromEnv;
+  return undefined;
+}
+
+/**
+ * Local ai-development clone used for push/pull sync (same machine as Cursor).
+ * Often the same path as LOCAL_MODULES_REPO.
+ */
+function effectiveAiDevelopmentRepo(explicit?: string | null): string | undefined {
+  const trimmed = explicit?.trim();
+  if (trimmed) return trimmed;
+  const fromEnv = process.env.AI_DEVELOPMENT_REPO?.trim() || process.env.LOCAL_MODULES_REPO?.trim();
+  if (fromEnv) return fromEnv;
+  return undefined;
+}
 
 // Cache for current repository state
 let cachedRepoPath: string | null = null;
@@ -115,13 +145,23 @@ function createServer() {
             },
             category: {
               type: 'string',
-              enum: ['enterprise-standards', 'stack-authority', 'project-control'],
-              description: 'Filter by module category',
+              enum: ['enterprise-standards', 'stack-authority', 'project-control', 'named-project'],
+              description: 'Filter by module category (named-project = repo-specific overlays under modules/projects/)',
+            },
+            projectPath: {
+              type: 'string',
+              description:
+                'Optional absolute path to an app repo. When set, the response includes stack.profile.json and cursor.lock.json summary if present (project awareness).',
             },
             forceRefresh: {
               type: 'boolean',
               description: 'Force refresh from remote (ignore cache)',
               default: false,
+            },
+            localRepoPath: {
+              type: 'string',
+              description:
+                'Absolute path to a local ai-development clone (contains modules/). Uses LOCAL_MODULES_REPO env when omitted. Enables editing modules and testing installs from your working tree.',
             },
           },
         },
@@ -140,6 +180,11 @@ function createServer() {
               type: 'string',
               description: 'Git ref (branch, tag, or commit SHA)',
             },
+            localRepoPath: {
+              type: 'string',
+              description:
+                'Absolute path to a local ai-development clone (contains modules/). Uses LOCAL_MODULES_REPO env when omitted.',
+            },
             showSuggestions: {
               type: 'boolean',
               description: 'Show common stack combination suggestions',
@@ -157,6 +202,11 @@ function createServer() {
                 enterprise: { type: 'string' },
                 controls: { type: 'array', items: { type: 'string' } },
                 stacks: { type: 'array', items: { type: 'string' } },
+                projects: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  description: 'Optional named project overlays (e.g. projects/towerai), merged last',
+                },
               },
             },
           },
@@ -180,6 +230,11 @@ function createServer() {
               type: 'string',
               description: 'Git ref (branch, tag, or commit SHA)',
             },
+            localRepoPath: {
+              type: 'string',
+              description:
+                'Absolute path to a local ai-development clone (contains modules/). Uses LOCAL_MODULES_REPO env when omitted.',
+            },
             selection: {
               type: 'object',
               description: 'Module selection',
@@ -187,6 +242,11 @@ function createServer() {
                 enterprise: { type: 'string' },
                 controls: { type: 'array', items: { type: 'string' } },
                 stacks: { type: 'array', items: { type: 'string' } },
+                projects: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  description: 'Optional named project overlays (e.g. projects/towerai), merged after stacks',
+                },
               },
               required: ['enterprise', 'controls', 'stacks'],
             },
@@ -212,6 +272,11 @@ function createServer() {
               type: 'string',
               description: 'Git ref (branch, tag, or commit SHA)',
             },
+            localRepoPath: {
+              type: 'string',
+              description:
+                'Absolute path to a local ai-development clone (contains modules/). Uses LOCAL_MODULES_REPO env when omitted.',
+            },
             selection: {
               type: 'object',
               description: 'Module selection',
@@ -219,6 +284,11 @@ function createServer() {
                 enterprise: { type: 'string' },
                 controls: { type: 'array', items: { type: 'string' } },
                 stacks: { type: 'array', items: { type: 'string' } },
+                projects: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  description: 'Optional named project overlays (e.g. projects/towerai), merged after stacks',
+                },
               },
               required: ['enterprise', 'controls', 'stacks'],
             },
@@ -306,6 +376,11 @@ function createServer() {
               type: 'string',
               description: 'Git ref (optional, read from lockfile if omitted)',
             },
+            localRepoPath: {
+              type: 'string',
+              description:
+                'Absolute path to a local ai-development clone (contains modules/). Uses LOCAL_MODULES_REPO env when omitted.',
+            },
             mode: {
               type: 'string',
               enum: ['merge', 'overwrite'],
@@ -345,6 +420,11 @@ function createServer() {
               description: 'Preview upgrade without applying',
               default: false,
             },
+            localRepoPath: {
+              type: 'string',
+              description:
+                'Absolute path to a local ai-development clone (contains modules/). Uses LOCAL_MODULES_REPO env when omitted.',
+            },
           },
           required: ['projectPath', 'ref'],
         },
@@ -367,6 +447,127 @@ function createServer() {
           required: ['projectPath'],
         },
       },
+      {
+        name: 'validate_module_sources',
+        description:
+          'Validate module.json files and layout under modules/ in a local ai-development clone. Use before opening a PR.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            repoRoot: {
+              type: 'string',
+              description:
+                'Absolute path to the repository root (contains modules/). Defaults to LOCAL_MODULES_REPO when omitted.',
+            },
+          },
+        },
+      },
+      {
+        name: 'git_contribution_status',
+        description:
+          'Read-only git status for a local clone (branch, ahead/behind, short status). Does not commit or push; use your own git credentials in the terminal.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            localRepoPath: {
+              type: 'string',
+              description:
+                'Absolute path to the ai-development clone. Defaults to LOCAL_MODULES_REPO when omitted.',
+            },
+          },
+        },
+      },
+      {
+        name: 'push_module_updates',
+        description:
+          'Copy changes from project .cursor/ into the local ai-development clone using ai-development.sync-manifest.json, then git commit and push (uses your existing git credentials).',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            projectPath: {
+              type: 'string',
+              description: 'Absolute path to the app/dev project where install_environment wrote .cursor/',
+            },
+            commitMessage: {
+              type: 'string',
+              description: 'Git commit message for the clone',
+            },
+            scope: {
+              type: 'string',
+              enum: ['skills', 'all'],
+              description: 'skills = only under .cursor/skills/; all = every file in the sync manifest',
+              default: 'skills',
+            },
+            dryRun: {
+              type: 'boolean',
+              description: 'If true, only report paths that would be copied (no writes, no git)',
+              default: false,
+            },
+            aiDevelopmentRepo: {
+              type: 'string',
+              description:
+                'Absolute path to your ai-development clone. Defaults to AI_DEVELOPMENT_REPO or LOCAL_MODULES_REPO',
+            },
+            updateProjectLockfile: {
+              type: 'boolean',
+              description: 'After a successful push, update cursor.lock.json commitSha to match the clone HEAD',
+              default: true,
+            },
+          },
+          required: ['projectPath', 'commitMessage'],
+        },
+      },
+      {
+        name: 'sync_latest_environment',
+        description:
+          'git pull --ff-only in the local ai-development clone, then re-run install logic to refresh this project .cursor/ from the updated modules.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            projectPath: {
+              type: 'string',
+              description: 'Absolute path to the app/dev project',
+            },
+            aiDevelopmentRepo: {
+              type: 'string',
+              description:
+                'Absolute path to your ai-development clone. Defaults to AI_DEVELOPMENT_REPO or LOCAL_MODULES_REPO',
+            },
+          },
+          required: ['projectPath'],
+        },
+      },
+      {
+        name: 'contribution_workflow',
+        description:
+          'Returns copy-paste git command outlines for updating modules in the repo using the user\'s existing Git credentials (SSH, credential helper, gh). Does not run git or store secrets.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            upstreamRepoUrl: {
+              type: 'string',
+              description: 'Upstream Git URL (defaults to DEFAULT_REPO_URL / configured env)',
+            },
+            branchName: {
+              type: 'string',
+              description: 'Branch to create (e.g. feat/add-java-module)',
+            },
+            localClonePath: {
+              type: 'string',
+              description:
+                'Absolute path to your existing ai-development clone; fills in cd and push commands for that tree',
+            },
+            forkRemoteUrl: {
+              type: 'string',
+              description: 'Your fork clone URL (HTTPS or SSH); enables the fresh-clone scenario block',
+            },
+            defaultBranch: {
+              type: 'string',
+              description: 'Upstream default branch name (default: main)',
+            },
+          },
+        },
+      },
     ],
   }));
 
@@ -384,8 +585,12 @@ function createServer() {
       const selection = args?.selection as any;
 
       try {
-        // Fetch repository
-        const { localPath } = await fetchRepository(repoUrl, ref);
+        const localRepoPath = effectiveLocalRepoPath(args?.localRepoPath as string | undefined);
+        const { localPath } = await resolveModuleSource({
+          repoUrl,
+          ref,
+          localRepoPath,
+        });
 
         // Scan for modules
         const modules = await scanModules(localPath);
@@ -415,9 +620,10 @@ function createServer() {
 
           // Generate summary for valid selection
           const selectedModules = [
-            modules.find(m => m.id === selection.enterprise),
-            ...(selection.controls || []).map((id: string) => modules.find(m => m.id === id)),
-            ...(selection.stacks || []).map((id: string) => modules.find(m => m.id === id)),
+            findModuleByIdOrAlias(modules, selection.enterprise),
+            ...(selection.controls || []).map((id: string) => findModuleByIdOrAlias(modules, id)),
+            ...(selection.stacks || []).map((id: string) => findModuleByIdOrAlias(modules, id)),
+            ...(selection.projects || []).map((id: string) => findModuleByIdOrAlias(modules, id)),
           ].filter(Boolean) as ModuleMetadata[];
           
           // Resolve dependencies
@@ -503,11 +709,15 @@ function createServer() {
       const ref = (args?.ref as string) || DEFAULT_REF;
       const category = args?.category as string | undefined;
       const forceRefresh = (args?.forceRefresh as boolean) || false;
+      const listProjectPath = (args?.projectPath as string | undefined)?.trim();
 
       try {
-        // Fetch repository
-        const { localPath, commitSha } = await fetchRepository(repoUrl, ref, {
+        const localRepoPath = effectiveLocalRepoPath(args?.localRepoPath as string | undefined);
+        const { localPath, commitSha, source } = await resolveModuleSource({
+          repoUrl,
+          ref,
           forceRefresh,
+          localRepoPath,
         });
 
         // Scan for modules
@@ -518,6 +728,30 @@ function createServer() {
           modules = modules.filter((m) => m.category === category);
         }
 
+        let namedProjectHint: string | undefined;
+        if (category === 'named-project' && modules.length === 0) {
+          namedProjectHint =
+            'No named-project modules in this source snapshot. Named overlays live under modules/projects/<name>/ in the ai-development repo. Use localRepoPath (or LOCAL_MODULES_REPO) pointing at a clone that includes that folder, or ensure the commit you resolve (remote cache) contains modules/projects/…; try forceRefresh: true after upstream adds the module.';
+        }
+
+        let projectContext: Record<string, unknown> | undefined;
+        if (listProjectPath) {
+          const profile = await readStackProfile(listProjectPath);
+          const lockfile = await readLockfile(listProjectPath);
+          projectContext = {
+            projectPath: listProjectPath,
+            stackProfile: profile,
+            cursorLockfile: lockfile
+              ? {
+                  repoUrl: lockfile.source.repoUrl,
+                  ref: lockfile.source.ref,
+                  selection: lockfile.selection,
+                  generatedAt: lockfile.generatedAt,
+                }
+              : null,
+          };
+        }
+
         return {
           content: [
             {
@@ -525,10 +759,14 @@ function createServer() {
               text: JSON.stringify(
                 {
                   commitSha,
+                  moduleSource: source,
                   repoUrl,
                   ref,
+                  projectContext,
+                  namedProjectHint,
                   modules: modules.map((m) => ({
                     id: m.id,
+                    ...(m.aliases?.length ? { aliases: m.aliases } : {}),
                     category: m.category,
                     name: m.name,
                     description: m.description,
@@ -562,7 +800,15 @@ function createServer() {
       const projectPath = args?.projectPath as string;
       const repoUrl = (args?.repoUrl as string) || DEFAULT_REPO_URL;
       const ref = (args?.ref as string) || DEFAULT_REF;
-      const selection = args?.selection as any;
+      const rawSel = args?.selection as Record<string, unknown> | undefined;
+      const selection = rawSel
+        ? {
+            enterprise: rawSel.enterprise as string,
+            controls: (rawSel.controls as string[]) ?? [],
+            stacks: (rawSel.stacks as string[]) ?? [],
+            projects: (rawSel.projects as string[]) ?? [],
+          }
+        : undefined;
       const mode = (args?.mode as 'merge' | 'overwrite') || 'merge';
       const writeProfile = (args?.writeProfile as boolean) ?? true;
       const writeLockfileFlag = (args?.writeLockfile as boolean) ?? true;
@@ -578,14 +824,20 @@ function createServer() {
           throw new Error('selection is required');
         }
 
-        // Fetch repository
-        const { localPath, commitSha } = await fetchRepository(repoUrl, ref);
+        const localRepoPath = effectiveLocalRepoPath(args?.localRepoPath as string | undefined);
+        const { localPath, commitSha } = await resolveModuleSource({
+          repoUrl,
+          ref,
+          localRepoPath,
+        });
+
+        const selectionNormalized = await normalizeSelectionIds(localPath, selection);
 
         // Scan all modules for dependency resolution
         const allModules = await scanModules(localPath);
 
         // Resolve selection to modules
-        const selectedModules = await resolveSelection(localPath, selection);
+        const selectedModules = await resolveSelection(localPath, selectionNormalized);
         
         // Resolve dependencies
         const depResolution = resolveDependencies(selectedModules, allModules);
@@ -720,6 +972,7 @@ function createServer() {
                     commitSha,
                     repoUrl,
                     ref,
+                    selectionResolved: selectionNormalized,
                     summary: compactSummary,
                     preview: richPreview,
                     plan,
@@ -735,15 +988,19 @@ function createServer() {
 
         // Apply installation
         const startTime = Date.now();
-        await writeModules(projectPath, composed, mode);
+        await writeInstalledEnvironment(
+          projectPath,
+          composed,
+          mode,
+          { repoUrl, ref, commitSha },
+          selectionNormalized,
+          modules,
+          { writeLockfile: writeLockfileFlag }
+        );
         const duration = Date.now() - startTime;
 
-        // Write profile and lockfile
         if (writeProfile) {
-          await writeStackProfile(projectPath, selection);
-        }
-        if (writeLockfileFlag) {
-          await writeLockfile(projectPath, { repoUrl, ref, commitSha }, selection);
+          await writeStackProfile(projectPath, selectionNormalized);
         }
 
         // Generate installation report
@@ -850,16 +1107,23 @@ function createServer() {
           enterprise: profile.enterprise,
           controls: profile.controls,
           stacks: profile.stacks,
+          projects: profile.projects ?? [],
         };
 
-        // Fetch repository
-        const { localPath, commitSha } = await fetchRepository(repoUrl, ref);
+        const localRepoPath = effectiveLocalRepoPath(args?.localRepoPath as string | undefined);
+        const { localPath, commitSha } = await resolveModuleSource({
+          repoUrl,
+          ref,
+          localRepoPath,
+        });
+
+        const selectionNormalized = await normalizeSelectionIds(localPath, selection);
 
         // Scan all modules for dependency resolution
         const allModules = await scanModules(localPath);
 
         // Resolve selection to modules
-        const selectedModules = await resolveSelection(localPath, selection);
+        const selectedModules = await resolveSelection(localPath, selectionNormalized);
         
         // Resolve dependencies
         const depResolution = resolveDependencies(selectedModules, allModules);
@@ -941,11 +1205,15 @@ function createServer() {
           };
         }
 
-        // Apply update
-        await writeModules(projectPath, composed, mode);
-
-        // Update lockfile
-        await writeLockfile(projectPath, { repoUrl, ref, commitSha }, selection);
+        await writeInstalledEnvironment(
+          projectPath,
+          composed,
+          mode,
+          { repoUrl, ref, commitSha },
+          selectionNormalized,
+          modules,
+          { writeLockfile: true }
+        );
 
         return {
           content: [
@@ -1000,11 +1268,12 @@ function createServer() {
           throw new Error('cursor.lock.json not found. Use install_environment first.');
         }
 
-        // Fetch new version
-        const { localPath, commitSha } = await fetchRepository(
-          currentLockfile.source.repoUrl,
-          ref
-        );
+        const localRepoPath = effectiveLocalRepoPath(args?.localRepoPath as string | undefined);
+        const { localPath, commitSha } = await resolveModuleSource({
+          repoUrl: currentLockfile.source.repoUrl,
+          ref,
+          localRepoPath,
+        });
 
         // Check for updates
         const comparison = checkForUpdates(
@@ -1069,26 +1338,29 @@ function createServer() {
           enterprise: profile.enterprise,
           controls: profile.controls,
           stacks: profile.stacks,
+          projects: profile.projects ?? [],
         };
+
+        const selectionNormalized = await normalizeSelectionIds(localPath, selection);
 
         // Scan all modules
         const allModules = await scanModules(localPath);
 
         // Resolve selection
-        const selectedModules = await resolveSelection(localPath, selection);
+        const selectedModules = await resolveSelection(localPath, selectionNormalized);
 
         // Resolve dependencies
         const depResolution = resolveDependencies(selectedModules, allModules);
 
-        // Compose and write
         const { composed } = await composeModules(localPath, depResolution.resolved);
-        await writeModules(projectPath, composed, 'merge');
-
-        // Update lockfile
-        await writeLockfile(
+        await writeInstalledEnvironment(
           projectPath,
+          composed,
+          'merge',
           { repoUrl: currentLockfile.source.repoUrl, ref, commitSha },
-          selection
+          selectionNormalized,
+          depResolution.resolved,
+          { writeLockfile: true }
         );
 
         const summary = generateUpgradeSummary(comparison, changelog, backupPath);
@@ -1184,6 +1456,174 @@ function createServer() {
       }
     }
 
+    if (name === 'validate_module_sources') {
+      const repoRoot =
+        (args?.repoRoot as string | undefined)?.trim() || effectiveLocalRepoPath(undefined);
+      try {
+        if (!repoRoot) {
+          throw new Error('repoRoot is required, or set LOCAL_MODULES_REPO in the MCP server environment');
+        }
+        const result = await validateModuleSources(repoRoot);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return {
+          content: [{ type: 'text', text: `Error: ${errorMessage}` }],
+          isError: true,
+        };
+      }
+    }
+
+    if (name === 'git_contribution_status') {
+      const localRepoPath = effectiveLocalRepoPath(args?.localRepoPath as string | undefined);
+      try {
+        if (!localRepoPath) {
+          throw new Error(
+            'localRepoPath is required, or set LOCAL_MODULES_REPO in the MCP server environment'
+          );
+        }
+        const status = await getGitContributionStatus(localRepoPath);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(status, null, 2),
+            },
+          ],
+        };
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return {
+          content: [{ type: 'text', text: `Error: ${errorMessage}` }],
+          isError: true,
+        };
+      }
+    }
+
+    if (name === 'push_module_updates') {
+      const projectPath = args?.projectPath as string;
+      const commitMessage = args?.commitMessage as string;
+      const scope = (args?.scope as 'skills' | 'all') || 'skills';
+      const dryRun = (args?.dryRun as boolean) || false;
+      const aiDevelopmentRepo = effectiveAiDevelopmentRepo(args?.aiDevelopmentRepo as string | undefined);
+      const updateProjectLockfile = (args?.updateProjectLockfile as boolean) ?? true;
+
+      try {
+        if (!projectPath) {
+          throw new Error('projectPath is required');
+        }
+        if (!commitMessage) {
+          throw new Error('commitMessage is required');
+        }
+        if (!aiDevelopmentRepo) {
+          throw new Error(
+            'aiDevelopmentRepo is required, or set AI_DEVELOPMENT_REPO (or LOCAL_MODULES_REPO) to your ai-development clone path'
+          );
+        }
+
+        const result = await pushModuleUpdates({
+          projectPath,
+          aiDevelopmentRepo,
+          commitMessage,
+          scope,
+          dryRun,
+          updateProjectLockfile,
+        });
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return {
+          content: [{ type: 'text', text: `Error: ${errorMessage}` }],
+          isError: true,
+        };
+      }
+    }
+
+    if (name === 'sync_latest_environment') {
+      const projectPath = args?.projectPath as string;
+      const aiDevelopmentRepo = effectiveAiDevelopmentRepo(args?.aiDevelopmentRepo as string | undefined);
+
+      try {
+        if (!projectPath) {
+          throw new Error('projectPath is required');
+        }
+        if (!aiDevelopmentRepo) {
+          throw new Error(
+            'aiDevelopmentRepo is required, or set AI_DEVELOPMENT_REPO (or LOCAL_MODULES_REPO) to your ai-development clone path'
+          );
+        }
+
+        const result = await pullLatestAndRefreshProject({
+          projectPath,
+          aiDevelopmentRepo,
+        });
+
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        return {
+          content: [{ type: 'text', text: `Error: ${errorMessage}` }],
+          isError: true,
+        };
+      }
+    }
+
+    if (name === 'contribution_workflow') {
+      const upstreamRepoUrl = (args?.upstreamRepoUrl as string) || DEFAULT_REPO_URL;
+      const payload = buildContributionWorkflowPayload({
+        upstreamRepoUrl,
+        branchName: args?.branchName as string | undefined,
+        localClonePath: args?.localClonePath as string | undefined,
+        forkRemoteUrl: args?.forkRemoteUrl as string | undefined,
+        defaultBranch: args?.defaultBranch as string | undefined,
+      });
+
+      const envelope = {
+        ...payload,
+        moduleSourceOfTruth:
+          'Canonical content lives under modules/ in the ai-development repo (not .cursor/ in that repo for distribution).',
+        mcpSetup: {
+          LOCAL_MODULES_REPO:
+            'Set to your clone root so list_modules / install_environment read your edits; restart Cursor after changing env.',
+        },
+        validateWithMcp: [
+          'validate_module_sources (repoRoot or LOCAL_MODULES_REPO)',
+          'install_environment with localRepoPath against a test project',
+        ],
+      };
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(envelope, null, 2),
+          },
+        ],
+      };
+    }
+
     return {
       content: [
         {
@@ -1200,15 +1640,25 @@ function createServer() {
    */
   server.setRequestHandler(ListResourcesRequestSchema, async () => {
     try {
-      // Use cached data or fetch fresh
-      if (!cachedRepoPath || !cachedModules) {
-        const { localPath, commitSha } = await fetchRepository(
-          DEFAULT_REPO_URL,
-          DEFAULT_REF
-        );
+      const localRepoPath = effectiveLocalRepoPath(undefined);
+      const { localPath, commitSha, source } = await resolveModuleSource({
+        repoUrl: DEFAULT_REPO_URL,
+        ref: DEFAULT_REF,
+        localRepoPath,
+      });
+      const needRefresh =
+        !cachedRepoPath ||
+        cachedRepoPath !== localPath ||
+        !cachedModules ||
+        source === 'local';
+      if (needRefresh) {
         cachedRepoPath = localPath;
         cachedCommitSha = commitSha;
         cachedModules = await scanModules(localPath);
+      }
+
+      if (!cachedModules || !cachedRepoPath) {
+        throw new Error('Failed to load modules');
       }
 
       const resources = listResources(cachedModules);
@@ -1240,15 +1690,25 @@ function createServer() {
         throw new Error(`Invalid resource URI: ${uri}`);
       }
 
-      // Ensure we have cached data
-      if (!cachedRepoPath || !cachedModules) {
-        const { localPath, commitSha } = await fetchRepository(
-          DEFAULT_REPO_URL,
-          DEFAULT_REF
-        );
+      const localRepoPath = effectiveLocalRepoPath(undefined);
+      const { localPath, commitSha, source } = await resolveModuleSource({
+        repoUrl: DEFAULT_REPO_URL,
+        ref: DEFAULT_REF,
+        localRepoPath,
+      });
+      const needRefresh =
+        !cachedRepoPath ||
+        cachedRepoPath !== localPath ||
+        !cachedModules ||
+        source === 'local';
+      if (needRefresh) {
         cachedRepoPath = localPath;
         cachedCommitSha = commitSha;
         cachedModules = await scanModules(localPath);
+      }
+
+      if (!cachedModules || !cachedRepoPath) {
+        throw new Error('Failed to load modules');
       }
 
       // Handle different resource types
@@ -1261,7 +1721,7 @@ function createServer() {
               mimeType: 'application/json',
               text: JSON.stringify(
                 {
-                  commitSha: cachedCommitSha,
+                  commitSha: cachedCommitSha ?? commitSha,
                   modules: cachedModules.map((m: any) => ({
                     id: m.id,
                     name: m.name,

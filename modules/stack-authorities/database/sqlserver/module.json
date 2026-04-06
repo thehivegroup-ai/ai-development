@@ -1,39 +1,37 @@
 {
-  "$schema": "../../../../../schemas/module.schema.json",
-  "id": "database/sqlserver",
-  "type": "stack-authority",
-  "name": "SQL Server",
-  "description": "SQL Server patterns with migration safety and schema conventions",
+  "id": "sqlserver",
+  "category": "stack-authority",
+  "name": "Sqlserver",
+  "description": "SQL Server database standards including T-SQL patterns, stored procedures, indexing, and enterprise features",
   "version": "1.0.0",
   "provides": {
-    "rules": [
-      "41-db-sqlserver.mdc"
-    ],
-    "commands": [
-      "db.sqlserver.migration.md"
+    "agents": [
+      "agents/db.sqlserver-reviewer.md"
     ],
     "skills": [
-      "sqlserver-standards"
+      "skills/sqlserver-standards"
     ],
-    "agents": [
-      "db.sqlserver-reviewer.md"
-    ]
+    "instructions": "instructions.md"
   },
-  "requires": [""],
-  "compatibility": {
-    "cursor": ">=0.40.0",
-    "modules": {
-      "": "*",
-      "frontend/react-tailwind": "*",
-      "frontend/next-tailwind": "*",
-      "frontend/angular-tailwind": "*",
-      "backend/node-fastify": "*",
-      "backend/java": "*",
-      "cloud/aws": "*",
-      "cloud/gcp": "*"
+  "platforms": {
+    "cursor": {
+      "rules": [
+        "rules/41-db-sqlserver.mdc"
+      ],
+      "installPath": ".cursor/",
+      "priority": "20-49"
+    },
+    "claude": {
+      "installPath": ".claude/",
+      "applyTo": "**"
+    },
+    "vscode": {
+      "installPath": ".github/",
+      "applyTo": "**"
     }
   },
-  "tags": ["database", "sqlserver", "sql", "microsoft", "migration"],
-  "author": "The Hive Group",
-  "license": "MIT"
+  "tags": [
+    "stack-authority"
+  ],
+  "dependencies": []
 }

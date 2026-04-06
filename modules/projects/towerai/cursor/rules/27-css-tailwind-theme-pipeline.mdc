@@ -1,0 +1,36 @@
+---
+description: "Single Tailwind/CSS entry and app-owned theme — prevents duplicate pipelines."
+alwaysApply: true
+---
+
+# CSS / Tailwind / Theme Pipeline
+
+## Single global entry (web app)
+
+- **MUST** load global styles from **one** file: `apps/web/src/styles.css`, imported only from the app shell (e.g. `apps/web/src/routes/__root.tsx`).
+- **MUST NOT** add `import '…/something.css'` that contains `@import 'tailwindcss'` or a second full theme stack on routes, layouts, or pages. Extend the root stylesheet instead.
+- **MUST NOT** import `@towerai/ui/styles` in `apps/web` — that duplicates the `@theme` block. The app’s canonical token file is `apps/web/src/styles/theme.css`.
+
+## Tailwind v4
+
+- **MUST** keep **`@source`** for `packages/ui` in `styles.css` so `@towerai/ui` primitives get utilities in the same build as the app.
+- **MUST** keep required **`@plugin`** entries (typography, react-aria-components, animate) in that same root file unless the build is intentionally split (it is not today).
+
+## Untitled UI + CLI
+
+- `packages/ui/components.json` maps **`styles` → `@towerai/ui/styles`** for codegen. If Untitled CLI scaffolds `import '@towerai/ui/styles'` into the app, **remove it** and rely on `styles.css` only, **or** re-point tooling so it does not add a second global theme import.
+
+## MUI
+
+- **MUST** keep `typography.fontFamily` in `apps/web/src/theme/welltowerTheme.ts` aligned with the design font (**Rubik** stack), matching `theme.css` / `styles.css` body rules.
+
+## Automation
+
+- **Cursor hook:** `.cursor/hooks/css-theme-pipeline.sh` runs on **`afterFileEdit`** (see `.cursor/hooks.json`) and warns if new code reintroduces `@towerai/ui/styles` or a second `@import 'tailwindcss'` in `apps/web`.
+- **Manual / CI:** `pnpm run check:css-pipeline` (runs `.cursor/scripts/check-css-theme-pipeline.sh`).
+
+## Related
+
+- Rule: `.cursor/rules/28-monorepo-packages.mdc` — `@towerai/*` imports and `exports`
+- Skill: `.cursor/skills/css-tailwind-theme-pipeline/SKILL.md`
+- Design tokens: `docs/design/design-system.md`, `apps/web/src/styles/theme.css`

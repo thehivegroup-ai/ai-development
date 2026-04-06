@@ -2,6 +2,16 @@
 
 This guide explains how to compose modules from this repository into your project.
 
+## Critical Architecture Note
+
+**Source of Truth:** `modules/` directory in this repository  
+**Distribution:** MCP server tools  
+**Target:** Your project's `.cursor/` directory  
+
+The `.cursor/` directory **in this repository** is for dogfooding only. Users install from `modules/` via MCP server, not by copying `.cursor/`.
+
+See `ARCHITECTURE-SOURCE-VS-DEPLOYMENT.md` for details.
+
 ---
 
 ## Quick Start
@@ -16,17 +26,22 @@ This guide explains how to compose modules from this repository into your projec
 # From ai-development/ repository root
 cd your-project/
 
+# Option A: Using MCP server (recommended)
+# Use select_modules tool for interactive selection and automated installation
+
+# Option B: Manual installation
+# Note: Module structure is being migrated to root-level layout
+# For now, copy from .cursor/ in this repository as the canonical source
+
 # Enterprise standards (always include)
-cp -r ../ai-development/modules/enterprise-standards/cursor/* .cursor/
+cp -r ../ai-development/.cursor/rules/0*.mdc .cursor/rules/
+cp -r ../ai-development/.cursor/skills/hermeneutic-solution .cursor/skills/
+cp -r ../ai-development/.cursor/skills/teleological-planning .cursor/skills/
+cp -r ../ai-development/.cursor/skills/engineering-hygiene .cursor/skills/
 
-# Stack authorities (based on your stack)
-cp -r ../ai-development/modules/stack-authorities/frontend/react-tailwind/cursor/* .cursor/
-cp -r ../ai-development/modules/stack-authorities/backend/node-fastify/cursor/* .cursor/
-cp -r ../ai-development/modules/stack-authorities/database/postgres/cursor/* .cursor/
-cp -r ../ai-development/modules/stack-authorities/cloud/aws/cursor/* .cursor/
-
-# Project controls (based on requirements)
-cp -r ../ai-development/modules/project-controls/base/cursor/* .cursor/
+# Stack authorities (based on your stack - adjust paths as needed)
+# Each stack module has rules/, skills/, agents/, commands/ at module root
+# Consult module README for specific installation instructions
 ```
 
 ### 3. Result

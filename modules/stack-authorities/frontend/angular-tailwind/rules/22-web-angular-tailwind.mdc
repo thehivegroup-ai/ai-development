@@ -1,0 +1,46 @@
+---
+description: "Angular + Tailwind constraints."
+alwaysApply: false
+globs: "**/*.component.ts,**/*.component.html,**/*.service.ts,**/components/**/*.ts"
+---
+
+# Web Angular Tailwind
+
+**Enforced constraints:**
+
+**Component Architecture (Angular 21+):**
+- MUST use standalone components (not NgModule)
+- MUST use signals for reactive state (not traditional change detection)
+- MUST use control flow syntax (@if, @for, @switch - not *ngIf, *ngFor)
+- MUST use TypeScript with strict mode
+
+**Styling:**
+- MUST use Tailwind CSS-first approach (Tailwind 4)
+- MUST use utilities for layout, component classes for controls
+- MUST use @apply in component stylesheets for component classes only
+
+**Forms:**
+- MUST use Reactive Forms (not Template-driven)
+- MUST validate with built-in and custom validators
+- MUST provide clear error messages
+- MUST use type-safe FormGroup/FormControl
+
+**Data Integration:**
+- MUST use HttpClient with signals for API calls
+- MUST handle loading, error, and empty states
+- MUST use proper TypeScript types for responses
+- MUST use dependency injection for services
+
+**Testing:**
+- MUST use data-testid attributes for test selectors
+- MUST test component behavior and state
+- MUST use TestBed for integration tests
+- MUST mock HttpClient in tests
+
+**Accessibility:**
+- MUST use semantic HTML
+- MUST provide labels for form controls
+- MUST support keyboard navigation
+- MUST add ARIA attributes where needed
+
+See `instructions.md` for complete examples, signals patterns, form validation, HttpClient integration, and testing strategies.

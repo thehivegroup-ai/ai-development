@@ -1,0 +1,161 @@
+---
+description: "Okta OIDC authentication constraints for frontend and backend."
+alwaysApply: false
+globs: "**/auth/**/*.ts,**/services/auth*.ts,**/stores/**/auth*.ts"
+---
+
+# Auth Okta OIDC
+
+## Architecture
+
+TowerAI uses **Okta** for authentication via OAuth 2.0 / OpenID Connect (OIDC).
+
+- **Frontend:** Okta Auth JS SDK + Okta React SDK
+- **Backend:** JWT verification (future)
+- **Flow:** Authorization Code Flow with PKCE
+
+---
+
+## Frontend Authentication
+
+### Okta SDK Setup
+
+```typescript
+// ✅ CORRECT: Okta Auth JS configuration
+import { OktaAuth } from '@okta/okta-auth-js';
+
+const oktaAuth = new OktaAuth({
+  issuer: import.meta.env.OKTA_OAUTH2_ISSUER,
+  clientId: import.meta.env.OKTA_OAUTH2_CLIENTID,
+  redirectUri: `${window.location.origin}/login/callback`,
+  scopes: ['openid', 'profile', 'email'],
+  pkce: true,  // MUST use PKCE for security
+});
+```
+
+### Authentication Service Pattern
+
+```typescript
+// ✅ CORRECT: Singleton auth service
+export class AuthService {
+  private oktaAuth: OktaAuth;
+
+  async initialize(): Promise<void> {
+    await this.oktaAuth.start();
+  }
+
+  async loginRedirect(originalUri: string): Promise<void> {
+    await this.oktaAuth.signInWithRedirect({ originalUri });
+  }
+
+  async logout(): Promise<void> {
+    await this.oktaAuth.signOut();
+  }
+
+  async getUser(): Promise<UserClaims> {
+    return this.oktaAuth.getUser();
+  }
+
+  getAuthState(): AuthState | null {
+    return this.oktaAuth.authStateManager.getAuthState();
+  }
+}
+```
+
+### State Management (Zustand)
+
+```typescript
+// ✅ CORRECT: Auth slice pattern
+export interface AuthSlice {
+  auth: {
+    isLoggingIn: boolean;
+    isLoggingOut: boolean;
+    isInitialized: boolean;
+    user: User | null;
+    
+    checkAuthStatus: () => Promise<void>;
+    login: () => Promise<void>;
+    logout: () => Promise<void>;
+  };
+}
+```
+
+### Route Protection (TanStack Router)
+
+```typescript
+// ✅ CORRECT: Protected route with redirect
+export const Route = createFileRoute('/dashboard')({
+  beforeLoad: () => {
+    const authState = useApplicationStore.getState().auth.getAuthState();
+    if (!authState?.isAuthenticated) {
+      throw redirect({ to: '/' });
+    }
+  },
+  component: DashboardLayout,
+});
+```
+
+---
+
+## Backend Authentication (Future)
+
+### JWT Verification Middleware
+
+```typescript
+// ✅ CORRECT: Okta JWT verification
+import { OktaJwtVerifier } from '@okta/jwt-verifier';
+
+const oktaJwtVerifier = new OktaJwtVerifier({
+  issuer: process.env.OKTA_OAUTH2_ISSUER,
+  clientId: process.env.OKTA_OAUTH2_CLIENTID,
+});
+
+export async function authMiddleware(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).json({ error: { code: 'UNAUTHORIZED' } });
+  }
+
+  const [, token] = authHeader.split(' ');
+
+  try {
+    const jwt = await oktaJwtVerifier.verifyAccessToken(token, 'api://default');
+    req.user = {
+      id: jwt.claims.sub,
+      email: jwt.claims.sub,
+      roles: jwt.claims.groups || [],
+    };
+    next();
+  } catch (error) {
+    res.status(401).json({ error: { code: 'UNAUTHORIZED' } });
+  }
+}
+```
+
+---
+
+## Environment Variables
+
+**Frontend:**
+```bash
+OKTA_OAUTH2_ISSUER=https://{domain}/oauth2/default
+OKTA_OAUTH2_CLIENTID={client-id}
+```
+
+**Backend:**
+```bash
+OKTA_OAUTH2_ISSUER=https://{domain}/oauth2/default
+OKTA_OAUTH2_CLIENTID={client-id}
+OKTA_OAUTH2_AUDIENCE=api://default
+```
+
+---
+
+## Security Best Practices
+
+1. **Always use PKCE** (`pkce: true`) for frontend authentication
+2. **Never expose client secrets** in frontend code
+3. **Verify JWTs on backend** (don't trust frontend tokens)
+4. **Use HTTPS in production** (redirect HTTP → HTTPS)
+5. **Validate token expiration** (check `exp` claim)
+6. **Handle token refresh** (Okta SDK handles automatically)

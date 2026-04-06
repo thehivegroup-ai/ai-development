@@ -1,0 +1,22 @@
+---
+description: "Postgres schema and migration constraints."
+alwaysApply: false
+globs: "**/migrations/**/*.sql,**/queries/**/*.sql,**/db/**/*.{ts,js,py},**/models/**/*.{ts,js,py},**/repositories/**/*.{ts,js,py}"
+---
+
+# DB Postgres
+
+**Enforced constraints:**
+
+- MUST use migrations for all schema changes (never manual ALTER/CREATE)
+- MUST provide down migrations (reversibility) or mark as irreversible
+- MUST create indexes for: foreign keys, WHERE clauses, JOIN columns, ORDER BY columns
+- MUST use transactions for multi-step data changes
+- MUST use TIMESTAMP WITH TIME ZONE (not without timezone)
+- MUST choose appropriate data types (BIGINT for IDs, NUMERIC for currency, JSONB for flexible data)
+- MUST use CREATE INDEX CONCURRENTLY for large tables in production
+- MUST validate query performance with EXPLAIN ANALYZE
+- MUST configure connection pooling
+- MUST NOT perform blocking schema changes on production without downtime plan
+
+See `instructions.md` for migration patterns, indexing strategies, query optimization, transaction examples, and performance monitoring.

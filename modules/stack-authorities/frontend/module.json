@@ -1,0 +1,29 @@
+{
+  "id": "frontend",
+  "category": "stack-authority",
+  "name": "Frontend",
+  "description": "Parent module for frontend framework authorities (React, Angular, Vue, Next.js, React Native, Untitled UI)",
+  "version": "1.0.0",
+  "provides": {
+    "instructions": "instructions.md"
+  },
+  "platforms": {
+    "cursor": {
+      "rules": [],
+      "installPath": ".cursor/",
+      "priority": "20-49"
+    },
+    "claude": {
+      "installPath": ".claude/",
+      "applyTo": "**"
+    },
+    "vscode": {
+      "installPath": ".github/",
+      "applyTo": "**"
+    }
+  },
+  "tags": [
+    "stack-authority"
+  ],
+  "dependencies": []
+}

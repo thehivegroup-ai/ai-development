@@ -1,0 +1,21 @@
+---
+description: "GCP infrastructure constraints."
+alwaysApply: false
+globs: "**/infra/**/*.{ts,js},**/terraform/**/*.tf,**/cloudbuild.yaml,**/gcp/**/*.{yaml,yml},**/k8s/**/*.yaml"
+---
+
+# Cloud GCP
+
+**Enforced constraints:**
+
+- MUST use infrastructure as code (Terraform, Deployment Manager, or gcloud)
+- MUST store secrets in Secret Manager (never hardcoded)
+- MUST use Workload Identity for GKE (never service account key files)
+- MUST use service accounts with minimal IAM permissions
+- MUST label all resources (environment, application, owner, cost-center)
+- MUST run preflight checks before deployment
+- MUST document rollback strategy for releases
+- MUST enable Cloud Monitoring and alerting
+- MUST enable Cloud Audit Logs
+
+See `instructions.md` for Terraform examples, deployment patterns, and gcloud commands.

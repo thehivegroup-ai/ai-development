@@ -1,64 +1,57 @@
 {
-  "$schema": "../../../schemas/module.schema.json",
-  "id": "",
-  "type": "enterprise-standards",
+  "id": "enterprise-standards",
+  "category": "enterprise-standard",
   "name": "Enterprise Standards",
-  "description": "Core development standards and workflows for AI-assisted development",
+  "description": "Technology-agnostic standards for software interpretation, planning, verification, and security across all projects",
   "version": "1.0.0",
   "provides": {
-    "rules": [
-      "00-std-foundation.mdc",
-      "01-std-solution-hermeneutic.mdc",
-      "02-std-planning-teleological.mdc",
-      "03-std-quality-clean-test-deploy.mdc",
-      "04-std-environment-config.mdc",
-      "05-std-documentation-organization.mdc",
-      "06-std-workflow-modes.mdc",
-      "07-std-evidence-based-claims.mdc",
-      "08-std-security-practices.mdc"
+    "agents": [
+      "agents/security-critic.md",
+      "agents/std-debugger.md",
+      "agents/std-planner.md",
+      "agents/std-verifier.md",
+      "agents/ux-accessibility-auditor.md",
+      "agents/ux-heuristic-evaluator.md",
+      "agents/ux-platform-evaluator.md",
+      "agents/ux-visual-design-critic.md"
     ],
     "skills": [
-      "engineering-hygiene",
-      "hermeneutic-solution",
-      "heuristic-design-review",
-      "teleological-planning",
-      "std-solution",
-      "std-plan",
-      "std-clean-sweep",
-      "std-test-loop",
-      "std-deploy-release",
-      "std-design-review",
-      "security-review"
+      "skills/engineering-hygiene",
+      "skills/hermeneutic-solution",
+      "skills/heuristic-design-review",
+      "skills/security-review",
+      "skills/teleological-planning"
     ],
-    "agents": [
-      "std-debugger.md",
-      "std-planner.md",
-      "std-verifier.md",
-      "ux-heuristic-evaluator.md",
-      "ux-visual-design-critic.md",
-      "ux-platform-evaluator.md",
-      "ux-accessibility-auditor.md",
-      "security-critic.md"
-    ],
-    "hooks": [
-      "hooks.json",
-      "hooks/git-guard.sh",
-      "hooks/secrets-scanner.sh",
-      "hooks/phi-pii-scanner.sh",
-      "hooks/security-audit.sh",
-      "hooks/auto-format.sh",
-      "hooks/hygiene-watchdog.sh",
-      "hooks/session-init.sh",
-      "hooks/track-activity.sh",
-      "hooks/session-guard.sh"
-    ]
+    "instructions": "instructions.md",
+    "hooks": "hooks.json"
   },
-  "requires": [],
-  "compatibility": {
-    "cursor": ">=0.40.0",
-    "modules": {}
+  "platforms": {
+    "cursor": {
+      "rules": [
+        "rules/00-std-foundation.mdc",
+        "rules/01-std-solution-hermeneutic.mdc",
+        "rules/02-std-planning-teleological.mdc",
+        "rules/03-std-quality-clean-test-deploy.mdc",
+        "rules/04-std-environment-config.mdc",
+        "rules/05-std-documentation-organization.mdc",
+        "rules/06-std-workflow-modes.mdc",
+        "rules/07-std-evidence-based-claims.mdc",
+        "rules/08-std-security-practices.mdc"
+      ],
+      "installPath": ".cursor/",
+      "priority": "0-9"
+    },
+    "claude": {
+      "installPath": ".claude/",
+      "applyTo": "**"
+    },
+    "vscode": {
+      "installPath": ".github/",
+      "applyTo": "**"
+    }
   },
-  "tags": ["enterprise", "workflow", "standards", "foundation", "quality"],
-  "author": "The Hive Group",
-  "license": "MIT"
+  "tags": [
+    "enterprise-standard"
+  ],
+  "dependencies": []
 }

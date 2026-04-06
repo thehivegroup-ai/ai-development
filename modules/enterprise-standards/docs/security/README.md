@@ -100,7 +100,7 @@ PER 08-std-security-practices.mdc:
 **Usage:**
 ```bash
 # Manual invocation
-./modules/enterprise-standards/cursor/hooks/security-audit.sh
+./modules/enterprise-standards/hooks.d/security-audit.sh
 
 # Or integrate with git hooks (user decision)
 ```
@@ -233,7 +233,7 @@ They are invoked:
 
 **Step 4:** Pre-commit security audit
 ```
-./modules/enterprise-standards/cursor/hooks/security-audit.sh
+./modules/enterprise-standards/hooks.d/security-audit.sh
 ```
 → Validates auth endpoints have tests, no secrets in code
 
@@ -416,7 +416,7 @@ Create commit with various issues:
 git add test-phi.ts
 
 # Run security audit
-./modules/enterprise-standards/cursor/hooks/security-audit.sh
+./modules/enterprise-standards/hooks.d/security-audit.sh
 
 # Should block commit with critical issues
 ```
@@ -427,19 +427,23 @@ git add test-phi.ts
 
 ```
 modules/enterprise-standards/
-├── cursor/
-│   ├── rules/
-│   │   └── 08-std-security-practices.mdc
-│   ├── hooks/
-│   │   ├── hooks.json (updated)
-│   │   ├── phi-pii-scanner.sh
-│   │   └── security-audit.sh
-│   ├── skills/
-│   │   └── security-review/
-│   │       └── SKILL.md
-│   └── agents/
-│       └── security-critic.md
-└── module.json (updated)
+├── hooks.json
+├── rules/
+│   └── 08-std-security-practices.mdc
+├── hooks.d/
+│   ├── phi-pii-scanner.sh
+│   ├── security-audit.sh
+│   ├── secrets-scanner.sh
+│   ├── auto-format.sh
+│   ├── git-guard.sh
+│   ├── hygiene-watchdog.sh
+│   └── session-init.sh
+├── skills/
+│   └── security-review/
+│       └── SKILL.md
+├── agents/
+│   └── security-critic.md
+└── module.json
 ```
 
 **Security artifacts produced by security-review skill:**

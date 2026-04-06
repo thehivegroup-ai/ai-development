@@ -1,39 +1,39 @@
 {
-  "$schema": "../../../../../schemas/module.schema.json",
-  "id": "frontend/next-tailwind",
-  "type": "stack-authority",
-  "name": "Next.js + Tailwind",
-  "description": "Next.js conventions with App Router, server components, and Tailwind CSS",
+  "id": "next-tailwind",
+  "category": "stack-authority",
+  "name": "Next Tailwind",
+  "description": "Next.js + Tailwind CSS development standards including routing, SSR/SSG patterns, and API routes",
   "version": "1.0.0",
   "provides": {
-    "rules": [
-      "21-web-next-tailwind.mdc"
-    ],
-    "commands": [
-      "web.next.build-screen.md",
-      "web.next.route-audit.md"
+    "agents": [
+      "agents/web.next-critic.md"
     ],
     "skills": [
-      "next-standards"
+      "skills/next-standards"
     ],
-    "agents": [
-      "web.next-critic.md"
-    ]
+    "instructions": "instructions.md"
   },
-  "requires": [""],
-  "compatibility": {
-    "cursor": ">=0.40.0",
-    "modules": {
-      "": "*",
-      "backend/node-fastify": "*",
-      "backend/java": "*",
-      "database/postgres": "*",
-      "database/sqlserver": "*",
-      "cloud/aws": "*",
-      "cloud/gcp": "*"
+  "platforms": {
+    "cursor": {
+      "rules": [
+        "rules/21-web-next-tailwind.mdc"
+      ],
+      "installPath": ".cursor/",
+      "priority": "20-49"
+    },
+    "claude": {
+      "installPath": ".claude/",
+      "applyTo": "**"
+    },
+    "vscode": {
+      "installPath": ".github/",
+      "applyTo": "**"
     }
   },
-  "tags": ["frontend", "nextjs", "react", "tailwind", "typescript", "ssr", "app-router"],
-  "author": "The Hive Group",
-  "license": "MIT"
+  "tags": [
+    "stack-authority",
+    "css",
+    "tailwind"
+  ],
+  "dependencies": []
 }

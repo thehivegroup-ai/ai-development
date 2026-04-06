@@ -1,40 +1,37 @@
 {
-  "$schema": "../../../../../schemas/module.schema.json",
-  "id": "cloud/aws",
-  "type": "stack-authority",
-  "name": "AWS",
-  "description": "AWS deployment patterns with infrastructure as code and security best practices",
+  "id": "aws",
+  "category": "stack-authority",
+  "name": "Aws",
+  "description": "AWS cloud infrastructure standards including IAM, VPC, ECS/EKS patterns, and deployment workflows",
   "version": "1.0.0",
   "provides": {
-    "rules": [
-      "50-cloud-aws.mdc"
-    ],
-    "commands": [
-      "cloud.aws.deploy.md",
-      "cloud.aws.preflight.md"
-    ],
+    "agents": [],
     "skills": [
-      "aws-infra-standards"
+      "skills/aws-infra-standards"
     ],
-    "agents": [
-      "cloud.aws-release-manager.md"
-    ]
+    "instructions": "instructions.md"
   },
-  "requires": [""],
-  "compatibility": {
-    "cursor": ">=0.40.0",
-    "modules": {
-      "": "*",
-      "frontend/react-tailwind": "*",
-      "frontend/next-tailwind": "*",
-      "frontend/angular-tailwind": "*",
-      "backend/node-fastify": "*",
-      "backend/java": "*",
-      "database/postgres": "*",
-      "database/sqlserver": "*"
+  "platforms": {
+    "cursor": {
+      "rules": [
+        "rules/50-cloud-aws.mdc"
+      ],
+      "installPath": ".cursor/",
+      "priority": "20-49"
+    },
+    "claude": {
+      "installPath": ".claude/",
+      "applyTo": "**"
+    },
+    "vscode": {
+      "installPath": ".github/",
+      "applyTo": "**"
     }
   },
-  "tags": ["cloud", "aws", "deployment", "infrastructure", "iac", "terraform"],
-  "author": "The Hive Group",
-  "license": "MIT"
+  "tags": [
+    "stack-authority",
+    "cloud",
+    "aws"
+  ],
+  "dependencies": []
 }

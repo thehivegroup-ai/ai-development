@@ -1,0 +1,667 @@
+---
+description: "Python FastAPI backend standards."
+alwaysApply: false
+globs: "**/*.py,**/routes/**/*.py,**/api/**/*.py,**/services/**/*.py,**/models/**/*.py,**/schemas/**/*.py,**/core/**/*.py"
+---
+
+# API Python FastAPI
+
+**Enforced constraints:**
+
+- MUST use type hints for all functions, methods, and variables
+- MUST use `async def` for all route handlers and I/O operations
+- MUST use Pydantic models for request/response schemas and configuration
+- MUST use FastAPI's dependency injection for database sessions, auth, and shared dependencies
+- MUST validate inputs with Pydantic Field constraints
+- MUST use proper HTTP status codes (see status code table in instructions.md)
+- MUST write tests using pytest + httpx AsyncClient
+- MUST handle errors with proper exception handlers or HTTPException
+- MUST NOT use `datetime.utcnow()` (deprecated) - use `datetime.now(timezone.utc)` instead
+- MUST NOT import unused dependencies
+- MUST manage database sessions properly (commit only when needed, rollback on error)
+
+See `instructions.md` for complete examples, patterns, and implementation guidance.
+
+---
+
+## API Structure
+
+### Application Setup
+
+```python
+# main.py
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
+
+from app.core.config import settings
+from app.core.database import engine
+from app.api.v1.router import api_router
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Startup and shutdown events
+    """
+    # Startup
+    print("Starting up...")
+    yield
+    # Shutdown
+    print("Shutting down...")
+
+app = FastAPI(
+    title=settings.PROJECT_NAME,
+    version=settings.VERSION,
+    openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    lifespan=lifespan,
+)
+
+# CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include routers
+app.include_router(api_router, prefix=settings.API_V1_STR)
+
+@app.get("/health")
+async def health_check() -> dict[str, str]:
+    """Health check endpoint"""
+    return {"status": "healthy"}
+```
+
+---
+
+## Configuration Management
+
+### Settings with Pydantic
+
+```python
+# core/config.py
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import List
+
+class Settings(BaseSettings):
+    """
+    Application settings with environment variable support
+    """
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=True,
+    )
+
+    # API
+    PROJECT_NAME: str = "My API"
+    VERSION: str = "1.0.0"
+    API_V1_STR: str = "/api/v1"
+    
+    # CORS
+    ALLOWED_ORIGINS: List[str] = ["http://localhost:3000"]
+    
+    # Database
+    DATABASE_URL: str
+    
+    # Auth
+    SECRET_KEY: str
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+
+settings = Settings()
+```
+
+**Usage:**
+```python
+from app.core.config import settings
+
+print(settings.DATABASE_URL)  # From environment
+```
+
+---
+
+## Pydantic Models (Schemas)
+
+### Request/Response Models
+
+```python
+# schemas/user.py
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
+from datetime import datetime
+from typing import Optional
+
+class UserBase(BaseModel):
+    """Shared properties"""
+    email: EmailStr
+    first_name: str = Field(..., min_length=1, max_length=50)
+    last_name: str = Field(..., min_length=1, max_length=50)
+    is_active: bool = True
+
+class UserCreate(UserBase):
+    """Properties for user creation"""
+    password: str = Field(..., min_length=8, max_length=100)
+
+class UserUpdate(BaseModel):
+    """Properties for user update (all optional)"""
+    email: Optional[EmailStr] = None
+    first_name: Optional[str] = Field(None, min_length=1, max_length=50)
+    last_name: Optional[str] = Field(None, min_length=1, max_length=50)
+    is_active: Optional[bool] = None
+
+class UserResponse(UserBase):
+    """Properties returned to client"""
+    model_config = ConfigDict(from_attributes=True)
+    
+    id: int
+    created_at: datetime
+    updated_at: datetime
+
+class UserInDB(UserResponse):
+    """Properties stored in database (includes hashed password)"""
+    hashed_password: str
+```
+
+---
+
+## Database Models (SQLAlchemy)
+
+### ORM Models
+
+```python
+# models/user.py
+from sqlalchemy import Boolean, Column, Integer, String, DateTime
+from sqlalchemy.sql import func
+from app.core.database import Base
+
+class User(Base):
+    """User database model"""
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, unique=True, index=True, nullable=False)
+    first_name = Column(String, nullable=False)
+    last_name = Column(String, nullable=False)
+    hashed_password = Column(String, nullable=False)
+    is_active = Column(Boolean, default=True, nullable=False)
+    
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+```
+
+### Database Setup
+
+```python
+# core/database.py
+from sqlalchemy import create_engine
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy.orm import declarative_base
+
+from app.core.config import settings
+
+# Async engine for PostgreSQL
+engine = create_async_engine(
+    settings.DATABASE_URL,
+    echo=True,  # Log SQL (disable in production)
+    future=True,
+)
+
+# Session factory
+async_session_maker = async_sessionmaker(
+    engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
+)
+
+Base = declarative_base()
+
+async def get_db() -> AsyncSession:
+    """
+    Dependency for getting database session
+    """
+    async with async_session_maker() as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()
+```
+
+---
+
+## API Routes
+
+### Router Structure
+
+```python
+# api/v1/router.py
+from fastapi import APIRouter
+from app.api.v1.endpoints import users, auth
+
+api_router = APIRouter()
+
+api_router.include_router(auth.router, prefix="/auth", tags=["authentication"])
+api_router.include_router(users.router, prefix="/users", tags=["users"])
+```
+
+### Endpoint Implementation
+
+```python
+# api/v1/endpoints/users.py
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from typing import List
+
+from app.core.database import get_db
+from app.schemas.user import UserCreate, UserResponse, UserUpdate
+from app.models.user import User
+from app.services import user_service
+from app.api.dependencies import get_current_active_user
+
+router = APIRouter()
+
+@router.post(
+    "/",
+    response_model=UserResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Create new user",
+)
+async def create_user(
+    *,
+    db: AsyncSession = Depends(get_db),
+    user_in: UserCreate,
+) -> User:
+    """
+    Create new user with the following information:
+    - **email**: Unique email address
+    - **first_name**: User's first name
+    - **last_name**: User's last name
+    - **password**: Strong password (min 8 characters)
+    """
+    # Check if user exists
+    existing_user = await user_service.get_by_email(db, email=user_in.email)
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User with this email already exists",
+        )
+    
+    # Create user
+    user = await user_service.create(db, obj_in=user_in)
+    return user
+
+@router.get(
+    "/",
+    response_model=List[UserResponse],
+    summary="List users",
+)
+async def list_users(
+    *,
+    db: AsyncSession = Depends(get_db),
+    skip: int = 0,
+    limit: int = 100,
+    current_user: User = Depends(get_current_active_user),
+) -> List[User]:
+    """
+    Retrieve list of users (requires authentication)
+    """
+    users = await user_service.get_multi(db, skip=skip, limit=limit)
+    return users
+
+@router.get(
+    "/{user_id}",
+    response_model=UserResponse,
+    summary="Get user by ID",
+)
+async def get_user(
+    *,
+    db: AsyncSession = Depends(get_db),
+    user_id: int,
+    current_user: User = Depends(get_current_active_user),
+) -> User:
+    """
+    Get specific user by ID
+    """
+    user = await user_service.get(db, id=user_id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+    return user
+
+@router.patch(
+    "/{user_id}",
+    response_model=UserResponse,
+    summary="Update user",
+)
+async def update_user(
+    *,
+    db: AsyncSession = Depends(get_db),
+    user_id: int,
+    user_in: UserUpdate,
+    current_user: User = Depends(get_current_active_user),
+) -> User:
+    """
+    Update user information
+    """
+    user = await user_service.get(db, id=user_id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+    
+    # Check permissions (users can only update themselves unless admin)
+    if user.id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not enough permissions",
+        )
+    
+    user = await user_service.update(db, db_obj=user, obj_in=user_in)
+    return user
+
+@router.delete(
+    "/{user_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete user",
+)
+async def delete_user(
+    *,
+    db: AsyncSession = Depends(get_db),
+    user_id: int,
+    current_user: User = Depends(get_current_active_user),
+) -> None:
+    """
+    Delete user
+    """
+    user = await user_service.get(db, id=user_id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+    
+    await user_service.remove(db, id=user_id)
+```
+
+---
+
+## Service Layer
+
+### CRUD Operations
+
+```python
+# services/user_service.py
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from typing import Optional, List
+
+from app.models.user import User
+from app.schemas.user import UserCreate, UserUpdate
+from app.core.security import get_password_hash
+
+class UserService:
+    """
+    User CRUD operations
+    """
+    
+    async def get(self, db: AsyncSession, id: int) -> Optional[User]:
+        """Get user by ID"""
+        result = await db.execute(select(User).where(User.id == id))
+        return result.scalar_one_or_none()
+    
+    async def get_by_email(self, db: AsyncSession, email: str) -> Optional[User]:
+        """Get user by email"""
+        result = await db.execute(select(User).where(User.email == email))
+        return result.scalar_one_or_none()
+    
+    async def get_multi(
+        self,
+        db: AsyncSession,
+        *,
+        skip: int = 0,
+        limit: int = 100,
+    ) -> List[User]:
+        """Get multiple users with pagination"""
+        result = await db.execute(select(User).offset(skip).limit(limit))
+        return list(result.scalars().all())
+    
+    async def create(self, db: AsyncSession, *, obj_in: UserCreate) -> User:
+        """Create new user"""
+        db_obj = User(
+            email=obj_in.email,
+            first_name=obj_in.first_name,
+            last_name=obj_in.last_name,
+            hashed_password=get_password_hash(obj_in.password),
+            is_active=obj_in.is_active,
+        )
+        db.add(db_obj)
+        await db.flush()
+        await db.refresh(db_obj)
+        return db_obj
+    
+    async def update(
+        self,
+        db: AsyncSession,
+        *,
+        db_obj: User,
+        obj_in: UserUpdate,
+    ) -> User:
+        """Update user"""
+        update_data = obj_in.model_dump(exclude_unset=True)
+        
+        for field, value in update_data.items():
+            setattr(db_obj, field, value)
+        
+        await db.flush()
+        await db.refresh(db_obj)
+        return db_obj
+    
+    async def remove(self, db: AsyncSession, *, id: int) -> None:
+        """Delete user"""
+        result = await db.execute(select(User).where(User.id == id))
+        obj = result.scalar_one()
+        await db.delete(obj)
+        await db.flush()
+
+user_service = UserService()
+```
+
+---
+
+## Authentication
+
+### JWT Token Creation
+
+```python
+# core/security.py
+from datetime import datetime, timedelta
+from typing import Any
+from jose import jwt
+from passlib.context import CryptContext
+
+from app.core.config import settings
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+def create_access_token(subject: str | Any, expires_delta: timedelta | None = None) -> str:
+    """Create JWT access token"""
+    if expires_delta:
+        expire = datetime.utcnow() + expires_delta
+    else:
+        expire = datetime.utcnow() + timedelta(
+            minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
+        )
+    
+    to_encode = {"exp": expire, "sub": str(subject)}
+    encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+    return encoded_jwt
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verify password against hash"""
+    return pwd_context.verify(plain_password, hashed_password)
+
+def get_password_hash(password: str) -> str:
+    """Hash password"""
+    return pwd_context.hash(password)
+```
+
+### Auth Dependencies
+
+```python
+# api/dependencies.py
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from jose import jwt, JWTError
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.config import settings
+from app.core.database import get_db
+from app.models.user import User
+from app.services import user_service
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/auth/login")
+
+async def get_current_user(
+    db: AsyncSession = Depends(get_db),
+    token: str = Depends(oauth2_scheme),
+) -> User:
+    """Get current authenticated user"""
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+    
+    user = await user_service.get(db, id=int(user_id))
+    if user is None:
+        raise credentials_exception
+    
+    return user
+
+async def get_current_active_user(
+    current_user: User = Depends(get_current_user),
+) -> User:
+    """Get current active user (not disabled)"""
+    if not current_user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Inactive user",
+        )
+    return current_user
+```
+
+---
+
+## Testing Standards
+
+### Pytest with FastAPI TestClient
+
+```python
+# tests/api/test_users.py
+import pytest
+from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.main import app
+from app.core.config import settings
+
+pytestmark = pytest.mark.asyncio
+
+async def test_create_user(client: AsyncClient):
+    """Test user creation"""
+    response = await client.post(
+        f"{settings.API_V1_STR}/users/",
+        json={
+            "email": "test@example.com",
+            "first_name": "Test",
+            "last_name": "User",
+            "password": "password123",
+        },
+    )
+    
+    assert response.status_code == 201
+    data = response.json()
+    assert data["email"] == "test@example.com"
+    assert "id" in data
+
+async def test_get_user(client: AsyncClient, test_user):
+    """Test get user by ID"""
+    response = await client.get(
+        f"{settings.API_V1_STR}/users/{test_user.id}",
+        headers={"Authorization": f"Bearer {test_user.token}"},
+    )
+    
+    assert response.status_code == 200
+    data = response.json()
+    assert data["id"] == test_user.id
+```
+
+---
+
+## Error Handling
+
+### Custom Exceptions
+
+```python
+# core/exceptions.py
+from fastapi import HTTPException, status
+
+class UserNotFoundError(HTTPException):
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+
+class DuplicateUserError(HTTPException):
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User with this email already exists",
+        )
+```
+
+---
+
+## Required Tools
+
+- Python 3.11+
+- FastAPI 0.104+
+- Pydantic 2.0+
+- SQLAlchemy 2.0+ (async)
+- Uvicorn (ASGI server)
+- PostgreSQL (or other async-supported database)
+- python-jose (JWT)
+- passlib + bcrypt (password hashing)
+- pytest + httpx (testing)
+
+---
+
+## Success Metrics
+
+Code reviews MUST verify:
+- ✅ All functions have type hints
+- ✅ Async/await used for I/O operations
+- ✅ Pydantic models for validation
+- ✅ Dependency injection used properly
+- ✅ Database sessions managed correctly
+- ✅ Authentication/authorization implemented
+- ✅ Error handling with proper HTTP status codes
+- ✅ API documentation (automatic with FastAPI)

@@ -1,0 +1,26 @@
+---
+description: "Azure infrastructure constraints."
+alwaysApply: false
+globs: "**/infra/**/*.bicep,**/terraform/**/*.tf,**/azure-pipelines.yml,**/azuredeploy.json,**/arm-templates/**/*.json"
+---
+
+# Cloud Azure
+
+**Enforced constraints:**
+
+- MUST use infrastructure as code (Bicep or Terraform) for all infrastructure changes
+- MUST use Key Vault for secrets and sensitive configuration
+- MUST use Managed Identities for authentication (never credentials in code)
+- MUST organize resources by environment and application in resource groups
+- MUST follow resource naming conventions (see instructions.md)
+- MUST enable Application Insights or monitoring for all services
+- MUST implement cost alerts and budget controls
+- MUST use appropriate SKUs and implement auto-scaling
+- MUST enable Azure Defender for security
+- MUST use Private Endpoints where applicable
+- MUST implement RBAC for access control
+- MUST run preflight checks before deployment
+- MUST document rollback strategy for releases
+- MUST NOT hardcode secrets in templates or code
+
+See `instructions.md` for complete Bicep examples, Key Vault integration, deployment patterns, Azure CLI commands, and service-specific guidance.

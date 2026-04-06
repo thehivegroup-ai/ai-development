@@ -1,7 +1,14 @@
 /**
  * Module scanner
- * 
- * Scans the modules/ directory and discovers available modules
+ *
+ * Scans the modules/ directory and discovers available modules.
+ *
+ * ARCHITECTURE NOTE:
+ * - Reads FROM: modules/ directory (source of truth)
+ * - Never reads from .cursor/ in ai-development repo (that's dogfooding)
+ * - Discovered modules are installed TO: target-project/.cursor/ (deployment target)
+ *
+ * See docs/ARCHITECTURE-SOURCE-VS-DEPLOYMENT.md for details.
  */
 
 import { readdir, readFile, stat } from 'fs/promises';
@@ -20,6 +27,15 @@ async function directoryExists(path: string): Promise<boolean> {
   }
 }
 
+async function fileExists(path: string): Promise<boolean> {
+  try {
+    await stat(path);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Get all files in a directory (non-recursive)
  */
@@ -33,76 +49,118 @@ async function getFiles(dir: string): Promise<string[]> {
 }
 
 /**
+ * Resolve where installable Cursor content lives for a module.
+ * Prefers `cursor/` when it has real content; otherwise uses the module root (flat layout).
+ */
+export async function getModuleContentRoot(modulePath: string): Promise<string> {
+  const cursorPath = join(modulePath, 'cursor');
+  if (!(await directoryExists(cursorPath))) {
+    return modulePath;
+  }
+
+  if (await fileExists(join(cursorPath, 'hooks.json'))) {
+    return cursorPath;
+  }
+
+  for (const d of ['rules', 'skills', 'agents', 'commands', 'hooks', 'scripts']) {
+    if (await directoryExists(join(cursorPath, d))) {
+      return cursorPath;
+    }
+  }
+
+  try {
+    const entries = await readdir(cursorPath);
+    const meaningful = entries.filter((e) => e !== 'README.md' && e !== '.DS_Store');
+    if (meaningful.length > 0) {
+      return cursorPath;
+    }
+  } catch {
+    // fall through
+  }
+
+  return modulePath;
+}
+
+/**
+ * Normalize category strings from module.json (aliases vary across manifests)
+ */
+function normalizeManifestCategory(raw: string | undefined): ModuleCategory | undefined {
+  if (!raw) return undefined;
+  const r = raw.trim().toLowerCase().replace(/_/g, '-');
+  if (r === 'enterprise-standard' || r === 'enterprise-standards') {
+    return 'enterprise-standards';
+  }
+  if (r === 'stack-authority') return 'stack-authority';
+  if (r === 'project-control') return 'project-control';
+  if (r === 'named-project') return 'named-project';
+  return undefined;
+}
+
+/**
  * Infer module category from path
  */
 function inferCategory(modulePath: string, repoRoot: string): ModuleCategory {
-  const relativePath = relative(repoRoot, modulePath);
-  
+  const relativePath = relative(repoRoot, modulePath).replace(/\\/g, '/');
+
   if (relativePath.startsWith('modules/enterprise-standards')) {
     return 'enterprise-standards';
-  } else if (relativePath.startsWith('modules/stack-authorities')) {
+  }
+  if (relativePath.startsWith('modules/projects/')) {
+    return 'named-project';
+  }
+  if (relativePath.startsWith('modules/stack-authorities')) {
     return 'stack-authority';
-  } else if (relativePath.startsWith('modules/project-controls')) {
+  }
+  if (relativePath.startsWith('modules/project-controls')) {
     return 'project-control';
   }
-  
-  return 'stack-authority'; // default
+
+  return 'stack-authority';
 }
 
 /**
  * Infer module ID from path
  * e.g., modules/stack-authorities/frontend/react-tailwind → frontend/react-tailwind
- * e.g., modules/enterprise-standards → "" (empty string for top-level enterprise module)
- * e.g., modules/project-controls/base → base
+ * e.g., modules/projects/towerai → projects/towerai
  */
 function inferModuleId(modulePath: string, repoRoot: string): string {
   const relativePath = relative(repoRoot, modulePath);
-  const parts = relativePath.split('/');
-  
-  // Remove 'modules' and category prefix
+  const parts = relativePath.split(/[/\\]/);
+
   if (parts[0] === 'modules') {
-    parts.shift(); // remove 'modules'
-    parts.shift(); // remove category (enterprise-standards, stack-authorities, project-controls)
-    
-    // Special case: enterprise-standards is a top-level module with empty ID
-    // project-controls and stack-authorities have sub-modules
-    const moduleId = parts.join('/');
-    
-    // Return empty string for enterprise-standards (it's the only top-level category module)
-    return moduleId;
+    parts.shift();
+    parts.shift();
+    return parts.join('/');
   }
-  
+
   return parts.join('/');
 }
 
 /**
- * Scan a cursor/ directory for contents
+ * Scan installable content at contentRoot (module `cursor/` or flat module root)
  */
-async function scanCursorDirectory(cursorPath: string): Promise<ModuleProvides> {
+async function scanModuleContent(contentRoot: string): Promise<ModuleProvides> {
   const provides: ModuleProvides = {
     rules: [],
     commands: [],
     skills: [],
     agents: [],
-    hooks: []
+    hooks: [],
   };
-  
-  // Scan rules/
-  const rulesDir = join(cursorPath, 'rules');
+
+  const rulesDir = join(contentRoot, 'rules');
   if (await directoryExists(rulesDir)) {
     const files = await getFiles(rulesDir);
-    provides.rules = files.filter(f => f.endsWith('.mdc') || f.endsWith('.md'));
+    provides.rules = files.filter((f) => f.endsWith('.mdc') || f.endsWith('.md'));
   }
-  
-  // Scan commands/
-  const commandsDir = join(cursorPath, 'commands');
+
+  const commandsDir = join(contentRoot, 'commands');
   if (await directoryExists(commandsDir)) {
     const files = await getFiles(commandsDir);
-    provides.commands = files.filter(f => f.endsWith('.md'));
+    provides.commands = files.filter((f) => f.endsWith('.md'));
   }
-  
-  // Scan skills/ (directories containing SKILL.md)
-  const skillsDir = join(cursorPath, 'skills');
+
+  const skillsDir = join(contentRoot, 'skills');
   if (await directoryExists(skillsDir)) {
     const entries = await getFiles(skillsDir);
     for (const entry of entries) {
@@ -118,28 +176,33 @@ async function scanCursorDirectory(cursorPath: string): Promise<ModuleProvides> 
       }
     }
   }
-  
-  // Scan agents/
-  const agentsDir = join(cursorPath, 'agents');
+
+  const agentsDir = join(contentRoot, 'agents');
   if (await directoryExists(agentsDir)) {
     const files = await getFiles(agentsDir);
-    provides.agents = files.filter(f => f.endsWith('.md'));
+    provides.agents = files.filter((f) => f.endsWith('.md'));
   }
-  
-  // Scan hooks/ and hooks.json
-  const hooksDir = join(cursorPath, 'hooks');
-  const hooksJson = join(cursorPath, 'hooks.json');
+
+  const hooksJson = join(contentRoot, 'hooks.json');
   try {
     await stat(hooksJson);
     provides.hooks.push('hooks.json');
   } catch {
     // No hooks.json
   }
+
+  const hooksDir = join(contentRoot, 'hooks');
   if (await directoryExists(hooksDir)) {
     const files = await getFiles(hooksDir);
-    provides.hooks.push(...files.map(f => `hooks/${f}`));
+    provides.hooks.push(...files.map((f) => `hooks/${f}`));
   }
-  
+
+  const hooksDDir = join(contentRoot, 'hooks.d');
+  if (await directoryExists(hooksDDir)) {
+    const files = await getFiles(hooksDDir);
+    provides.hooks.push(...files.map((f) => `hooks/${f}`));
+  }
+
   return provides;
 }
 
@@ -148,7 +211,7 @@ async function scanCursorDirectory(cursorPath: string): Promise<ModuleProvides> 
  */
 async function loadManifest(modulePath: string): Promise<ModuleManifest | null> {
   const manifestPath = join(modulePath, 'module.json');
-  
+
   try {
     const content = await readFile(manifestPath, 'utf-8');
     const manifest = JSON.parse(content) as ModuleManifest;
@@ -162,20 +225,11 @@ async function loadManifest(modulePath: string): Promise<ModuleManifest | null> 
  * Scan a single module directory
  */
 async function scanModule(modulePath: string, repoRoot: string): Promise<ModuleMetadata | null> {
-  const cursorPath = join(modulePath, 'cursor');
-  
-  // Check if cursor/ directory exists
-  if (!(await directoryExists(cursorPath))) {
-    return null;
-  }
-  
-  // Try to load manifest first
   const manifest = await loadManifest(modulePath);
-  
-  // Scan cursor/ directory for actual contents
-  const provides = await scanCursorDirectory(cursorPath);
-  
-  // If no content found, skip this module
+  const contentRoot = await getModuleContentRoot(modulePath);
+
+  const provides = await scanModuleContent(contentRoot);
+
   if (
     provides.rules.length === 0 &&
     provides.commands.length === 0 &&
@@ -185,56 +239,55 @@ async function scanModule(modulePath: string, repoRoot: string): Promise<ModuleM
   ) {
     return null;
   }
-  
-  // Build module metadata
+
   const id = manifest?.id || inferModuleId(modulePath, repoRoot);
-  const category = manifest?.type || inferCategory(modulePath, repoRoot);
+  const rawType = manifest?.type ?? manifest?.category;
+  const category: ModuleCategory =
+    normalizeManifestCategory(rawType) ?? inferCategory(modulePath, repoRoot);
   const name = manifest?.name || id.split('/').pop() || id;
-  
+
+  const aliases = manifest?.aliases?.filter((a) => typeof a === 'string' && a.trim().length > 0);
+
   return {
     id,
+    ...(aliases && aliases.length > 0 ? { aliases } : {}),
     category,
     name,
     description: manifest?.description,
     path: relative(repoRoot, modulePath),
     provides,
     requires: manifest?.requires,
-    tags: manifest?.tags
+    tags: manifest?.tags,
   };
 }
 
 /**
- * Recursively scan for module directories
+ * Find every directory under modules/ that contains a module.json (module root).
  */
-async function findModuleDirectories(dir: string, depth: number = 0): Promise<string[]> {
-  const MAX_DEPTH = 5;
-  if (depth > MAX_DEPTH) return [];
-  
-  const modules: string[] = [];
-  
-  try {
-    const entries = await readdir(dir, { withFileTypes: true });
-    
-    for (const entry of entries) {
-      if (!entry.isDirectory()) continue;
-      
-      const fullPath = join(dir, entry.name);
-      
-      // Check if this is a module directory (has cursor/ subdirectory)
-      const cursorPath = join(fullPath, 'cursor');
-      if (await directoryExists(cursorPath)) {
-        modules.push(fullPath);
-      } else {
-        // Recurse into subdirectories
-        const subModules = await findModuleDirectories(fullPath, depth + 1);
-        modules.push(...subModules);
-      }
+async function findModuleDirectoriesWithManifest(modulesDir: string): Promise<string[]> {
+  const out: string[] = [];
+
+  async function walk(dir: string): Promise<void> {
+    let entries;
+    try {
+      entries = await readdir(dir, { withFileTypes: true });
+    } catch {
+      return;
     }
-  } catch {
-    // Directory not accessible
+
+    const hasManifest = entries.some((e) => e.isFile() && e.name === 'module.json');
+    if (hasManifest) {
+      out.push(dir);
+    }
+
+    for (const e of entries) {
+      if (!e.isDirectory() || e.name.startsWith('.')) continue;
+      await walk(join(dir, e.name));
+    }
   }
-  
-  return modules;
+
+  await walk(modulesDir);
+  return out;
 }
 
 /**
@@ -242,34 +295,35 @@ async function findModuleDirectories(dir: string, depth: number = 0): Promise<st
  */
 export async function scanModules(repoPath: string): Promise<ModuleMetadata[]> {
   const modulesDir = join(repoPath, 'modules');
-  
+
   if (!(await directoryExists(modulesDir))) {
     throw new Error(`Modules directory not found: ${modulesDir}`);
   }
-  
-  // Find all module directories
-  const moduleDirs = await findModuleDirectories(modulesDir);
-  
-  // Scan each module
+
+  const moduleDirs = await findModuleDirectoriesWithManifest(modulesDir);
+
   const modules: ModuleMetadata[] = [];
-  
+
   for (const moduleDir of moduleDirs) {
     const metadata = await scanModule(moduleDir, repoPath);
     if (metadata) {
       modules.push(metadata);
     }
   }
-  
+
   return modules;
 }
 
 /**
- * Find a specific module by ID
+ * Find a specific module by canonical ID or alias (see module.json `aliases`)
  */
 export async function findModule(
   repoPath: string,
   moduleId: string
 ): Promise<ModuleMetadata | null> {
   const allModules = await scanModules(repoPath);
-  return allModules.find(m => m.id === moduleId) || null;
+  const found =
+    allModules.find((m) => m.id === moduleId) ||
+    allModules.find((m) => m.aliases?.includes(moduleId));
+  return found || null;
 }

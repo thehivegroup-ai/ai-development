@@ -6,6 +6,25 @@
 
 import { ModuleMetadata } from '../types.js';
 
+/** Resolve canonical module by id or manifest alias */
+export function findModuleByIdOrAlias(
+  modules: ModuleMetadata[],
+  id: string
+): ModuleMetadata | undefined {
+  return modules.find((m) => m.id === id || m.aliases?.includes(id));
+}
+
+function buildAcceptedIdSet(modules: ModuleMetadata[]): Set<string> {
+  const s = new Set<string>();
+  for (const m of modules) {
+    s.add(m.id);
+    for (const a of m.aliases || []) {
+      s.add(a);
+    }
+  }
+  return s;
+}
+
 /**
  * Selection categories
  */
@@ -18,6 +37,8 @@ export interface SelectionCategories {
   cloud: ModuleMetadata[];
   testing: ModuleMetadata[];
   ci: ModuleMetadata[];
+  /** Named project overlays (modules/projects/...) */
+  projects: ModuleMetadata[];
 }
 
 /**
@@ -27,6 +48,8 @@ export interface ModuleChoices {
   enterprise: string;
   controls: string[];
   stacks: string[];
+  /** Optional named project overlays, merged last (e.g. projects/towerai) */
+  projects?: string[];
 }
 
 /**
@@ -42,6 +65,7 @@ export function categorizeModules(modules: ModuleMetadata[]): SelectionCategorie
     cloud: [],
     testing: [],
     ci: [],
+    projects: [],
   };
 
   for (const module of modules) {
@@ -49,6 +73,8 @@ export function categorizeModules(modules: ModuleMetadata[]): SelectionCategorie
       categories.enterprise.push(module);
     } else if (module.category === 'project-control') {
       categories.controls.push(module);
+    } else if (module.category === 'named-project') {
+      categories.projects.push(module);
     } else if (module.category === 'stack-authority') {
       // Categorize by stack type based on module ID
       const id = module.id;
@@ -80,6 +106,7 @@ export function formatModuleOption(module: ModuleMetadata): {
   name: string;
   description: string;
   provides: string;
+  aliases?: string[];
 } {
   const provides: string[] = [];
   
@@ -104,6 +131,7 @@ export function formatModuleOption(module: ModuleMetadata): {
     name: module.name,
     description: module.description || 'No description',
     provides: provides.join(', '),
+    ...(module.aliases && module.aliases.length > 0 ? { aliases: module.aliases } : {}),
   };
 }
 
@@ -222,6 +250,24 @@ export function generateSelectionPrompt(categories: SelectionCategories): string
     sections.push('No CI/CD modules available.\n');
   }
 
+  sections.push('\n## Named project overlays (Optional)\n');
+  if (categories.projects.length > 0) {
+    sections.push(
+      'Repo-specific rules/skills/hooks (e.g. TowerAI). Merged **after** stacks. Choose zero or more:\n'
+    );
+    for (const module of categories.projects) {
+      const formatted = formatModuleOption(module);
+      sections.push(`- **${formatted.name}** (ID: \`${formatted.id}\`)`);
+      if (formatted.aliases?.length) {
+        sections.push(`  Also accepted: ${formatted.aliases.map((a) => `\`${a}\``).join(', ')}`);
+      }
+      sections.push(`  ${formatted.description}`);
+      sections.push(`  Provides: ${formatted.provides}\n`);
+    }
+  } else {
+    sections.push('No named project modules in this repository.\n');
+  }
+
   sections.push('\n---\n');
   sections.push('\n## How to Respond\n');
   sections.push('\nProvide your selection in JSON format:\n');
@@ -234,7 +280,8 @@ export function generateSelectionPrompt(categories: SelectionCategories): string
   sections.push('    "backend/node-fastify",\n');
   sections.push('    "database/postgres",\n');
   sections.push('    "cloud/aws"\n');
-  sections.push('  ]\n');
+  sections.push('  ],\n');
+  sections.push('  "projects": []  // Optional: e.g. ["projects/towerai"] or ["towerai"] if the module lists aliases\n');
   sections.push('}\n');
   sections.push('```\n');
 
@@ -249,7 +296,7 @@ export function validateSelection(
   availableModules: ModuleMetadata[]
 ): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
-  const moduleIds = new Set(availableModules.map(m => m.id));
+  const moduleIds = buildAcceptedIdSet(availableModules);
 
   // Check enterprise is provided
   if (selection.enterprise === undefined || selection.enterprise === null) {
@@ -276,6 +323,14 @@ export function validateSelection(
     }
   }
 
+  for (const projectId of selection.projects || []) {
+    if (!moduleIds.has(projectId)) {
+      errors.push(
+        `Project module not found: "${projectId}". Use the canonical id (e.g. projects/towerai) or a declared alias; named-project modules only exist in the module source you are reading (local clone vs remote cache).`
+      );
+    }
+  }
+
   return {
     valid: errors.length === 0,
     errors,
@@ -290,7 +345,13 @@ export function generateSelectionSummary(
   modules: ModuleMetadata[]
 ): string {
   const sections: string[] = [];
-  const moduleMap = new Map(modules.map(m => [m.id, m]));
+  const moduleMap = new Map<string, ModuleMetadata>();
+  for (const m of modules) {
+    moduleMap.set(m.id, m);
+    for (const a of m.aliases || []) {
+      moduleMap.set(a, m);
+    }
+  }
 
   sections.push('# Your Module Selection\n');
 
@@ -327,11 +388,24 @@ export function generateSelectionSummary(
     }
   }
 
+  if (selection.projects && selection.projects.length > 0) {
+    sections.push('\n## Named project overlays\n');
+    for (const projectId of selection.projects) {
+      const module = moduleMap.get(projectId);
+      if (module) {
+        sections.push(`- ${module.name} (\`${projectId}\`)\n`);
+        const formatted = formatModuleOption(module);
+        sections.push(`  ${formatted.provides}\n`);
+      }
+    }
+  }
+
   // Total counts
   const allModules = [
     moduleMap.get(selection.enterprise),
     ...(selection.controls || []).map(id => moduleMap.get(id)),
     ...(selection.stacks || []).map(id => moduleMap.get(id)),
+    ...(selection.projects || []).map(id => moduleMap.get(id)),
   ].filter(Boolean) as ModuleMetadata[];
 
   const totalRules = allModules.reduce((sum, m) => sum + m.provides.rules.length, 0);

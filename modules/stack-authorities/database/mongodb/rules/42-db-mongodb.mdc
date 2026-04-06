@@ -1,0 +1,23 @@
+---
+description: "MongoDB schema and query constraints."
+alwaysApply: false
+globs: "**/models/**/*.{ts,js,py},**/schemas/**/*.{ts,js,py},**/db/**/*.{ts,js,py},**/repositories/**/*.{ts,js,py}"
+---
+
+# DB MongoDB
+
+**Enforced constraints:**
+
+- MUST define schemas using Mongoose or Pydantic (even for schemaless MongoDB)
+- MUST create indexes for common query patterns
+- MUST choose embedding vs referencing appropriately (see guidelines below)
+- MUST use aggregation pipelines for complex queries
+- MUST avoid N+1 query patterns
+- MUST validate schema changes don't break existing data
+- MUST monitor index usage and query performance
+
+**Embedding vs Referencing:**
+- Embed when: one-to-few, data always accessed together, small subdocuments
+- Reference when: one-to-many, many-to-many, large or independently accessed documents
+
+See `instructions.md` for complete Mongoose and Motor examples, schema design patterns, indexing strategies, and aggregation pipeline examples.

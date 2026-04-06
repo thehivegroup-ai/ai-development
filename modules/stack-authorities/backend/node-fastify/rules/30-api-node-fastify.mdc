@@ -1,0 +1,17 @@
+---
+description: "Fastify API constraints."
+alwaysApply: false
+globs: "**/routes/**/*.ts,**/api/**/*.ts,**/services/**/*.ts,**/plugins/**/*.ts"
+---
+
+# API Node Fastify
+
+**Enforced constraints:**
+
+- MUST use Fastify plugins for shared concerns (logging, auth, validation, error handling)
+- MUST validate request/response schemas at the route level using JSON schema
+- MUST keep route handlers thin – business logic lives in service layer
+- MUST standardize error responses with consistent error envelopes and status codes
+- MUST write tests for routes and service logic
+
+See `instructions.md` for detailed examples, schema patterns, error handling, and testing guidance.

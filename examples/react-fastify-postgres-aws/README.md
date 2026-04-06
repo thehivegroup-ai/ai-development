@@ -69,7 +69,12 @@ install_environment({
 cd your-project/
 
 # Enterprise standards (required)
-cp -r ../ai-development/modules/enterprise-standards/cursor/* .cursor/
+mkdir -p .cursor/rules .cursor/skills .cursor/agents .cursor/hooks
+cp ../ai-development/modules/enterprise-standards/rules/*.mdc .cursor/rules/
+cp -r ../ai-development/modules/enterprise-standards/skills/* .cursor/skills/
+cp ../ai-development/modules/enterprise-standards/agents/*.md .cursor/agents/
+cp ../ai-development/modules/enterprise-standards/hooks.json .cursor/hooks.json
+cp ../ai-development/modules/enterprise-standards/hooks.d/*.sh .cursor/hooks/
 
 # Base controls
 cp -r ../ai-development/modules/project-controls/base/cursor/* .cursor/

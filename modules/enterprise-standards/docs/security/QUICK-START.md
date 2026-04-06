@@ -62,7 +62,7 @@ Run the pre-commit security audit:
 
 ```bash
 cd /Users/robertfiore/development/ai-development
-./modules/enterprise-standards/cursor/hooks/security-audit.sh
+./modules/enterprise-standards/hooks.d/security-audit.sh
 ```
 
 It will check:
@@ -115,7 +115,7 @@ It will check:
 
 7. **Before commit:**
    ```bash
-   ./modules/enterprise-standards/cursor/hooks/security-audit.sh
+   ./modules/enterprise-standards/hooks.d/security-audit.sh
    ```
 
 ### Scenario 2: Quick Check During Development
@@ -151,7 +151,7 @@ Just save your code. If it contains PHI/PII, the scanner will tell you immediate
 ## Key Files to Know
 
 ### Rule: Read This First
-`modules/enterprise-standards/cursor/rules/08-std-security-practices.mdc`
+`modules/enterprise-standards/rules/08-std-security-practices.mdc`
 
 **This is your security reference.**
 
@@ -167,7 +167,7 @@ Covers:
 **Read it once, reference it often.**
 
 ### Skill: Use for Deep Analysis
-`modules/enterprise-standards/cursor/skills/security-review/SKILL.md`
+`modules/enterprise-standards/skills/security-review/SKILL.md`
 
 **This is your security review process.**
 
@@ -180,7 +180,7 @@ Guides you through:
 **Use when building PHI/PII features.**
 
 ### Agent: Use for Challenges
-`modules/enterprise-standards/cursor/agents/security-critic.md`
+`modules/enterprise-standards/agents/security-critic.md`
 
 **This is your adversarial reviewer.**
 
@@ -263,7 +263,7 @@ logger.error(`Login failed`, { user_id: userId });
 | Building PHI/PII feature | Security Review Skill | "Run security review for [feature]" |
 | Need to challenge design | Security Critic Agent | "As Security Critic, review [artifacts]" |
 | Coding (real-time safety) | PHI/PII Scanner | Automatic on save |
-| Before committing | Security Audit | `./hooks/security-audit.sh` |
+| Before committing | Security Audit | `./modules/enterprise-standards/hooks.d/security-audit.sh` |
 | Need security reference | Security Rule | Read `08-std-security-practices.mdc` |
 | Compliance questions | Security Rule + Skill | Check HIPAA/GDPR sections |
 
@@ -384,4 +384,4 @@ Remove the hook from the appropriate section:
 - **How do I handle logging?** → Read `08-std-security-practices.mdc` → Logging PHI/PII Safely
 - **What if I need help?** → Use security-critic agent to challenge your design
 
-**Full documentation:** `modules/enterprise-standards/cursor/security/README.md`
+**Full documentation:** `modules/enterprise-standards/docs/security/README.md`

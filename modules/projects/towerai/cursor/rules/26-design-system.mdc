@@ -1,0 +1,29 @@
+---
+description: "Design system reference for TowerAI v2 components"
+alwaysApply: true
+---
+
+# Design System
+
+This project uses **Untitled UI** with a comprehensive design system documented in:
+
+**Design documentation:**
+- `docs/design/design-system.md` - Complete design system reference (colors, typography, spacing, components)
+- `docs/design/design-decisions.md` - Design decision log with rationale
+
+**Theme source:**
+- `apps/web/src/styles/theme.css` - CSS variable definitions for light and dark modes
+- **Global CSS entry:** `apps/web/src/styles.css` only (imported from `__root.tsx`). Do not add a second Tailwind/theme pipeline or `import '@towerai/ui/styles'` in the app. See `.cursor/rules/27-css-tailwind-theme-pipeline.mdc` and skill `css-tailwind-theme-pipeline`.
+
+**Current design:**
+- **Font:** Rubik (all text, navigation, UI)
+- **Neutral palette:** Gray Iron (cooler tones)
+- **Navigation:** Centered links with 3px underline on active state
+
+**Critical conventions:**
+1. **Use semantic color classes:** `text-primary`, `bg-primary`, `border-secondary` (NOT `text-gray-900`, `bg-white`)
+2. **Use `cx` utility:** Import from `@/utils/cx` (NOT `cn` from `@/lib/utils` - it was removed)
+3. **React Aria imports:** Always use `Aria*` prefix (e.g., `import { Button as AriaButton }`)
+4. **File naming:** kebab-case for `/base/` components, PascalCase for `/v2/` components
+
+**Read the design documentation before starting UI work to ensure consistency.**

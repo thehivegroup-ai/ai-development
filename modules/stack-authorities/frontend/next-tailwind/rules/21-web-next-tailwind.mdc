@@ -1,0 +1,20 @@
+---
+description: "Next.js + Tailwind constraints."
+alwaysApply: false
+globs: "**/*.tsx,**/*.jsx,**/app/**/*.{ts,tsx},**/pages/**/*.{ts,tsx},**/components/**/*.{ts,tsx}"
+---
+
+# Web Next Tailwind
+
+**Enforced constraints:**
+
+- MUST prefer Server Components (default in App Router)
+- MUST mark Client Components with `'use client'` directive
+- MUST use `next/link` for internal navigation (not `<a>`)
+- MUST use `next/image` for images (not `<img>`)
+- MUST use `next/font` for web fonts
+- MUST follow App Router file conventions (page.tsx, layout.tsx, loading.tsx, error.tsx)
+- MUST implement metadata for SEO (static or dynamic)
+- MUST follow Tailwind component/utility architecture from react-tailwind module
+
+See `instructions.md` for Server vs Client Component patterns, data fetching, metadata, and optimization examples.

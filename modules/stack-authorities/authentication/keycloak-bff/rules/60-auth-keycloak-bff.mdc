@@ -1,0 +1,46 @@
+---
+description: "Keycloak BFF authentication constraints — OIDC, JWT, and RBAC patterns."
+alwaysApply: false
+globs: "**/auth/**/*.ts,**/middleware/**/*.ts,**/routes/**/*.ts,**/contexts/**/*.tsx,**/services/api/**/*.ts"
+---
+
+# Auth Keycloak BFF
+
+**Enforced constraints:**
+
+**Architecture:**
+- MUST use Backend-for-Frontend pattern (frontend never talks to Keycloak directly)
+- MUST use confidential client (client_secret stays on backend)
+- MUST use API as proxy for all auth flows
+
+**Backend Token Management:**
+- MUST use `openid-client` for OIDC discovery and token exchange
+- MUST use password grant (`grant_type: 'password'`) with proper scopes
+- MUST verify tokens with JWKS (using `jose` library, not shared secrets in production)
+- MUST validate `iss`, `aud`, and `exp` claims
+- MUST extract roles from token claims (check resource_access, realm_access, roles in order)
+
+**Frontend Token Storage:**
+- MUST store tokens securely (httpOnly cookies preferred for production)
+- MUST implement token refresh before expiry
+- MUST handle concurrent refresh requests (queue pattern)
+- MUST clear tokens on logout
+
+**Authorization:**
+- MUST use route-level middleware for protected endpoints
+- MUST check roles/permissions at API boundary
+- MUST return 401 for invalid/expired tokens, 403 for insufficient permissions
+- MUST NOT trust frontend role checks alone
+
+**Test Mode:**
+- MUST support JWT_SECRET fallback for local development (when OIDC not configured)
+- MUST clearly mark test mode in logs
+- MUST NOT enable test mode in production
+
+**Security:**
+- MUST NOT expose client_secret to frontend
+- MUST NOT store tokens in localStorage without XSS risk assessment
+- MUST use HTTPS in production
+- MUST implement CSRF protection if using cookies
+
+See `instructions.md` for complete BFF setup, openid-client examples, JWKS verification, Fastify middleware, React context patterns, token refresh logic, and test mode implementation. Also see `skills/keycloak-bff-auth/` for step-by-step Docker Keycloak setup and reference flows.

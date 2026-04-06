@@ -1,7 +1,7 @@
 # Mapbox Stack Authority
 
 **Module ID:** `mapping/mapbox`  
-**Version:** 1.0.0
+**Version:** 1.1.0
 
 ---
 
@@ -18,7 +18,7 @@ Mapbox mapping platform for creating custom map styles, managing tilesets and da
   - mapbox.style.create
   - mapbox.tileset.manage
   - mapbox.dataset.edit
-- **Skill:** mapbox-standards
+- **Skills:** mapbox-standards (hub), plus mapbox-web-*, mapbox-style-*, mapbox-search-*, mapbox-token-security, mapbox-mcp-devkit-patterns, mapbox-data-visualization-patterns (see `module.json`)
 - **Agent:** mapbox.style-reviewer
 
 ---

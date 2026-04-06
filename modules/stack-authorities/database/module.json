@@ -1,0 +1,29 @@
+{
+  "id": "database",
+  "category": "stack-authority",
+  "name": "Database",
+  "description": "Parent module for database authorities (PostgreSQL, MongoDB, SQL Server)",
+  "version": "1.0.0",
+  "provides": {
+    "instructions": "instructions.md"
+  },
+  "platforms": {
+    "cursor": {
+      "rules": [],
+      "installPath": ".cursor/",
+      "priority": "20-49"
+    },
+    "claude": {
+      "installPath": ".claude/",
+      "applyTo": "**"
+    },
+    "vscode": {
+      "installPath": ".github/",
+      "applyTo": "**"
+    }
+  },
+  "tags": [
+    "stack-authority"
+  ],
+  "dependencies": []
+}

@@ -484,16 +484,16 @@ Each subagent:
 
 ### How Projects Consume Modules
 
-Projects copy module `cursor/` contents into `.cursor/`:
+Use the MCP server for automated installation with dependency resolution, or manually copy from `.cursor/` in this repository (canonical source).
 
 ```bash
-# Example: React + Fastify + Postgres + AWS
-cp -r modules/enterprise-standards/cursor/* .cursor/
-cp -r modules/stack-authorities/frontend/react-tailwind/cursor/* .cursor/
-cp -r modules/stack-authorities/backend/node-fastify/cursor/* .cursor/
-cp -r modules/stack-authorities/database/postgres/cursor/* .cursor/
-cp -r modules/stack-authorities/cloud/aws/cursor/* .cursor/
-cp -r modules/project-controls/base/cursor/* .cursor/
+# Option A: Using MCP server (recommended)
+# See mcp-server/README.md for setup
+# Use select_modules and install_environment tools
+
+# Option B: Manual installation from canonical .cursor/ source
+# Module structure is transitioning to root-level layout
+# For now, copy from .cursor/ directory in this repo
 ```
 
 Result:

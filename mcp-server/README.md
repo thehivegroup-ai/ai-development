@@ -2,10 +2,23 @@
 
 MCP (Model Context Protocol) server for managing AI development modules (rules, commands, skills, agents) from the [ai-development](https://github.com/thehivegroup-ai/ai-development) repository.
 
+## Architecture Overview
+
+**Critical Distinction:**
+- **Source:** `modules/` directory (rules, skills, agents, hooks defined here)
+- **Distribution:** This MCP server (reads from `modules/`, installs to target projects)
+- **Target:** User project `.cursor/` directory (where standards are deployed)
+
+```
+modules/ (source) → mcp-server (distribution) → your-project/.cursor/ (target)
+```
+
+The `.cursor/` directory in the `ai-development` repo itself is **for dogfooding only**, not distribution. See `../docs/ARCHITECTURE-SOURCE-VS-DEPLOYMENT.md` for details.
+
 ## Features
 
-- **Module Discovery**: List and browse available modules from Git repository
-- **Installation Tools**: Install module configurations into project `.cursor/` directories
+- **Module Discovery**: List and browse available modules from `modules/` directory
+- **Installation Tools**: Install module configurations from `modules/` into project `.cursor/` directories
 - **Version Control**: Support for branches, tags, and commit SHAs
 - **Caching**: Local cache for fast repeated access
 - **Validation**: Verify environment consistency and completeness
@@ -30,12 +43,44 @@ Add to your Cursor MCP settings (typically `~/.cursor/config.json` or via Cursor
       "args": ["/absolute/path/to/ai-development/mcp-server/dist/index.js"],
       "env": {
         "DEFAULT_REPO_URL": "https://github.com/thehivegroup-ai/ai-development.git",
-        "DEFAULT_REF": "main"
+        "DEFAULT_REF": "main",
+        "LOCAL_MODULES_REPO": "/absolute/path/to/your/ai-development-clone",
+        "AI_DEVELOPMENT_REPO": "/absolute/path/to/your/ai-development-clone"
       }
     }
   }
 }
 ```
+
+### `LOCAL_MODULES_REPO` (optional)
+
+Absolute path to a local **ai-development** clone (directory that contains `modules/`). When set, `list_modules`, `install_environment`, and related tools read this tree instead of the read-only cache. Use the same path as `AI_DEVELOPMENT_REPO` when you edit modules and sync from an app project.
+
+Per-tool `localRepoPath` overrides this for a single call.
+
+### `AI_DEVELOPMENT_REPO` (optional, for push / pull sync)
+
+Absolute path to the same clone used for **`push_module_updates`** and **`sync_latest_environment`**. If omitted, those tools fall back to `LOCAL_MODULES_REPO`.
+
+Authentication for `git push` / `git pull` is whatever you already use in that repo (SSH, credential helper, etc.). The server runs `git` locally; it does not store passwords or tokens.
+
+### End-to-end: edit skills in an app project and publish
+
+1. Clone **ai-development** on your machine and configure **`LOCAL_MODULES_REPO`** / **`AI_DEVELOPMENT_REPO`** to that path (often identical).
+2. In another project (your app), run **`install_environment`** with `localRepoPath` pointing at your clone (or rely on env). This writes `.cursor/`, `stack.profile.json`, `cursor.lock.json`, and **`ai-development.sync-manifest.json`** (maps each installed file back to `modules/.../cursor/...` in the clone).
+3. Edit files under **`.cursor/skills/`** (or other installed paths) in the app project.
+4. Run **`push_module_updates`** with `projectPath` = app root, a **`commitMessage`**, and usually **`scope`: `"skills"`**. The tool copies changed files into the clone, then **`git add` / `git commit` / `git push`** there.
+5. Other machines: set **`AI_DEVELOPMENT_REPO`** to their clone, run **`sync_latest_environment`** on their app project (`git pull --ff-only` in the clone, then refresh `.cursor/` from that tree).
+
+### Contributing workflow tools
+
+| Tool | Purpose |
+|------|--------|
+| `push_module_updates` | Copy `.cursor/` edits into the clone per sync manifest; **git commit + push** (uses your credentials) |
+| `sync_latest_environment` | **`git pull --ff-only`** in the clone; refresh this project’s `.cursor/` |
+| `contribution_workflow` | Copy-paste git command outlines (manual alternative); optional `localClonePath`, `forkRemoteUrl`, `branchName` |
+| `validate_module_sources` | Check `module.json` and layout under `modules/` in a clone |
+| `git_contribution_status` | Read-only branch / ahead-behind / short status for the clone |
 
 ## Usage
 

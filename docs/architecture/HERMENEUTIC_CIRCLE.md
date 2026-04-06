@@ -37,7 +37,7 @@ Rules ensure **no solution work begins without interpretation**.
 
 ### Implementation
 
-**File:** `modules/enterprise-standards/cursor/rules/01-std-solution-hermeneutic.mdc`
+**File:** `modules/enterprise-standards/rules/01-std-solution-hermeneutic.mdc`
 
 **What it enforces:**
 ```
@@ -77,7 +77,7 @@ Commands act as the **entry point into interpretation**.
 
 ### Implementation
 
-**File:** `modules/enterprise-standards/cursor/skills/std-solution/SKILL.md`
+**File:** `modules/enterprise-standards/skills/std-solution/SKILL.md`
 
 **Command:** `/std-solution`
 
@@ -132,7 +132,7 @@ Skills encode **how to interpret well**.
 
 ### Implementation
 
-**File:** `modules/enterprise-standards/cursor/skills/hermeneutic-solution/SKILL.md`
+**File:** `modules/enterprise-standards/skills/hermeneutic-solution/SKILL.md`
 
 **Skill:** `hermeneutic-solution`
 
@@ -192,7 +192,7 @@ They embody the **part ↔ whole tension**.
 
 #### std-planner
 
-**File:** `modules/enterprise-standards/cursor/agents/std-planner.md`
+**File:** `modules/enterprise-standards/agents/std-planner.md`
 
 **Role:** Tests interpretation from **feasibility perspective**
 
@@ -212,7 +212,7 @@ They embody the **part ↔ whole tension**.
 
 #### std-verifier
 
-**File:** `modules/enterprise-standards/cursor/agents/std-verifier.md`
+**File:** `modules/enterprise-standards/agents/std-verifier.md`
 
 **Role:** Tests interpretation from **consistency perspective**
 

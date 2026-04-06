@@ -1,40 +1,39 @@
 {
-  "$schema": "../../../../../schemas/module.schema.json",
-  "id": "backend/java",
-  "type": "stack-authority",
+  "id": "java",
+  "category": "stack-authority",
   "name": "Java",
-  "description": "Java API standards with layered architecture and Spring Boot patterns",
+  "description": "Java + Spring Boot backend development standards including REST API patterns, JPA best practices, and microservices",
   "version": "1.0.0",
   "provides": {
-    "rules": [
-      "31-api-java.mdc"
-    ],
-    "commands": [
-      "api.java.add-endpoint.md",
-      "api.java.test-loop.md"
+    "agents": [
+      "agents/api.java-debugger.md"
     ],
     "skills": [
-      "java-api-standards"
+      "skills/java-api-standards"
     ],
-    "agents": [
-      "api.java-debugger.md"
-    ]
+    "instructions": "instructions.md"
   },
-  "requires": [""],
-  "compatibility": {
-    "cursor": ">=0.40.0",
-    "modules": {
-      "": "*",
-      "frontend/react-tailwind": "*",
-      "frontend/next-tailwind": "*",
-      "frontend/angular-tailwind": "*",
-      "database/postgres": "*",
-      "database/sqlserver": "*",
-      "cloud/aws": "*",
-      "cloud/gcp": "*"
+  "platforms": {
+    "cursor": {
+      "rules": [
+        "rules/31-api-java.mdc"
+      ],
+      "installPath": ".cursor/",
+      "priority": "20-49"
+    },
+    "claude": {
+      "installPath": ".claude/",
+      "applyTo": "**"
+    },
+    "vscode": {
+      "installPath": ".github/",
+      "applyTo": "**"
     }
   },
-  "tags": ["backend", "java", "spring-boot", "api", "rest", "layered-architecture"],
-  "author": "The Hive Group",
-  "license": "MIT"
+  "tags": [
+    "stack-authority",
+    "backend",
+    "java"
+  ],
+  "dependencies": []
 }

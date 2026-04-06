@@ -1,0 +1,29 @@
+{
+  "id": "authentication",
+  "category": "stack-authority",
+  "name": "Authentication",
+  "description": "Parent module for authentication and authorization authorities (Keycloak BFF, OAuth, SAML)",
+  "version": "1.0.0",
+  "provides": {
+    "instructions": "instructions.md"
+  },
+  "platforms": {
+    "cursor": {
+      "rules": [],
+      "installPath": ".cursor/",
+      "priority": "20-49"
+    },
+    "claude": {
+      "installPath": ".claude/",
+      "applyTo": "**"
+    },
+    "vscode": {
+      "installPath": ".github/",
+      "applyTo": "**"
+    }
+  },
+  "tags": [
+    "stack-authority"
+  ],
+  "dependencies": []
+}

@@ -1,36 +1,37 @@
 {
-  "$schema": "../../../../schemas/module.schema.json",
-  "id": "frontend/untitledui",
-  "type": "stack-authority",
-  "name": "Untitled UI React",
-  "description": "Untitled UI component library with React, TypeScript, Tailwind CSS v4.1, and React Aria Components",
+  "id": "untitledui",
+  "category": "stack-authority",
+  "name": "Untitledui",
+  "description": "Untitled UI component library integration including MCP-driven component discovery and installation",
   "version": "1.0.0",
   "provides": {
-    "rules": [
-      "25-web-untitledui-react.mdc"
-    ],
-    "commands": [
-      "web.untitledui.add-component.md",
-      "web.untitledui.build-form.md",
-      "web.untitledui.customize-theme.md"
+    "agents": [
+      "agents/web.untitledui-critic.md"
     ],
     "skills": [
-      "untitledui-docs"
+      "skills/untitledui-docs"
     ],
-    "agents": [
-      "web.untitledui-critic.md"
-    ]
+    "instructions": "instructions.md"
   },
-  "requires": [""],
-  "compatibility": {
-    "cursor": ">=0.40.0",
-    "modules": {
-      "": "*",
-      "frontend/react-tailwind": "*",
-      "frontend/next-tailwind": "*"
+  "platforms": {
+    "cursor": {
+      "rules": [
+        "rules/25-web-untitledui-react.mdc"
+      ],
+      "installPath": ".cursor/",
+      "priority": "20-49"
+    },
+    "claude": {
+      "installPath": ".claude/",
+      "applyTo": "**"
+    },
+    "vscode": {
+      "installPath": ".github/",
+      "applyTo": "**"
     }
   },
-  "tags": ["frontend", "react", "untitledui", "tailwind", "typescript", "component-library", "react-aria", "ui-components"],
-  "author": "The Hive Group",
-  "license": "MIT"
+  "tags": [
+    "stack-authority"
+  ],
+  "dependencies": []
 }

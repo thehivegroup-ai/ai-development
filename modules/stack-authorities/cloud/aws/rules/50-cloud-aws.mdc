@@ -1,0 +1,20 @@
+---
+description: "AWS infrastructure constraints."
+alwaysApply: false
+globs: "**/infra/**/*.{ts,js},**/cdk/**/*.{ts,js},**/cloudformation/**/*.{yaml,yml,json},**/terraform/**/*.tf,**/serverless.yml"
+---
+
+# Cloud AWS
+
+**Enforced constraints:**
+
+- MUST use infrastructure as code (AWS CDK, CloudFormation, or Terraform)
+- MUST store secrets in AWS Secrets Manager or Parameter Store (never hardcoded)
+- MUST use IAM roles and policies (never access keys in code)
+- MUST tag all resources (Environment, Application, Owner, CostCenter)
+- MUST run preflight checks before deployment
+- MUST document rollback strategy for releases
+- MUST enable CloudWatch monitoring and alarms for critical resources
+- MUST use CloudTrail for audit logging
+
+See `instructions.md` for CDK examples, deployment patterns, and operational guidance.

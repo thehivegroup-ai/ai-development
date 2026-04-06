@@ -1,0 +1,45 @@
+---
+description: "Vue 3 + Tailwind constraints."
+alwaysApply: false
+globs: "**/*.vue,**/composables/**/*.ts,**/stores/**/*.ts,**/components/**/*.vue"
+---
+
+# Web Vue Tailwind
+
+**Enforced constraints:**
+
+**Component Architecture:**
+- MUST use Composition API with `<script setup>` (not Options API)
+- MUST use TypeScript with proper prop types (defineProps with interface)
+- MUST use Tailwind utilities for layout, component classes for controls
+- MUST use semantic HTML elements
+
+**State Management:**
+- MUST use Pinia for global state (not Vuex)
+- MUST use composables for shared reactive logic
+- MUST use computed() for derived state
+- MUST NOT mutate props directly
+
+**Performance:**
+- MUST use v-memo for expensive list items
+- MUST use computed() instead of methods for derived values
+- MUST use watchEffect or watch (not deep watchers unless necessary)
+- MUST use async components for code splitting
+
+**Accessibility:**
+- MUST provide labels for form inputs
+- MUST include ARIA attributes where semantic HTML is insufficient
+- MUST support keyboard navigation
+- MUST add focus-visible states
+
+**Routing:**
+- MUST use Vue Router navigation guards for auth
+- MUST lazy load routes for code splitting
+- MUST handle loading and error states
+
+**Testing:**
+- MUST use Vitest + Vue Test Utils
+- MUST test user interactions and component behavior
+- MUST test composables independently
+
+See `instructions.md` for complete examples, Composition API patterns, Pinia store setup, router configuration, testing patterns, and anti-patterns.

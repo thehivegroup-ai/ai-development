@@ -1,0 +1,16 @@
+---
+description: "Java API constraints."
+alwaysApply: false
+globs: "**/src/main/java/**/*.java,**/src/test/java/**/*.java,**/pom.xml,**/build.gradle,**/build.gradle.kts"
+---
+
+# API Java
+
+**Enforced constraints:**
+
+- MUST follow layered architecture: controller → service → repository
+- MUST validate inputs at boundaries; no business logic in controllers
+- MUST use consistent error response models and status codes
+- MUST write tests for core service logic
+
+See `instructions.md` for examples and detailed guidance.

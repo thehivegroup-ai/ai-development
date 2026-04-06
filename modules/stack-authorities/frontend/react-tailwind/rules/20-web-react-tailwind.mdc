@@ -1,0 +1,37 @@
+---
+description: "React + Tailwind constraints for UI structure."
+alwaysApply: false
+globs: "**/*.tsx,**/*.jsx"
+---
+
+# Web React Tailwind
+
+**Enforced constraints:**
+
+**Architecture:**
+- MUST use Tailwind utilities for layout and spacing (`flex`, `grid`, `gap-4`, `mt-6`)
+- MUST use component classes for controls (`.btn-primary`, `.input`, `.card`)
+- MUST use `cn()` helper for className composition
+- MUST NOT use long inline className strings for repeated control patterns
+
+**Component Structure:**
+- MUST use functional components only (no class components)
+- MUST provide typed props interface (`ComponentNameProps`)
+- MUST mark props as readonly
+- MUST use semantic HTML elements
+
+**Performance (Memoization):**
+- MUST use `React.memo` for: components receiving callbacks, pure presentational components, list items
+- MUST use `useCallback` for: callbacks to memoized children, Context Provider values, callbacks in hook deps
+- MUST use `useMemo` for: expensive computations, Context values, derived state
+- MUST NOT pass inline functions to memoized components
+
+**Accessibility:**
+- MUST provide labels for form inputs
+- MUST include ARIA attributes where semantic HTML is insufficient
+- MUST support keyboard navigation
+- MUST add focus-visible states to interactive elements
+
+**Required Component Classes:** `.btn-primary`, `.btn-secondary`, `.btn-ghost`, `.input`, `.label`, `.link-nav`, `.link-text`, `.card`, `.card-hover`
+
+See `instructions.md` for examples and implementation patterns.

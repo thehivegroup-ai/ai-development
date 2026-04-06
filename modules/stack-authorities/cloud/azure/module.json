@@ -1,23 +1,35 @@
 {
-  "$schema": "../../../../schemas/module.schema.json",
-  "id": "cloud/azure",
-  "type": "stack-authority",
-  "name": "Microsoft Azure Cloud",
-  "description": "Azure deployment patterns with Bicep and security best practices",
+  "id": "azure",
+  "category": "stack-authority",
+  "name": "Azure",
+  "description": "Azure cloud infrastructure standards including resource groups, App Service, AKS patterns, and deployment workflows",
   "version": "1.0.0",
   "provides": {
-    "rules": ["cursor/rules/52-cloud-azure.mdc"],
-    "commands": [
-      "cursor/commands/cloud.azure.deploy.md",
-      "cursor/commands/cloud.azure.preflight.md"
+    "agents": [],
+    "skills": [
+      "skills/azure-infra-standards"
     ],
-    "skills": ["cursor/skills/azure-infra-standards"],
-    "agents": ["cursor/agents/cloud.azure-release-manager.md"]
+    "instructions": "instructions.md"
   },
-  "requires": [""],
-  "compatibility": {
-    "clouds": ["azure"],
-    "excludes": ["cloud/aws", "cloud/gcp"]
+  "platforms": {
+    "cursor": {
+      "rules": [
+        "rules/52-cloud-azure.mdc"
+      ],
+      "installPath": ".cursor/",
+      "priority": "20-49"
+    },
+    "claude": {
+      "installPath": ".claude/",
+      "applyTo": "**"
+    },
+    "vscode": {
+      "installPath": ".github/",
+      "applyTo": "**"
+    }
   },
-  "tags": ["cloud", "azure", "infrastructure", "bicep", "deployment"]
+  "tags": [
+    "stack-authority"
+  ],
+  "dependencies": []
 }

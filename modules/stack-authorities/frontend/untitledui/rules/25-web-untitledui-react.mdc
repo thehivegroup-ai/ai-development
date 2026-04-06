@@ -1,0 +1,38 @@
+---
+description: "Untitled UI + React constraints."
+alwaysApply: false
+globs: "**/*.tsx,**/components/**/*.tsx,**/app/**/*.tsx,**/pages/**/*.tsx"
+---
+
+# Web Untitled UI React
+
+**Enforced constraints:**
+
+**Component Library:**
+- MUST use Untitled UI components from MCP server (don't build from scratch)
+- MUST use `untitledui-docs` MCP tool for component discovery
+- MUST follow kebab-case naming for component files
+- MUST import from `@untitled-ui/icons-react` for icons
+- MUST use React Aria imports (e.g., `AriaButtonProps`)
+
+**File Organization:**
+- MUST organize base components in `@/components/base/`
+- MUST use consistent import aliases (`@/components`, `@/lib`, `@/utils`)
+
+**Styling:**
+- MUST use Untitled UI semantic color tokens (not arbitrary Tailwind colors)
+- MUST use Untitled UI spacing and sizing conventions
+- MUST extend with Tailwind utilities for layout only
+- MUST NOT override Untitled UI component internals
+
+**Component Installation:**
+- MUST use `untitledui install` command or MCP tool
+- MUST install dependencies when prompted
+- MUST review component code after installation
+
+**Customization:**
+- MUST use Untitled UI theming system for design tokens
+- MUST extend existing components (don't fork)
+- MUST document custom variants in design system
+
+See `instructions.md` for MCP workflow, component discovery patterns, theming setup, and integration examples.

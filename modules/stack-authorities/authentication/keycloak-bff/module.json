@@ -1,36 +1,37 @@
 {
-  "$schema": "../../../../../../schemas/module.schema.json",
-  "id": "authentication/keycloak-bff",
-  "type": "stack-authority",
-  "name": "Keycloak BFF Authentication",
-  "description": "Backend-for-Frontend authentication with Keycloak using OIDC, JWT verification, and role-based access control",
+  "id": "keycloak-bff",
+  "category": "stack-authority",
+  "name": "Keycloak Bff",
+  "description": "Keycloak BFF (Backend-For-Frontend) authentication patterns including session management and token handling",
   "version": "1.0.0",
   "provides": {
-    "rules": [
-      "60-auth-keycloak-bff.mdc"
-    ],
-    "commands": [
-      "auth.keycloak.setup.md",
-      "auth.keycloak.add-protected-route.md"
+    "agents": [
+      "agents/auth.keycloak-reviewer.md"
     ],
     "skills": [
-      "keycloak-bff-auth"
+      "skills/keycloak-bff-auth"
     ],
-    "agents": [
-      "auth.keycloak-reviewer.md"
-    ]
+    "instructions": "instructions.md"
   },
-  "requires": [""],
-  "compatibility": {
-    "cursor": ">=0.40.0",
-    "modules": {
-      "": "*",
-      "backend/node-fastify": "*",
-      "frontend/react-tailwind": "*",
-      "frontend/angular-tailwind": "*"
+  "platforms": {
+    "cursor": {
+      "rules": [
+        "rules/60-auth-keycloak-bff.mdc"
+      ],
+      "installPath": ".cursor/",
+      "priority": "20-49"
+    },
+    "claude": {
+      "installPath": ".claude/",
+      "applyTo": "**"
+    },
+    "vscode": {
+      "installPath": ".github/",
+      "applyTo": "**"
     }
   },
-  "tags": ["authentication", "keycloak", "oidc", "jwt", "rbac", "bff", "security"],
-  "author": "The Hive Group",
-  "license": "MIT"
+  "tags": [
+    "stack-authority"
+  ],
+  "dependencies": []
 }

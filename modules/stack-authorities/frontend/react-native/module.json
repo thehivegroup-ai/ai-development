@@ -1,59 +1,36 @@
 {
-  "$schema": "../../../../../schemas/module.schema.json",
-  "id": "frontend/react-native",
-  "type": "stack-authority",
+  "id": "react-native",
+  "category": "stack-authority",
   "name": "React Native",
-  "description": "React Native performance optimization, native development, and build standards from Callstack",
+  "description": "React Native mobile development with performance optimization, bundle analysis, and native module patterns from Callstack",
   "version": "1.0.0",
   "provides": {
-    "rules": [
-      "20-mobile-react-native.mdc"
-    ],
-    "commands": [
-      "mobile.react-native.profile-performance.md",
-      "mobile.react-native.analyze-bundle.md",
-      "mobile.react-native.upgrade-version.md",
-      "mobile.react-native.brownfield-setup.md"
-    ],
-    "skills": [
-      "react-native-best-practices",
-      "react-native-upgrade",
-      "react-native-brownfield"
-    ],
     "agents": [
-      "mobile.react-native-performance-auditor.md"
-    ]
+      "agents/mobile.react-native-performance-auditor.md"
+    ],
+    "instructions": "instructions.md"
   },
-  "requires": [""],
-  "compatibility": {
-    "cursor": ">=0.40.0",
-    "modules": {
-      "": "*",
-      "backend/node-fastify": "*",
-      "backend/java": "*",
-      "backend/python-fastapi": "*",
-      "cloud/aws": "*",
-      "cloud/gcp": "*",
-      "cloud/azure": "*"
+  "platforms": {
+    "cursor": {
+      "rules": [
+        "rules/20-mobile-react-native.mdc"
+      ],
+      "installPath": ".cursor/",
+      "priority": "20-49"
+    },
+    "claude": {
+      "installPath": ".claude/",
+      "applyTo": "**"
+    },
+    "vscode": {
+      "installPath": ".github/",
+      "applyTo": "**"
     }
   },
   "tags": [
+    "stack-authority",
     "frontend",
-    "mobile",
-    "react-native",
-    "expo",
-    "typescript",
-    "ios",
-    "android",
-    "performance",
-    "native"
+    "react"
   ],
-  "author": "The Hive Group",
-  "license": "MIT",
-  "upstream": {
-    "source": "https://github.com/callstackincubator/agent-skills",
-    "license": "MIT",
-    "author": "Callstack",
-    "attribution": "React Native skills based on 'The Ultimate Guide to React Native Optimization' by Callstack"
-  }
+  "dependencies": []
 }

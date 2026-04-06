@@ -1,0 +1,53 @@
+---
+description: "React Native performance and platform constraints."
+alwaysApply: false
+globs: "**/*.tsx,**/*.ts,**/screens/**/*.tsx,**/components/**/*.tsx,**/*.ios.tsx,**/*.android.tsx"
+---
+
+# Mobile React Native
+
+**Enforced constraints:**
+
+**Performance:**
+- MUST use FlashList or FlatList for lists (never ScrollView with map)
+- MUST use React.memo for list items and expensive components
+- MUST use useCallback and useMemo appropriately
+- MUST use Reanimated for animations (not Animated API)
+- MUST avoid inline styles and functions in render
+
+**Platform-Specific Code:**
+- MUST use Platform.select() or .ios.tsx/.android.tsx for platform differences
+- MUST test on both iOS and Android
+- MUST handle safe areas (SafeAreaView)
+- MUST respect platform-specific UI patterns
+
+**Navigation:**
+- MUST use React Navigation 6+
+- MUST configure proper screen options
+- MUST handle deep linking if applicable
+
+**State Management:**
+- MUST use Context + useReducer, Zustand, or Jotai for global state
+- MUST avoid prop drilling
+
+**Images:**
+- MUST optimize image sizes for mobile
+- MUST use appropriate formats (WebP where supported)
+- MUST implement lazy loading for off-screen images
+
+**Bundle Size:**
+- MUST monitor bundle size
+- MUST use Hermes JavaScript engine
+- MUST avoid large dependencies where alternatives exist
+
+**Testing:**
+- MUST use React Native Testing Library
+- MUST test user interactions and navigation
+- MUST test platform-specific behavior
+
+**Accessibility:**
+- MUST provide accessible labels and hints
+- MUST support screen readers
+- MUST ensure sufficient touch target sizes (44x44pt minimum)
+
+See `instructions.md` for complete performance patterns, FlashList setup, Reanimated examples, platform-specific patterns, state management, and testing strategies.

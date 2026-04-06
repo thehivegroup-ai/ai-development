@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": ".cursor/hooks/session-init.sh",
+        "timeout": 5
+      }
+    ],
+    "beforeShellExecution": [
+      {
+        "command": ".cursor/hooks/git-guard.sh",
+        "matcher": "git"
+      }
+    ],
+    "afterFileEdit": [
+      {
+        "command": ".cursor/hooks/consolidated-check.sh",
+        "timeout": 10
+      }
+    ]
+  }
+}

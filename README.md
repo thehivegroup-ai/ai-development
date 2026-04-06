@@ -4,13 +4,20 @@ This repository is the source of truth for our AI development workflow: commands
 
 ## Overview
 
-This repository provides a modular, compositional system for standardizing AI-assisted development workflows in Cursor. Teams select the modules they need and copy them into their project's `.cursor/` directory.
+This repository provides a modular, compositional system for standardizing AI-assisted development workflows in Cursor. Teams select modules via the MCP server, which installs them into their project's `.cursor/` directory.
 
 **Core Philosophy:**
 - **Rules** = Enforceable constraints ("must" and "must not")
 - **Commands** = Repeatable workflow entry points (user types `/command-name`)
 - **Skills** = How-to guidance and examples
 - **Subagents** = Specialized AI perspectives (planner, critic, debugger)
+
+**Critical Architecture Note:**
+- **`modules/` and `mcp-server/`** = The solution (source and distribution)
+- **`.cursor/` in this repo** = Dogfooding installation (NOT for distribution)
+- **`.cursor/` in user projects** = Deployment target (where standards get installed)
+
+See `docs/ARCHITECTURE-SOURCE-VS-DEPLOYMENT.md` for complete explanation.
 
 ---
 
@@ -49,17 +56,12 @@ The MCP server provides automated module management with interactive selection, 
 # 2. Copy modules to your project
 cd your-project/
 
-# Enterprise standards (always include)
-cp -r ../ai-development/modules/enterprise-standards/cursor/* .cursor/
+# Use MCP server for automated installation (recommended)
+# See mcp-server/README.md for setup instructions
+# Then use select_modules and install_environment tools
 
-# Stack authorities (based on your stack)
-cp -r ../ai-development/modules/stack-authorities/frontend/react-tailwind/cursor/* .cursor/
-cp -r ../ai-development/modules/stack-authorities/backend/node-fastify/cursor/* .cursor/
-cp -r ../ai-development/modules/stack-authorities/database/postgres/cursor/* .cursor/
-cp -r ../ai-development/modules/stack-authorities/cloud/aws/cursor/* .cursor/
-
-# Project controls (based on requirements)
-cp -r ../ai-development/modules/project-controls/base/cursor/* .cursor/
+# Or manually copy from .cursor/ in this repo (canonical source)
+# Module structure is transitioning to root-level layout
 
 # 3. Start using workflows
 # In Cursor, type: /std-solution
@@ -73,12 +75,13 @@ cp -r ../ai-development/modules/project-controls/base/cursor/* .cursor/
 ai-development/
 ├── modules/
 │   ├── enterprise-standards/          # Technology-agnostic workflow standards
-│   │   └── cursor/
-│   │       ├── rules/                 # 8 core constraints
-│   │       ├── commands/              # 5 standard workflow commands
-│   │       ├── skills/                # 3 skills (solution, planning, hygiene)
-│   │       │   └── */references/      # Rich examples and anti-patterns
-│   │       └── agents/                # 3 agents (planner, verifier, debugger)
+│   │   ├── cursor/                    # MCP scanner compatibility marker
+│   │   ├── rules/                     # 9 core constraints (00-08)
+│   │   ├── skills/                    # 5 skills (solution, planning, design review, hygiene, security)
+│   │   │   └── */references/          # Rich examples and anti-patterns
+│   │   ├── agents/                    # 8 agents (planner, verifier, debugger, security-critic, 4 UX agents)
+│   │   ├── hooks.d/                   # 6 cursor hooks for automation
+│   │   └── hooks.json                 # Hook configuration
 │   │
 │   ├── stack-authorities/             # Technology-specific standards
 │   │   ├── frontend/

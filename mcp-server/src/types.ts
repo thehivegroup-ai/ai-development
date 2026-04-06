@@ -18,7 +18,9 @@ export type CommitSha = string;
 export type ModuleCategory = 
   | 'enterprise-standards'
   | 'stack-authority'
-  | 'project-control';
+  | 'project-control'
+  /** Named app/repo overlay (e.g. projects/towerai), merged after stacks */
+  | 'named-project';
 
 /**
  * Module ID (e.g., "frontend/react-tailwind")
@@ -41,6 +43,8 @@ export interface ModuleProvides {
  */
 export interface ModuleMetadata {
   id: ModuleId;
+  /** Optional short names that resolve to this module (e.g. "towerai" for "projects/towerai") */
+  aliases?: string[];
   category: ModuleCategory;
   name: string;
   description?: string;
@@ -55,12 +59,16 @@ export interface ModuleMetadata {
  */
 export interface ModuleManifest {
   id: ModuleId;
-  type: ModuleCategory;
+  /** Some manifests use `category` instead of `type`; scanner accepts both */
+  type?: ModuleCategory;
+  category?: ModuleCategory;
   name: string;
   description: string;
   provides: ModuleProvides;
   requires?: ModuleId[];
   tags?: string[];
+  /** Alternate IDs accepted by tools (e.g. "towerai" for id "projects/towerai") */
+  aliases?: string[];
 }
 
 /**
@@ -79,6 +87,8 @@ export interface ModuleSelection {
   enterprise: ModuleId;
   controls: ModuleId[];
   stacks: ModuleId[];
+  /** Optional named project overlays (merged last), e.g. projects/towerai */
+  projects?: ModuleId[];
 }
 
 /**
@@ -88,6 +98,7 @@ export interface StackProfile {
   enterprise: ModuleId;
   controls: ModuleId[];
   stacks: ModuleId[];
+  projects?: ModuleId[];
 }
 
 /**
@@ -153,5 +164,7 @@ export interface ComposedModule {
   files: Map<string, {
     content: string;
     sourceModule: ModuleId;
+    /** Path relative to repo root (posix). When set, sync_manifest uses this instead of modulePath/cursor/… */
+    repoSourcePath?: string;
   }>;
 }

@@ -1,40 +1,39 @@
 {
-  "$schema": "../../../../../schemas/module.schema.json",
-  "id": "backend/node-fastify",
-  "type": "stack-authority",
-  "name": "Node.js + Fastify",
-  "description": "Fastify API patterns with schema validation and plugin architecture",
+  "id": "node-fastify",
+  "category": "stack-authority",
+  "name": "Node Fastify",
+  "description": "Node.js + Fastify backend development standards including API patterns, validation, and performance optimization",
   "version": "1.0.0",
   "provides": {
-    "rules": [
-      "30-api-node-fastify.mdc"
-    ],
-    "commands": [
-      "api.fastify.add-route.md",
-      "api.fastify.test-loop.md"
+    "agents": [
+      "agents/api.fastify-debugger.md"
     ],
     "skills": [
-      "fastify-api-standards"
+      "skills/fastify-api-standards"
     ],
-    "agents": [
-      "api.fastify-debugger.md"
-    ]
+    "instructions": "instructions.md"
   },
-  "requires": [""],
-  "compatibility": {
-    "cursor": ">=0.40.0",
-    "modules": {
-      "": "*",
-      "frontend/react-tailwind": "*",
-      "frontend/next-tailwind": "*",
-      "frontend/angular-tailwind": "*",
-      "database/postgres": "*",
-      "database/sqlserver": "*",
-      "cloud/aws": "*",
-      "cloud/gcp": "*"
+  "platforms": {
+    "cursor": {
+      "rules": [
+        "rules/30-api-node-fastify.mdc"
+      ],
+      "installPath": ".cursor/",
+      "priority": "20-49"
+    },
+    "claude": {
+      "installPath": ".claude/",
+      "applyTo": "**"
+    },
+    "vscode": {
+      "installPath": ".github/",
+      "applyTo": "**"
     }
   },
-  "tags": ["backend", "nodejs", "fastify", "api", "typescript", "rest"],
-  "author": "The Hive Group",
-  "license": "MIT"
+  "tags": [
+    "stack-authority",
+    "backend",
+    "nodejs"
+  ],
+  "dependencies": []
 }

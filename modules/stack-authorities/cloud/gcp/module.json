@@ -1,40 +1,35 @@
 {
-  "$schema": "../../../../../schemas/module.schema.json",
-  "id": "cloud/gcp",
-  "type": "stack-authority",
-  "name": "GCP",
-  "description": "Google Cloud Platform deployment patterns with infrastructure as code",
+  "id": "gcp",
+  "category": "stack-authority",
+  "name": "Gcp",
+  "description": "Google Cloud Platform infrastructure standards including IAM, GKE, Cloud Run patterns, and deployment workflows",
   "version": "1.0.0",
   "provides": {
-    "rules": [
-      "51-cloud-gcp.mdc"
-    ],
-    "commands": [
-      "cloud.gcp.deploy.md",
-      "cloud.gcp.preflight.md"
-    ],
+    "agents": [],
     "skills": [
-      "gcp-infra-standards"
+      "skills/gcp-infra-standards"
     ],
-    "agents": [
-      "cloud.gcp-release-manager.md"
-    ]
+    "instructions": "instructions.md"
   },
-  "requires": [""],
-  "compatibility": {
-    "cursor": ">=0.40.0",
-    "modules": {
-      "": "*",
-      "frontend/react-tailwind": "*",
-      "frontend/next-tailwind": "*",
-      "frontend/angular-tailwind": "*",
-      "backend/node-fastify": "*",
-      "backend/java": "*",
-      "database/postgres": "*",
-      "database/sqlserver": "*"
+  "platforms": {
+    "cursor": {
+      "rules": [
+        "rules/51-cloud-gcp.mdc"
+      ],
+      "installPath": ".cursor/",
+      "priority": "20-49"
+    },
+    "claude": {
+      "installPath": ".claude/",
+      "applyTo": "**"
+    },
+    "vscode": {
+      "installPath": ".github/",
+      "applyTo": "**"
     }
   },
-  "tags": ["cloud", "gcp", "google-cloud", "deployment", "infrastructure", "iac"],
-  "author": "The Hive Group",
-  "license": "MIT"
+  "tags": [
+    "stack-authority"
+  ],
+  "dependencies": []
 }

@@ -1,20 +1,39 @@
 {
-  "$schema": "../../../../schemas/module.schema.json",
-  "id": "database/mongodb",
-  "type": "stack-authority",
-  "name": "MongoDB Database",
-  "description": "MongoDB schema design and query optimization patterns",
+  "id": "mongodb",
+  "category": "stack-authority",
+  "name": "Mongodb",
+  "description": "MongoDB database standards including schema design, aggregation pipelines, indexing strategies, and performance patterns",
   "version": "1.0.0",
   "provides": {
-    "rules": ["cursor/rules/42-db-mongodb.mdc"],
-    "commands": ["cursor/commands/db.mongodb.schema.md"],
-    "skills": ["cursor/skills/mongodb-standards"],
-    "agents": ["cursor/agents/db.mongodb-reviewer.md"]
+    "agents": [
+      "agents/db.mongodb-reviewer.md"
+    ],
+    "skills": [
+      "skills/mongodb-standards"
+    ],
+    "instructions": "instructions.md"
   },
-  "requires": [""],
-  "compatibility": {
-    "databases": ["mongodb"],
-    "excludes": ["database/postgres", "database/sqlserver"]
+  "platforms": {
+    "cursor": {
+      "rules": [
+        "rules/42-db-mongodb.mdc"
+      ],
+      "installPath": ".cursor/",
+      "priority": "20-49"
+    },
+    "claude": {
+      "installPath": ".claude/",
+      "applyTo": "**"
+    },
+    "vscode": {
+      "installPath": ".github/",
+      "applyTo": "**"
+    }
   },
-  "tags": ["database", "mongodb", "nosql", "document-store"]
+  "tags": [
+    "stack-authority",
+    "database",
+    "nosql"
+  ],
+  "dependencies": []
 }

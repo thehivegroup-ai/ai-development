@@ -1,0 +1,75 @@
+# React Tailwind
+
+**Platform-Agnostic Instructions**
+
+This file contains base instructions that apply across all platforms.
+
+
+---
+
+
+# Web React Tailwind
+
+## Component/Utility Architecture
+
+- **Use Tailwind utilities for layout and spacing** – `flex`, `grid`, `gap-4`, `mt-6`, etc.
+- **Use component classes for controls** – `.btn-primary`, `.input`, `.card`, `.link-nav`
+- **Avoid long inline className strings for controls** – Extract to component classes
+- **Use `cn` helper for className composition** – Handles conflicts and merging
+
+## Component Classes Required
+
+**Buttons:**
+- `.btn-primary` – Primary actions
+- `.btn-secondary` – Secondary actions
+- `.btn-ghost` – Tertiary/subtle actions
+
+**Inputs:**
+- `.input` – Standard text inputs
+- `.label` – Form labels
+
+**Links:**
+- `.link-nav` – Navigation links
+- `.link-text` – Inline text links
+
+**Cards:**
+- `.card` – Base card
+- `.card-hover` – Card with hover effect
+
+## React Component Requirements
+
+- **Functional components only** – No class components
+- **Typed props** – Every component needs `ComponentNameProps` interface
+- **Mark props readonly** – Props should not be mutated
+
+## Memoization Requirements
+
+**MUST use `React.memo` when:**
+- Component receives callback props
+- Component is pure presentational
+- Component is used in lists (`.map()`)
+
+**MUST use `useCallback` for:**
+- Callbacks passed to memoized children
+- Callbacks in Context Provider values
+- Callbacks used in hook dependencies
+
+**MUST use `useMemo` for:**
+- Expensive computations (sorting, filtering large arrays)
+- Context Provider values
+- Derived state from props
+
+## Performance
+
+- Use `React.memo` appropriately to prevent re-renders
+- Memoize callbacks with `useCallback`
+- Memoize expensive computations with `useMemo`
+- Avoid inline functions in props to memoized components
+
+## Accessibility
+
+- Use semantic HTML elements
+- Provide labels for form inputs
+- Include ARIA attributes where needed
+- Support keyboard navigation
+- Add focus-visible states to interactive elements

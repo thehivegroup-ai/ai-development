@@ -1,38 +1,41 @@
 {
-  "$schema": "../../../../schemas/module.schema.json",
-  "id": "frontend/vue-tailwind",
-  "type": "stack-authority",
-  "name": "Vue.js + Tailwind CSS Frontend",
-  "description": "Vue 3 Composition API with TypeScript and Tailwind CSS standards for modern frontend development",
+  "id": "vue-tailwind",
+  "category": "stack-authority",
+  "name": "Vue Tailwind",
+  "description": "Vue 3 + Tailwind CSS development standards, composition API patterns, and component conventions",
   "version": "1.0.0",
   "provides": {
-    "rules": [
-      "cursor/rules/21-web-vue-tailwind.mdc"
-    ],
-    "commands": [
-      "cursor/commands/web.vue.build-component.md"
+    "agents": [
+      "agents/web.vue-critic.md"
     ],
     "skills": [
-      "cursor/skills/vue-component-standards"
+      "skills/vue-component-standards"
     ],
-    "agents": [
-      "cursor/agents/web.vue-critic.md"
-    ]
+    "instructions": "instructions.md"
   },
-  "requires": [
-    ""
-  ],
-  "compatibility": {
-    "frontends": ["vue"],
-    "excludes": ["frontend/react-tailwind", "frontend/next-tailwind", "frontend/angular-tailwind"]
+  "platforms": {
+    "cursor": {
+      "rules": [
+        "rules/21-web-vue-tailwind.mdc"
+      ],
+      "installPath": ".cursor/",
+      "priority": "20-49"
+    },
+    "claude": {
+      "installPath": ".claude/",
+      "applyTo": "**"
+    },
+    "vscode": {
+      "installPath": ".github/",
+      "applyTo": "**"
+    }
   },
   "tags": [
+    "stack-authority",
     "frontend",
     "vue",
-    "vue3",
-    "composition-api",
-    "typescript",
-    "tailwind",
-    "spa"
-  ]
+    "css",
+    "tailwind"
+  ],
+  "dependencies": []
 }

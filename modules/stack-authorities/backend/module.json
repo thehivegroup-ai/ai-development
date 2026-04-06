@@ -1,0 +1,29 @@
+{
+  "id": "backend",
+  "category": "stack-authority",
+  "name": "Backend",
+  "description": "Parent module for backend framework authorities (Node.js/Fastify, Python/FastAPI, Java/Spring)",
+  "version": "1.0.0",
+  "provides": {
+    "instructions": "instructions.md"
+  },
+  "platforms": {
+    "cursor": {
+      "rules": [],
+      "installPath": ".cursor/",
+      "priority": "20-49"
+    },
+    "claude": {
+      "installPath": ".claude/",
+      "applyTo": "**"
+    },
+    "vscode": {
+      "installPath": ".github/",
+      "applyTo": "**"
+    }
+  },
+  "tags": [
+    "stack-authority"
+  ],
+  "dependencies": []
+}

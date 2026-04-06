@@ -1,0 +1,22 @@
+---
+description: "SQL Server schema and migration constraints."
+alwaysApply: false
+globs: "**/migrations/**/*.sql,**/queries/**/*.sql,**/db/**/*.{ts,js,py,cs},**/models/**/*.{ts,js,py,cs}"
+---
+
+# DB SQL Server
+
+**Enforced constraints:**
+
+- MUST use migrations for all schema changes (never manual ALTER/CREATE)
+- MUST provide down migrations (reversibility) or mark as irreversible
+- MUST create indexes for: foreign keys, WHERE clauses, JOIN columns, ORDER BY columns
+- MUST use transactions with proper error handling (TRY/CATCH blocks)
+- MUST use DATETIME2 (not DATETIME) for timestamp columns
+- MUST choose appropriate data types (BIGINT for IDs, DECIMAL for currency, NVARCHAR for Unicode)
+- MUST use ONLINE operations for large tables in production (Enterprise Edition)
+- MUST validate query performance with execution plans
+- MUST configure connection pooling and retry logic
+- MUST NOT perform blocking schema changes on production without downtime plan
+
+See `instructions.md` for T-SQL migration patterns, indexing strategies, transaction examples, and performance monitoring.

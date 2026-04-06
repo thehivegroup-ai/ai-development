@@ -40,7 +40,7 @@ Rules ensure **planning begins with outcomes, not tasks**.
 
 ### Implementation
 
-**File:** `modules/enterprise-standards/cursor/rules/02-std-planning-teleological.mdc`
+**File:** `modules/enterprise-standards/rules/02-std-planning-teleological.mdc`
 
 **What it enforces:**
 ```
@@ -81,7 +81,7 @@ Commands are the **formal entry point into planning**.
 
 ### Implementation
 
-**File:** `modules/enterprise-standards/cursor/skills/std-plan/SKILL.md`
+**File:** `modules/enterprise-standards/skills/std-plan/SKILL.md`
 
 **Command:** `/std-plan`
 
@@ -141,7 +141,7 @@ Skills encode **how to plan from outcomes backward**.
 
 ### Implementation
 
-**File:** `modules/enterprise-standards/cursor/skills/teleological-planning/SKILL.md`
+**File:** `modules/enterprise-standards/skills/teleological-planning/SKILL.md`
 
 **Skill:** `teleological-planning`
 
@@ -223,7 +223,7 @@ They represent **goal accountability**.
 
 #### std-planner
 
-**File:** `modules/enterprise-standards/cursor/agents/std-planner.md`
+**File:** `modules/enterprise-standards/agents/std-planner.md`
 
 **Role in PLAN mode:** Validates **outcome-task alignment**
 
@@ -245,7 +245,7 @@ They represent **goal accountability**.
 
 #### std-verifier
 
-**File:** `modules/enterprise-standards/cursor/agents/std-verifier.md`
+**File:** `modules/enterprise-standards/agents/std-verifier.md`
 
 **Role in PLAN mode:** Validates **internal consistency**
 
