@@ -14,6 +14,7 @@
     ],
     "skills": [
       "skills/css-tailwind-theme-pipeline",
+      "skills/mcp-isolated-test",
       "skills/monorepo-packages",
       "skills/test-skill",
       "skills/towerai-auth-notes"
