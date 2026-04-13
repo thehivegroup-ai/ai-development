@@ -1,12 +1,17 @@
 {
   "id": "projects/towerai",
-  "aliases": ["towerai"],
+  "aliases": [
+    "towerai"
+  ],
   "type": "named-project",
   "name": "TowerAI (Welltower)",
   "description": "Project-specific Cursor skills, hooks, and scripts for the TowerAI monorepo (pnpm workspaces, @towerai/* packages, Untitled UI theme pipeline). Install as a project overlay after enterprise and stack modules (numbered rules and std-* skills belong there, not here).",
   "version": "1.0.0",
   "provides": {
-    "hooks": ["hooks.json", "hooks/css-theme-pipeline.sh"],
+    "hooks": [
+      "hooks.json",
+      "hooks/css-theme-pipeline.sh"
+    ],
     "skills": [
       "skills/css-tailwind-theme-pipeline",
       "skills/mcp-isolated-test",
@@ -24,7 +29,13 @@
       "priority": "90-99"
     }
   },
-  "tags": ["project", "towerai", "monorepo", "okta", "express"],
+  "tags": [
+    "project",
+    "towerai",
+    "monorepo",
+    "okta",
+    "express"
+  ],
   "dependencies": [],
   "requires": []
 }

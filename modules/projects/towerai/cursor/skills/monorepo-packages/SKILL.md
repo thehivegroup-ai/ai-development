@@ -22,18 +22,24 @@ description: >
 
 ## Published-style package names
 
-Libraries are **scoped** under `@towerai/`:
+Libraries are **scoped** under `@welltower/`:
 
-| Package | Role |
-|---------|------|
-| `@towerai/ui` | React primitives, components, foundations, utilities (Untitled-style UI) |
-| `@towerai/shared` | Shared TS types, data, config (no React UI) |
+| Package | Role | Status |
+|---------|------|--------|
+| `@welltower/ui` | React primitives, components, foundations, utilities (Untitled-style UI) | ✅ Active |
+| `@welltower/shared` | Shared TS types, data, config (no React UI) | 📋 Planned |
 
 Consuming apps declare:
 
 ```json
-"@towerai/ui": "workspace:*",
-"@towerai/shared": "workspace:*"
+"@welltower/ui": "workspace:*"
+```
+
+When additional packages are added:
+
+```json
+"@welltower/ui": "workspace:*",
+"@welltower/shared": "workspace:*"
 ```
 
 ## How to import (do / don’t)
