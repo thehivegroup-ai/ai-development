@@ -228,7 +228,9 @@ export async function pushModuleUpdates(options: {
     onlyPathsRaw?.map(normalizeCursorRelativePath).filter((p) => p.length > 0) ?? [];
 
   const manifest = await readSyncManifest(projectPath);
-  if (!manifest) {
+  /** Named-project skill push copies from `.cursor/skills/` using the module id, not manifest entries. */
+  const skillsTargetMode = scope === 'skills' && Boolean(skillsTargetModuleId);
+  if (!manifest && !skillsTargetMode) {
     throw new Error(
       `Missing ${SYNC_MANIFEST_FILENAME}. Re-run install_environment or update_environment.`
     );
@@ -267,6 +269,11 @@ export async function pushModuleUpdates(options: {
     }));
     copiedRepoPaths = entries.map((e) => e.repoRelativePath);
   } else {
+    if (!manifest) {
+      throw new Error(
+        `Missing ${SYNC_MANIFEST_FILENAME}. Re-run install_environment or update_environment.`
+      );
+    }
     let manifestEntries = manifest.entries;
     if (scope === 'skills') {
       manifestEntries = manifestEntries.filter((e) => e.cursorRelativePath.startsWith('skills/'));
