@@ -1,0 +1,26 @@
+---
+description: Impeccable design skill — read when doing any UI/frontend design work
+globs: "**/*.tsx,**/*.jsx,**/*.vue,**/*.svelte,**/*.astro,**/*.css,**/*.scss"
+alwaysApply: false
+---
+# Impeccable Design Skills
+
+When the user invokes any design command (`/impeccable`, `/shape`, `/polish`, `/critique`, `/typeset`, `/colorize`, `/animate`, `/audit`, `/craft`, `/distill`, `/harden`, `/bolder`, `/quieter`, `/layout`, `/delight`, `/overdrive`, `/clarify`, `/adapt`, `/optimize`, `/extract`, `/document`, `/onboard`, `/init`, `/live`) or asks to improve, design, or critique any UI — read `.cursor/skills/impeccable/SKILL.md` immediately as your first action.
+
+## Key Rules
+
+- ALWAYS run `node .cursor/skills/impeccable/scripts/context.mjs` once per session before designing
+- If the response is `NO_PRODUCT_MD`, stop and follow `reference/init.md` first
+- For any sub-command, read `reference/<command>.md` — it defines the flow
+- The design detector hook blocks anti-patterns on UI file writes automatically
+- Run `node .cursor/skills/impeccable/scripts/detect.mjs <path>` for manual anti-pattern scans
+
+## Anti-Pattern Absolutes (Never Generate)
+
+- Side-stripe borders (`border-left`/`border-right` > 1px as colored accent)
+- Gradient text (`background-clip: text` + gradient)
+- Hero-metric template (big number + stat grid)
+- Identical card grids (icon + heading + text repeated)
+- Tiny uppercase tracked eyebrows on every section
+- Numbered section markers (`01 / 02 / 03`) as default scaffolding
+- Warm cream/sand/beige body backgrounds (OKLCH L 0.84–0.97, C < 0.06, hue 40–100)

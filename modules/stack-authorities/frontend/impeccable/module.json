@@ -1,0 +1,41 @@
+{
+  "id": "impeccable",
+  "category": "stack-authority",
+  "name": "Impeccable",
+  "description": "Impeccable design skills: 24 commands covering UX critique, typography, color, layout, animation, polish, and anti-pattern detection for production-grade frontend interfaces",
+  "version": "3.9.1",
+  "provides": {
+    "skills": [
+      "skills/impeccable-commands"
+    ],
+    "instructions": "instructions.md"
+  },
+  "platforms": {
+    "cursor": {
+      "rules": [
+        "rules/25-design-impeccable.mdc"
+      ],
+      "installPath": ".cursor/",
+      "priority": "20-49"
+    },
+    "claude": {
+      "installPath": ".claude/",
+      "applyTo": "**"
+    },
+    "vscode": {
+      "installPath": ".github/",
+      "applyTo": "**"
+    }
+  },
+  "tags": [
+    "stack-authority",
+    "frontend",
+    "design",
+    "ui",
+    "ux",
+    "css",
+    "typography",
+    "animation"
+  ],
+  "dependencies": []
+}
