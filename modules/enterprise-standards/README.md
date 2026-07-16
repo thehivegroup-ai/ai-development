@@ -38,6 +38,7 @@ work across all projects.
 - `teleological-planning/` – How to create outcome-driven plans
 - `heuristic-design-review/` – How to evaluate UI design quality using heuristics
 - `engineering-hygiene/` – How to ensure quality before handoff
+- `modern-agentic-ai-architecture/` – Modern agentic AI architecture principles (tool/endpoint design and UI-to-agent action parity, conversational interface, cold-start conversation starters, multi-tool prompting and orchestration, knowledge graph context provisioning)
 - `modern-api-architecture/` – Modern backend API architecture principles (schema-first contracts, layered services, auth/RBAC middleware, envelopes, versioning, observability, resilience, idempotency, concurrency control, state modeling, request bounds, async jobs)
 - `modern-frontend-architecture/` – Modern frontend architecture principles (state, components, performance, a11y, design system, types, progressive enhancement)
 - `security-review/` – How to perform deep security analysis for PHI/PII features (STRIDE threat modeling, data flow mapping, compliance checklists)
