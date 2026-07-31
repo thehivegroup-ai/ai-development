@@ -19,6 +19,7 @@ The `.cursor/` directory in the `ai-development` repo itself is **for dogfooding
 
 - **Module Discovery**: List and browse available modules from `modules/` directory
 - **Installation Tools**: Install module configurations from `modules/` into project `.cursor/` directories
+- **Multi-Editor**: Install into Cursor (`.cursor/`) or Claude Code (`.claude/`) — see [CLAUDE-CODE.md](./CLAUDE-CODE.md)
 - **Version Control**: Support for branches, tags, and commit SHAs
 - **Caching**: Local cache for fast repeated access
 - **Validation**: Verify environment consistency and completeness
@@ -29,6 +30,7 @@ The `.cursor/` directory in the `ai-development` repo itself is **for dogfooding
 cd mcp-server
 npm install
 npm run build
+npm test      # optional: converter + hook adapter tests
 ```
 
 ## Configuration
@@ -51,6 +53,25 @@ Add to your Cursor MCP settings (typically `~/.cursor/config.json` or via Cursor
   }
 }
 ```
+
+### Registering with Claude Code
+
+Claude Code reads its own MCP config, so register the server with the CLI instead
+of editing a JSON file. `--scope user` makes it available in every project:
+
+```bash
+claude mcp add ai-development \
+  --scope user \
+  -e DEFAULT_REPO_URL=https://github.com/thehivegroup-ai/ai-development.git \
+  -e DEFAULT_REF=main \
+  -e LOCAL_MODULES_REPO=/absolute/path/to/your/ai-development-clone \
+  -e AI_DEVELOPMENT_REPO=/absolute/path/to/your/ai-development-clone \
+  -- node /absolute/path/to/ai-development/mcp-server/dist/index.js
+```
+
+Verify with `claude mcp get ai-development`. To install modules in the layout
+Claude Code reads, pass `platform: "claude"` to `install_environment` — see
+[CLAUDE-CODE.md](./CLAUDE-CODE.md).
 
 ### `LOCAL_MODULES_REPO` (optional)
 
