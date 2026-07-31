@@ -32,10 +32,16 @@ import { composeModules, resolveSelection, normalizeSelectionIds } from './modul
 import { diffEnvironment } from './modules/diff.js';
 import {
   writeStackProfile,
+  writeLockfile,
   readLockfile,
   readStackProfile,
 } from './modules/installer.js';
 import { writeInstalledEnvironment } from './modules/syncManifest.js';
+import {
+  planClaudeInstall,
+  summarizeClaudePlan,
+  writeClaudeEnvironment,
+} from './modules/claudeInstaller.js';
 import { pushModuleUpdates, pullLatestAndRefreshProject } from './modules/repoSync.js';
 import { listSharedContextDetail, pushSharedContext } from './modules/sharedContext.js';
 import { validateEnvironment } from './modules/validator.js';
@@ -251,6 +257,13 @@ function createServer() {
               },
               required: ['enterprise', 'controls', 'stacks'],
             },
+            platform: {
+              type: 'string',
+              enum: ['cursor', 'claude', 'both'],
+              description:
+                'Which layout to preview: "cursor" (.cursor/, default), "claude" (.claude/ for Claude Code), or "both".',
+              default: 'cursor',
+            },
           },
           required: ['projectPath', 'selection'],
         },
@@ -298,6 +311,13 @@ function createServer() {
               enum: ['merge', 'overwrite'],
               description: 'Installation mode (merge = keep existing, overwrite = replace all)',
               default: 'merge',
+            },
+            platform: {
+              type: 'string',
+              enum: ['cursor', 'claude', 'both'],
+              description:
+                'Target editor layout. "cursor" writes .cursor/ (default). "claude" writes .claude/ (rules, skills, agents, commands, settings.json hooks) for Claude Code. "both" writes both. Note: push_module_updates reads .cursor/, so choose "both" if you also want to publish edits back.',
+              default: 'cursor',
             },
             writeProfile: {
               type: 'boolean',
@@ -882,6 +902,9 @@ function createServer() {
           }
         : undefined;
       const mode = (args?.mode as 'merge' | 'overwrite') || 'merge';
+      const platform = (args?.platform as 'cursor' | 'claude' | 'both') || 'cursor';
+      const wantsCursor = platform === 'cursor' || platform === 'both';
+      const wantsClaude = platform === 'claude' || platform === 'both';
       const writeProfile = (args?.writeProfile as boolean) ?? true;
       const writeLockfileFlag = (args?.writeLockfile as boolean) ?? true;
       const dryRun = (args?.dryRun as boolean) || false;
@@ -1033,6 +1056,17 @@ function createServer() {
         const richPreview = generateRichPreview(plan, modules);
         const compactSummary = generateCompactSummary(plan);
 
+        // Project the same composed tree into the Claude Code layout
+        const claudePlan = wantsClaude ? planClaudeInstall(composed) : null;
+        const claudePreview = claudePlan
+          ? {
+              summary: summarizeClaudePlan(claudePlan),
+              files: claudePlan.entries.map((entry) => entry.target),
+              skipped: claudePlan.skipped,
+              warnings: claudePlan.warnings,
+            }
+          : undefined;
+
         // If diff_environment or dryRun, return plan with rich preview
         if (name === 'diff_environment' || dryRun) {
           return {
@@ -1044,10 +1078,12 @@ function createServer() {
                     commitSha,
                     repoUrl,
                     ref,
+                    platform,
                     selectionResolved: selectionNormalized,
                     summary: compactSummary,
                     preview: richPreview,
-                    plan,
+                    plan: wantsCursor ? plan : undefined,
+                    claude: claudePreview,
                     applied: false,
                   },
                   null,
@@ -1060,15 +1096,27 @@ function createServer() {
 
         // Apply installation
         const startTime = Date.now();
-        await writeInstalledEnvironment(
-          projectPath,
-          composed,
-          mode,
-          { repoUrl, ref, commitSha },
-          selectionNormalized,
-          modules,
-          { writeLockfile: writeLockfileFlag }
-        );
+        if (wantsCursor) {
+          // Also writes cursor.lock.json and the sync manifest push_module_updates needs.
+          await writeInstalledEnvironment(
+            projectPath,
+            composed,
+            mode,
+            { repoUrl, ref, commitSha },
+            selectionNormalized,
+            modules,
+            { writeLockfile: writeLockfileFlag }
+          );
+        } else if (writeLockfileFlag) {
+          // Claude-only install: keep the lockfile so update/upgrade/rollback still work.
+          await writeLockfile(projectPath, { repoUrl, ref, commitSha }, selectionNormalized);
+        }
+
+        let claudeWritten: string[] = [];
+        if (claudePlan) {
+          const { written } = await writeClaudeEnvironment(projectPath, claudePlan, mode);
+          claudeWritten = written;
+        }
         const duration = Date.now() - startTime;
 
         if (writeProfile) {
@@ -1087,9 +1135,18 @@ function createServer() {
                   commitSha,
                   repoUrl,
                   ref,
+                  platform,
                   summary: compactSummary,
-                  report,
-                  plan,
+                  report: wantsCursor ? report : undefined,
+                  plan: wantsCursor ? plan : undefined,
+                  claude: claudePlan
+                    ? {
+                        summary: summarizeClaudePlan(claudePlan),
+                        written: claudeWritten,
+                        skipped: claudePlan.skipped,
+                        warnings: claudePlan.warnings,
+                      }
+                    : undefined,
                   applied: true,
                   message: 'Installation completed successfully',
                 },
